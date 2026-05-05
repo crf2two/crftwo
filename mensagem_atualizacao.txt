@@ -1,1 +1,1 @@
-Index: corrige descricao do Scraper de Ar Condicionado para incluir Dufrio (a ferramenta raspa Dufrio, Frigelar, Leveros e Central Ar).
+Index: corrige horario do painel de Ultima Atualizacao (estava 21:35/21:45 chutado, agora puxa do horario real do commit).
