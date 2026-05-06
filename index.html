@@ -373,7 +373,6 @@
     /* Laboratórios: cards mais discretos e compactos */
     [data-id="scraper-friopecas"],
     [data-id="scraper-poloar"],
-    [data-id="scraper-str"],
     [data-id="scraper-webcontinental"] {
       grid-column: span 1;
       min-height: 140px;
@@ -383,27 +382,21 @@
     }
     [data-id="scraper-friopecas"]:hover,
     [data-id="scraper-poloar"]:hover,
-    [data-id="scraper-str"]:hover,
     [data-id="scraper-webcontinental"]:hover { opacity: 1; }
     [data-id="scraper-friopecas"] .card-title,
     [data-id="scraper-poloar"] .card-title,
-    [data-id="scraper-str"] .card-title,
     [data-id="scraper-webcontinental"] .card-title { font-size: 14px; margin-bottom: 6px; }
     [data-id="scraper-friopecas"] .card-desc,
     [data-id="scraper-poloar"] .card-desc,
-    [data-id="scraper-str"] .card-desc,
     [data-id="scraper-webcontinental"] .card-desc { font-size: 11px; }
     [data-id="scraper-friopecas"] .icon-box,
     [data-id="scraper-poloar"] .icon-box,
-    [data-id="scraper-str"] .icon-box,
     [data-id="scraper-webcontinental"] .icon-box { width: 38px; height: 38px; }
     [data-id="scraper-friopecas"] .icon-box svg,
     [data-id="scraper-poloar"] .icon-box svg,
-    [data-id="scraper-str"] .icon-box svg,
     [data-id="scraper-webcontinental"] .icon-box svg { width: 18px; height: 18px; }
     [data-id="scraper-friopecas"] .badge,
     [data-id="scraper-poloar"] .badge,
-    [data-id="scraper-str"] .badge,
     [data-id="scraper-webcontinental"] .badge { font-size: 9px; padding: 4px 10px; }
 
     /* Mobile: força todo card a ocupar a linha inteira (corrige cards estreitos) */
@@ -610,7 +603,6 @@
       { nome: "SCRAPER CLIMARIO", desc: "Extração direta de produtos do site ClimaRio via URL.", arquivo: "scraper-climario.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#f59e0b", slug: "scraper-climario", category: "ar" },
       { nome: "SCRAPER FRIOPEÇAS", badge: "Laboratório", desc: "Extração de produtos do site FrioPeças. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-friopecas.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#2563eb", slug: "scraper-friopecas", category: "ar" },
       { nome: "SCRAPER POLO AR", badge: "Laboratório", desc: "Extração de produtos do site Polo Ar. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-poloar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#ef4444", slug: "scraper-poloar", category: "ar" },
-      { nome: "SCRAPER STR", badge: "Laboratório", desc: "Extração de produtos do site STR. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-str.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#a855f7", slug: "scraper-str", category: "ar" },
       { nome: "SCRAPER WEBCONTINENTAL", badge: "Laboratório", desc: "Extração de produtos do site Webcontinental. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-webcontinental.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#14b8a6", slug: "scraper-webcontinental", category: "ar" },
       { nome: "BAIXAR PROJETO", desc: "Baixar projeto e arquivos da extensão.", arquivo: "https://github.com/crftwoo/thiago.luz.dufrio/archive/refs/heads/main.zip", icone: svgDownload, color: "#94a3b8", isDownload: true, slug: "download", category: "outros" }
     ];
@@ -680,15 +672,9 @@
       "updates": [
         {
           "date": "06/05/2026",
-          "time": "19:50",
-          "title": "Scraper STR: fetch direto + painel de log na tela",
-          "description": "Tenta primeiro a Catalog API direto (sem proxy, via CORS). Se falhar, cai pra cascata de proxies. Adicionado painel preto embaixo dos resultados que mostra cada estágio em tempo real (URL da API, tamanho da resposta, contagem por estratégia) — pra diagnosticar no celular sem precisar de DevTools."
-        },
-        {
-          "date": "06/05/2026",
-          "time": "19:45",
-          "title": "Scraper STR: extração via VTEX Catalog API",
-          "description": "STR agora tenta primeiro a /api/catalog_system/pub/products/search (JSON estruturado direto) e só cai pros fallbacks __STATE__/DOM se a API vier vazia. Corrigido também o baseUrl (era str.com.br, é strar.com.br). Logs no Console mostram qual estratégia achou os produtos."
+          "time": "20:25",
+          "title": "STR removida; Polo Ar herda a estratégia",
+          "description": "O site da STR não existe mais. Removido o lab scraper-str.html, o card no hub e a permissão da extensão. O Polo Ar agora carrega VTEX Catalog API como estratégia primária (com fetch direto via CORS antes do proxy) e tem painel de log na tela pra diagnosticar."
         },
         {
           "date": "06/05/2026",

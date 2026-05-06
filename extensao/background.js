@@ -23,7 +23,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 "*://*.frigelar.com.br/*",
                 "*://*.friopecas.com.br/*",
                 "*://*.poloar.com.br/*",
-                "*://*.str.com.br/*",
                 "*://*.webcontinental.com.br/*",
                 "*://*.climario.com.br/*"
             ]

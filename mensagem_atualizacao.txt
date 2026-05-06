@@ -1,1 +1,1 @@
-Scraper STR: tenta fetch direto sem proxy (CORS) antes da cascata, e adiciona painel de log visivel na tela com cada estagio (proxy, JSON, contagem). Diagnostico no celular sem precisar abrir DevTools.
+Removida a STR (site nao existe mais). Polo Ar herdou a estrategia VTEX Catalog API + fetch direto + painel de log na tela.

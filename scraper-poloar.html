@@ -142,6 +142,8 @@
 
     <div id="results" class="results-grid"></div>
     <div id="status" class="msg"></div>
+
+    <pre id="diag-panel" style="display:none; background:rgba(0,0,0,0.6); border:1px solid var(--card-border); border-radius:12px; padding:16px; margin-top:24px; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#9ae6b4; white-space:pre-wrap; word-break:break-all; line-height:1.6;"></pre>
   </div>
 
   <script>
@@ -326,6 +328,21 @@
       openBtn.setAttribute("aria-disabled", "true");
     }
 
+    // Log visível na tela (já que no celular o Console é difícil de acessar).
+    function logPanel(msg) {
+      const el = document.getElementById("diag-panel");
+      if (!el) return;
+      el.style.display = "block";
+      const ts = new Date().toLocaleTimeString("pt-BR");
+      el.textContent += `[${ts}] ${msg}\n`;
+    }
+    function logPanelReset() {
+      const el = document.getElementById("diag-panel");
+      if (!el) return;
+      el.textContent = "";
+      el.style.display = "none";
+    }
+
     async function tryFetch(targetUrl) {
       try {
         const resp = await fetch(PROXIES[0] + encodeURIComponent(targetUrl));
@@ -341,6 +358,113 @@
         if (resp.ok) return await resp.text();
       } catch(e) {}
       throw new Error("Falha em todos os proxies.");
+    }
+
+    // Estratégia primária: VTEX Catalog API (JSON estruturado, sem regex/DOM).
+    // Converte uma URL de busca VTEX (ex: ?map=category-1,category-2&query=/x/y) em
+    // chamada à /api/catalog_system/pub/products/search/x/y?map=c,c.
+    async function extractFromCatalogApi(searchUrl) {
+      let parsed;
+      try { parsed = new URL(searchUrl); } catch(e) { return []; }
+
+      const query = parsed.searchParams.get("query") || "";
+      const map = parsed.searchParams.get("map") || "";
+      const order = parsed.searchParams.get("order") || "";
+
+      if (!query) {
+        console.warn("[Polo Ar Catalog API] Sem param 'query' na URL — abortando.");
+        return [];
+      }
+
+      // map=category-1,category-2,category-3 → c,c,c
+      const cMap = map ? map.split(",").map(() => "c").join(",") : "c,c,c";
+
+      const apiUrl = `${STORE.baseUrl}/api/catalog_system/pub/products/search${query}?map=${cMap}` + (order ? `&O=${encodeURIComponent(order)}` : "");
+      logPanel(`Catalog API → ${apiUrl}`);
+      console.log("[Polo Ar Catalog API] →", apiUrl);
+
+      let raw;
+      // Estratégia A: fetch direto (VTEX Catalog API costuma aceitar CORS)
+      try {
+        const direct = await fetch(apiUrl, { headers: { "Accept": "application/json" } });
+        if (direct.ok) {
+          raw = await direct.text();
+          logPanel(`✓ Direto (sem proxy): ${raw.length} chars`);
+        } else {
+          logPanel(`Direto falhou: HTTP ${direct.status}`);
+        }
+      } catch(e) {
+        logPanel(`Direto bloqueado por CORS — tentando proxy.`);
+      }
+
+      // Estratégia B: cascata de proxies
+      if (!raw) {
+        try {
+          raw = await tryFetch(apiUrl);
+          logPanel(`✓ Via proxy: ${raw.length} chars`);
+        } catch(e) {
+          logPanel(`✗ Proxy também falhou.`);
+          console.error("[Polo Ar Catalog API] tryFetch falhou:", e);
+          return [];
+        }
+      }
+
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch(e) {
+        const preview = String(raw || "").slice(0, 200);
+        logPanel(`✗ JSON inválido. Início: ${preview}`);
+        console.error("[Polo Ar Catalog API] JSON.parse falhou. Tamanho:", raw?.length, "início:", preview);
+        return [];
+      }
+
+      if (!Array.isArray(data)) {
+        logPanel(`✗ Resposta não é array. Tipo: ${typeof data}`);
+        console.warn("[Polo Ar Catalog API] Resposta não é array. Forma:", typeof data, "chaves:", data && Object.keys(data));
+        return [];
+      }
+      logPanel(`Catalog API: ${data.length} item(s) no JSON.`);
+
+      const fmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+      const products = data.map(p => {
+        const sku = (p.items && p.items[0]) || {};
+        const seller = (sku.sellers && sku.sellers[0]) || {};
+        const offer = seller.commertialOffer || {};
+
+        const img = sku.images?.[0]?.imageUrl || "";
+        const spotNum = Number(offer.SpotPrice ?? 0);
+        const priceNum = Number(offer.Price ?? 0);
+
+        let cash = "Consulte o site";
+        if (spotNum > 0) {
+          cash = fmt.format(spotNum);
+          if (priceNum > spotNum) {
+            const off = Math.round((priceNum - spotNum) / priceNum * 100);
+            if (off > 0) cash += ` Com ${off}% OFF no PIX`;
+          }
+        } else if (priceNum > 0) {
+          cash = fmt.format(priceNum);
+        }
+
+        let parc = "";
+        const installments = offer.Installments || [];
+        if (installments.length > 0) {
+          const best = installments.reduce((a, b) => (a.NumberOfInstallments > b.NumberOfInstallments) ? a : b);
+          parc = `ou ${fmt.format(best.TotalValuePlusInterestRate)} em ${best.NumberOfInstallments}x de ${fmt.format(best.Value)}` + (Number(best.InterestRate) === 0 ? " sem juros" : "");
+        }
+
+        return {
+          name: p.productName,
+          img,
+          cash,
+          parc,
+          link: `${STORE.baseUrl}/${p.linkText}/p`
+        };
+      }).filter(p => p.name);
+
+      console.log(`[Polo Ar Catalog API] ${products.length} produto(s) extraído(s).`);
+      return products;
     }
 
     function extractFromVtexState(html) {
@@ -406,11 +530,29 @@
       loader.style.display = "block";
       results.innerHTML = "";
       status.style.display = "none";
+      logPanelReset();
+      logPanel(`Iniciando: ${url}`);
 
       try {
-        const html = await tryFetch(url);
-        let products = extractFromVtexState(html);
-        if (products.length === 0) products = extractFromDom(html);
+        // Estratégia 1 — VTEX Catalog API (preferida, JSON estruturado)
+        let products = await extractFromCatalogApi(url);
+        logPanel(`Estratégia 1 (Catalog API) → ${products.length} produto(s).`);
+
+        // Estratégia 2 — regex __STATE__ no HTML
+        if (products.length === 0) {
+          logPanel("Tentando estratégia 2 (__STATE__ no HTML)…");
+          const html = await tryFetch(url);
+          logPanel(`HTML recebido: ${html?.length} chars.`);
+          products = extractFromVtexState(html);
+          logPanel(`Estratégia 2 (__STATE__) → ${products.length} produto(s).`);
+
+          // Estratégia 3 — DOM seletores VTEX
+          if (products.length === 0) {
+            logPanel("Tentando estratégia 3 (DOM seletores VTEX)…");
+            products = extractFromDom(html);
+            logPanel(`Estratégia 3 (DOM) → ${products.length} produto(s).`);
+          }
+        }
 
         if (products.length === 0) {
           status.innerText = `Nenhum produto detectado na ${STORE.label}.`;
