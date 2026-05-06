@@ -63,10 +63,10 @@
     .card-img img { max-width: 100%; max-height: 100%; object-fit: contain; transition: 0.5s; }
     .card:hover .card-img img { transform: scale(1.1); }
     .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
-    .card-title { font-size: 16px; font-weight: 700; line-height: 1.5; color: #fff; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 72px; }
+    .card-title { font-size: 16px; font-weight: 700; line-height: 1.5; color: #fff; margin-bottom: 20px; min-height: 72px; }
     .price-box { margin-top: auto; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
-    .price-cash { font-size: 26px; font-weight: 900; color: var(--green); letter-spacing: -1px; }
-    .price-label { font-size: 11px; color: var(--green); text-transform: uppercase; font-weight: 800; margin-left: 4px; }
+    .price-cash { font-size: 26px; font-weight: 900; color: var(--green); letter-spacing: 0; line-height: 1.15; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+    .price-label { font-size: 13px; color: var(--green); text-transform: none; font-weight: 800; margin-left: 0; }
     .price-parc { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 6px; }
     .card-btn { display: block; width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); border-radius: 12px; color: #fff; text-decoration: none; text-align: center; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 18px; transition: 0.3s; }
     .card-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -356,11 +356,36 @@
       return "OrderByPriceASC";
     }
 
-    function capacityToCatalogSlug(value) {
+    function formatCurrency(value) {
+      return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value).replace(/\u00a0/g, " ");
+    }
+
+    function formatCurrencyPlain(value) {
+      return new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+    }
+
+    function formatInstallmentText(installment) {
+      const count = Number(installment?.NumberOfInstallments || 1);
+      const total = Number(installment?.TotalValuePlusInterestRate || (Number(installment?.Value || 0) * count));
+      if (count <= 1 || total <= 0) return "";
+      const value = total / count;
+      const suffix = Number(installment?.InterestRate || 0) === 0 ? " s/ juros" : "";
+      return `ou ${formatCurrencyPlain(total)} em ${count}x de ${formatCurrencyPlain(value)}${suffix}`;
+    }
+
+    function buildProductLink(product, sku) {
+      const slug = product?.linkText;
+      const itemId = sku?.itemId;
+      if (slug && itemId) return `${STORE.baseUrl}/${slug}-${itemId}/p`;
+      return product?.link || (slug ? `${STORE.baseUrl}/${slug}/p` : STORE.baseUrl);
+    }
+
+    function capacityToSpecificationSegment(value) {
       const decoded = decodeURIComponent(String(value || ""));
       const digits = decoded.replace(/[^\d]/g, "");
-      if (digits) return `${digits}-btus`;
-      return decoded.toLowerCase().replace(/\s+/g, "-");
+      if (!digits) return encodeURIComponent(decoded);
+      const label = `${digits.slice(0, -3)}@dot@${digits.slice(-3)} BTU@slash@H`;
+      return encodeURIComponent(label);
     }
 
     function getTargetCycle(parsedUrl) {
@@ -397,18 +422,19 @@
         ...parsed.searchParams.getAll("capacidade-de-refrigeracao"),
         ...parsed.searchParams.getAll("capacidade--btu-h-")
       ].filter(Boolean);
-      const capacitySlugs = [...new Set(capacityValues.map(capacityToCatalogSlug).filter(Boolean))];
 
       const baseParts = basePath.split("/").filter(Boolean);
-      const alreadyHasCapacity = baseParts.some(part => /\d{4,5}-btus/i.test(part));
-      const paths = capacitySlugs.length && !alreadyHasCapacity
-        ? capacitySlugs.map(slug => `${basePath}/${slug}`)
-        : [basePath];
+      const baseMap = baseParts.map(() => "c").join(",");
 
-      return paths.map(path => {
-        const map = path.split("/").filter(Boolean).map(() => "c").join(",");
-        return `${STORE.baseUrl}/api/catalog_system/pub/products/search${path}?map=${map}&O=${order}`;
-      });
+      if (capacityValues.length > 0) {
+        return [...new Set(capacityValues.map(capacityToSpecificationSegment).filter(Boolean))]
+          .map(segment => {
+            const map = [baseMap, "specificationFilter_39"].filter(Boolean).join(",");
+            return `${STORE.baseUrl}/api/catalog_system/pub/products/search${basePath}/${segment}?map=${map}&O=${order}`;
+          });
+      }
+
+      return [`${STORE.baseUrl}/api/catalog_system/pub/products/search${basePath}?map=${baseMap}&O=${order}`];
     }
 
     async function fetchCatalogProducts(apiUrl) {
@@ -444,7 +470,6 @@
         }
       }
 
-      const fmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
       const seen = new Set();
 
       return rawProducts
@@ -460,12 +485,7 @@
           seen.add(id);
 
           const cashNum = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
-          const listNum = Number(offer.ListPrice || offer.PriceWithoutDiscount || 0);
-          let cash = cashNum > 0 ? fmt.format(cashNum) : "Consulte o site";
-          if (listNum > cashNum && cashNum > 0) {
-            const off = Math.round((listNum - cashNum) / listNum * 100);
-            if (off > 0) cash += ` Com ${off}% OFF`;
-          }
+          const cash = cashNum > 0 ? formatCurrency(cashNum) : "Consulte o site";
 
           let parc = "";
           const installments = Array.isArray(offer.Installments) ? offer.Installments : [];
@@ -473,12 +493,7 @@
             const usable = installments.filter(i => Number(i.NumberOfInstallments) > 1);
             const best = (usable.length ? usable : installments)
               .reduce((a, b) => Number(a.NumberOfInstallments || 0) > Number(b.NumberOfInstallments || 0) ? a : b);
-            const count = Number(best.NumberOfInstallments || 1);
-            const total = Number(best.TotalValuePlusInterestRate || (Number(best.Value || 0) * count));
-            const value = Number(best.Value || 0);
-            if (count > 1 && total > 0 && value > 0) {
-              parc = `ou ${fmt.format(total)} em ${count}x de ${fmt.format(value)}` + (Number(best.InterestRate || 0) === 0 ? " sem juros" : "");
-            }
+            parc = formatInstallmentText(best);
           }
 
           return {
@@ -486,7 +501,7 @@
             img: sku.images?.[0]?.imageUrl || "",
             cash,
             parc,
-            link: product.link || `${STORE.baseUrl}/${product.linkText}/p`
+            link: buildProductLink(product, sku)
           };
         })
         .filter(Boolean);
@@ -510,19 +525,19 @@
         const offer = state[state[sellerKey]?.commertialOffer?.id] || {};
         let cash = "Consulte o site";
         if (offer.SpotPrice || offer.Price) {
-          cash = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(offer.SpotPrice || offer.Price);
+          cash = formatCurrency(offer.SpotPrice || offer.Price);
         }
         let parc = "";
         if (offer.Installments?.length > 0) {
           const best = offer.Installments.reduce((a, b) => (a.NumberOfInstallments > b.NumberOfInstallments) ? a : b);
-          parc = `ou ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(best.TotalValuePlusInterestRate)} em ${best.NumberOfInstallments}x de ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(best.Value)}`;
+          parc = formatInstallmentText(best);
         }
         return {
           name: p.productName,
           img,
           cash,
           parc,
-          link: STORE.baseUrl + "/" + p.linkText + "/p"
+          link: buildProductLink(p, sku)
         };
       });
     }
