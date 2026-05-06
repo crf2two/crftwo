@@ -1,1 +1,1 @@
-Labs FrioPecas/Polo Ar/STR/Webcontinental: link da planilha agora vem com botoes Copiar link e Abrir no site, pra conferir o link antes de raspar.
+Scraper ClimaRio agora tem os botoes Copiar link e Abrir no site, igual aos 4 laboratorios.

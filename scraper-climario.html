@@ -79,6 +79,10 @@
     }
     .url-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1); }
     
+    .link-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    .btn-link-action { flex: 1; min-width: 140px; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: #fff; padding: 12px 16px; border-radius: 12px; font-family: inherit; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; text-align: center; text-decoration: none; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-link-action:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); color: var(--accent); }
+    .btn-link-action.copied { background: rgba(0,230,118,0.15); border-color: rgba(0,230,118,0.5); color: var(--green); }
     .btn-action {
       background: var(--accent); color: #000; border: none; padding: 20px;
       border-radius: 16px; font-weight: 900; font-size: 16px; text-transform: uppercase;
@@ -161,6 +165,10 @@
     <div class="search-box">
       <div class="input-group">
         <input type="text" id="urlInput" class="url-input" placeholder="Cole o link da ClimaRio aqui..." value="https://www.climario.com.br/ar-condicionado?initialMap=c&initialQuery=ar-condicionado&map=category-1,category-2,category-3&order=OrderByPriceASC&query=/ar-condicionado/ar-condicionado-hi-wall-inverter/9-000-btu-h&searchState">
+        <div class="link-actions">
+          <button type="button" id="copyBtn" class="btn-link-action">📋 Copiar link</button>
+          <a id="openBtn" class="btn-link-action" target="_blank" rel="noopener">↗ Abrir no site</a>
+        </div>
       </div>
       <button id="renderBtn" class="btn-action">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
@@ -323,6 +331,29 @@
         btn.disabled = false;
       }
     }
+
+    // Sincroniza href do botão "Abrir no site" com o input
+    function syncOpenLink() {
+      document.getElementById('openBtn').href = document.getElementById('urlInput').value;
+    }
+    document.getElementById('urlInput').addEventListener('input', syncOpenLink);
+    syncOpenLink();
+
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      const url = document.getElementById('urlInput').value;
+      if (!url) return;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch (e) {
+        const inp = document.getElementById('urlInput');
+        inp.select(); document.execCommand('copy');
+      }
+      const b = document.getElementById('copyBtn');
+      const original = b.textContent;
+      b.textContent = '✓ Copiado!';
+      b.classList.add('copied');
+      setTimeout(() => { b.textContent = original; b.classList.remove('copied'); }, 1500);
+    });
 
     document.getElementById('renderBtn').addEventListener('click', runScraper);
   </script>
