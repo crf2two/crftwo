@@ -142,6 +142,8 @@
 
     <div id="results" class="results-grid"></div>
     <div id="status" class="msg"></div>
+
+    <pre id="diag-panel" style="display:none; background:rgba(0,0,0,0.6); border:1px solid var(--card-border); border-radius:12px; padding:16px; margin-top:24px; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#9ae6b4; white-space:pre-wrap; word-break:break-all; line-height:1.6;"></pre>
   </div>
 
   <script>
@@ -328,6 +330,21 @@
       openBtn.setAttribute("aria-disabled", "true");
     }
 
+    // Log visível na tela (já que no celular o Console é difícil de acessar).
+    function logPanel(msg) {
+      const el = document.getElementById("diag-panel");
+      if (!el) return;
+      el.style.display = "block";
+      const ts = new Date().toLocaleTimeString("pt-BR");
+      el.textContent += `[${ts}] ${msg}\n`;
+    }
+    function logPanelReset() {
+      const el = document.getElementById("diag-panel");
+      if (!el) return;
+      el.textContent = "";
+      el.style.display = "none";
+    }
+
     async function tryFetch(targetUrl) {
       try {
         const resp = await fetch(PROXIES[0] + encodeURIComponent(targetUrl));
@@ -365,28 +382,51 @@
       const cMap = map ? map.split(",").map(() => "c").join(",") : "c,c,c";
 
       const apiUrl = `${STORE.baseUrl}/api/catalog_system/pub/products/search${query}?map=${cMap}` + (order ? `&O=${encodeURIComponent(order)}` : "");
+      logPanel(`Catalog API → ${apiUrl}`);
       console.log("[STR Catalog API] →", apiUrl);
 
       let raw;
+      // Estratégia A: fetch direto (VTEX Catalog API costuma aceitar CORS)
       try {
-        raw = await tryFetch(apiUrl);
+        const direct = await fetch(apiUrl, { headers: { "Accept": "application/json" } });
+        if (direct.ok) {
+          raw = await direct.text();
+          logPanel(`✓ Direto (sem proxy): ${raw.length} chars`);
+        } else {
+          logPanel(`Direto falhou: HTTP ${direct.status}`);
+        }
       } catch(e) {
-        console.error("[STR Catalog API] tryFetch falhou:", e);
-        return [];
+        logPanel(`Direto bloqueado por CORS — tentando proxy.`);
+      }
+
+      // Estratégia B: cascata de proxies
+      if (!raw) {
+        try {
+          raw = await tryFetch(apiUrl);
+          logPanel(`✓ Via proxy: ${raw.length} chars`);
+        } catch(e) {
+          logPanel(`✗ Proxy também falhou.`);
+          console.error("[STR Catalog API] tryFetch falhou:", e);
+          return [];
+        }
       }
 
       let data;
       try {
         data = JSON.parse(raw);
       } catch(e) {
-        console.error("[STR Catalog API] JSON.parse falhou — resposta não é JSON. Tamanho:", raw?.length, "início:", raw?.slice(0, 200));
+        const preview = String(raw || "").slice(0, 200);
+        logPanel(`✗ JSON inválido. Início: ${preview}`);
+        console.error("[STR Catalog API] JSON.parse falhou — resposta não é JSON. Tamanho:", raw?.length, "início:", preview);
         return [];
       }
 
       if (!Array.isArray(data)) {
+        logPanel(`✗ Resposta não é array. Tipo: ${typeof data}`);
         console.warn("[STR Catalog API] Resposta não é array. Forma:", typeof data, "chaves:", data && Object.keys(data));
         return [];
       }
+      logPanel(`Catalog API: ${data.length} item(s) no JSON.`);
 
       const fmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
       const products = data.map(p => {
@@ -492,24 +532,27 @@
       loader.style.display = "block";
       results.innerHTML = "";
       status.style.display = "none";
+      logPanelReset();
+      logPanel(`Iniciando: ${url}`);
 
       try {
         // Estratégia 1 — VTEX Catalog API (preferida, JSON estruturado)
         let products = await extractFromCatalogApi(url);
+        logPanel(`Estratégia 1 (Catalog API) → ${products.length} produto(s).`);
 
         // Estratégia 2 — regex __STATE__ no HTML
         if (products.length === 0) {
-          console.log("[STR] Catalog API vazia → tentando __STATE__ no HTML…");
+          logPanel("Tentando estratégia 2 (__STATE__ no HTML)…");
           const html = await tryFetch(url);
-          console.log(`[STR] HTML recebido (${html?.length} chars).`);
+          logPanel(`HTML recebido: ${html?.length} chars.`);
           products = extractFromVtexState(html);
-          console.log(`[STR __STATE__] ${products.length} produto(s).`);
+          logPanel(`Estratégia 2 (__STATE__) → ${products.length} produto(s).`);
 
           // Estratégia 3 — DOM seletores VTEX
           if (products.length === 0) {
-            console.log("[STR] __STATE__ vazio → tentando DOM…");
+            logPanel("Tentando estratégia 3 (DOM seletores VTEX)…");
             products = extractFromDom(html);
-            console.log(`[STR DOM] ${products.length} produto(s).`);
+            logPanel(`Estratégia 3 (DOM) → ${products.length} produto(s).`);
           }
         }
 

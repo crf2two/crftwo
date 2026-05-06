@@ -1,1 +1,1 @@
-const LATEST_LOG = { message: 'Scraper STR: extracao via VTEX Catalog API (estrategia primaria), com __STATE__ e DOM como fallbacks. Corrigido tambem o baseUrl (str.com.br -> strar.com.br).', dateIso: '2026-05-06T22:45:00+00:00' };
+const LATEST_LOG = { message: 'Scraper STR: tenta fetch direto sem proxy (CORS) antes da cascata, e adiciona painel de log visivel na tela com cada estagio (proxy, JSON, contagem). Diagnostico no celular sem precisar abrir DevTools.', dateIso: '2026-05-06T22:50:00+00:00' };

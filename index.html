@@ -680,6 +680,12 @@
       "updates": [
         {
           "date": "06/05/2026",
+          "time": "19:50",
+          "title": "Scraper STR: fetch direto + painel de log na tela",
+          "description": "Tenta primeiro a Catalog API direto (sem proxy, via CORS). Se falhar, cai pra cascata de proxies. Adicionado painel preto embaixo dos resultados que mostra cada estágio em tempo real (URL da API, tamanho da resposta, contagem por estratégia) — pra diagnosticar no celular sem precisar de DevTools."
+        },
+        {
+          "date": "06/05/2026",
           "time": "19:45",
           "title": "Scraper STR: extração via VTEX Catalog API",
           "description": "STR agora tenta primeiro a /api/catalog_system/pub/products/search (JSON estruturado direto) e só cai pros fallbacks __STATE__/DOM se a API vier vazia. Corrigido também o baseUrl (era str.com.br, é strar.com.br). Logs no Console mostram qual estratégia achou os produtos."
