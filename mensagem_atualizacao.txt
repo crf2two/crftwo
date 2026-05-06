@@ -1,1 +1,1 @@
-Scraper STR: tenta fetch direto sem proxy (CORS) antes da cascata, e adiciona painel de log visivel na tela com cada estagio (proxy, JSON, contagem). Diagnostico no celular sem precisar abrir DevTools.
+A loja descontinuada foi removida do projeto porque agora redireciona para Polo Ar. O lab antigo, card, logo e deteccoes foram retirados; o scraper Polo Ar agora usa a VTEX Catalog API para renderizar foto, nome, valor a vista, parcelamento e link.

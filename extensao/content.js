@@ -629,7 +629,6 @@
         else if (_host.includes('frigelar')) _store = 'Frigelar';
         else if (_host.includes('friopecas')) _store = 'Friopeças';
         else if (_host.includes('poloar')) _store = 'Poloar';
-        else if (_host.includes('str.com')) _store = 'STR';
         else if (_host.includes('webcontinental')) _store = 'Webcontinental';
         else if (_host.includes('climario')) _store = 'Clima Rio';
         chrome.storage.local.get(['comparador_data'], (r) => {

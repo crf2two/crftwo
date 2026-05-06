@@ -343,6 +343,155 @@
       throw new Error("Falha em todos os proxies.");
     }
 
+    function normalizeText(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
+
+    function getOrderParam(parsedUrl) {
+      const sort = String(parsedUrl.searchParams.get("sort") || parsedUrl.searchParams.get("order") || "").toLowerCase();
+      if (sort.includes("desc")) return "OrderByPriceDESC";
+      return "OrderByPriceASC";
+    }
+
+    function capacityToCatalogSlug(value) {
+      const decoded = decodeURIComponent(String(value || ""));
+      const digits = decoded.replace(/[^\d]/g, "");
+      if (digits) return `${digits}-btus`;
+      return decoded.toLowerCase().replace(/\s+/g, "-");
+    }
+
+    function getTargetCycle(parsedUrl) {
+      const raw = parsedUrl.searchParams.get("ciclo") || selection.ciclo || "";
+      const normalized = normalizeText(raw);
+      if (normalized.includes("quente")) return "quente";
+      if (normalized.includes("frio")) return "frio";
+      return "";
+    }
+
+    function productMatchesCycle(product, targetCycle) {
+      if (!targetCycle) return true;
+      const haystack = normalizeText([...(product.Ciclo || []), product.productName || ""].join(" "));
+      if (targetCycle === "quente") return haystack.includes("quente");
+      if (targetCycle === "frio") return haystack.includes("frio") && !haystack.includes("quente");
+      return true;
+    }
+
+    function buildCatalogApiUrls(searchUrl) {
+      let parsed;
+      try { parsed = new URL(searchUrl); } catch(e) { return []; }
+
+      const order = getOrderParam(parsed);
+      const explicitQuery = parsed.searchParams.get("query");
+
+      if (explicitQuery) {
+        const rawMap = parsed.searchParams.get("map") || "";
+        const catalogMap = rawMap ? rawMap.split(",").map(() => "c").join(",") : "c,c,c";
+        return [`${STORE.baseUrl}/api/catalog_system/pub/products/search${explicitQuery}?map=${catalogMap}&O=${order}`];
+      }
+
+      const basePath = parsed.pathname.replace(/\/+$/, "") || "/ar-condicionado";
+      const capacityValues = [
+        ...parsed.searchParams.getAll("capacidade-de-refrigeracao"),
+        ...parsed.searchParams.getAll("capacidade--btu-h-")
+      ].filter(Boolean);
+      const capacitySlugs = [...new Set(capacityValues.map(capacityToCatalogSlug).filter(Boolean))];
+
+      const baseParts = basePath.split("/").filter(Boolean);
+      const alreadyHasCapacity = baseParts.some(part => /\d{4,5}-btus/i.test(part));
+      const paths = capacitySlugs.length && !alreadyHasCapacity
+        ? capacitySlugs.map(slug => `${basePath}/${slug}`)
+        : [basePath];
+
+      return paths.map(path => {
+        const map = path.split("/").filter(Boolean).map(() => "c").join(",");
+        return `${STORE.baseUrl}/api/catalog_system/pub/products/search${path}?map=${map}&O=${order}`;
+      });
+    }
+
+    async function fetchCatalogProducts(apiUrl) {
+      const products = [];
+      for (let from = 0; from < 200; from += 50) {
+        const to = from + 49;
+        const sep = apiUrl.includes("?") ? "&" : "?";
+        const raw = await tryFetch(`${apiUrl}${sep}_from=${from}&_to=${to}`);
+        let data;
+        try { data = JSON.parse(raw); } catch(e) { break; }
+        if (!Array.isArray(data) || data.length === 0) break;
+        products.push(...data);
+        if (data.length < 50) break;
+      }
+      return products;
+    }
+
+    async function extractFromCatalogApi(searchUrl) {
+      let parsed;
+      try { parsed = new URL(searchUrl); } catch(e) { return []; }
+
+      const apiUrls = buildCatalogApiUrls(searchUrl);
+      if (apiUrls.length === 0) return [];
+
+      const targetCycle = getTargetCycle(parsed);
+      const rawProducts = [];
+
+      for (const apiUrl of apiUrls) {
+        try {
+          rawProducts.push(...await fetchCatalogProducts(apiUrl));
+        } catch(e) {
+          console.warn("Polo Ar Catalog API falhou:", apiUrl, e);
+        }
+      }
+
+      const fmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+      const seen = new Set();
+
+      return rawProducts
+        .filter(product => product && product.productName && productMatchesCycle(product, targetCycle))
+        .map(product => {
+          const sku = (product.items && product.items[0]) || {};
+          const seller = (sku.sellers && sku.sellers[0]) || {};
+          const offer = seller.commertialOffer || {};
+          if (offer.IsAvailable === false || Number(offer.AvailableQuantity || 0) <= 0) return null;
+
+          const id = product.productId || product.linkText || product.productName;
+          if (seen.has(id)) return null;
+          seen.add(id);
+
+          const cashNum = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+          const listNum = Number(offer.ListPrice || offer.PriceWithoutDiscount || 0);
+          let cash = cashNum > 0 ? fmt.format(cashNum) : "Consulte o site";
+          if (listNum > cashNum && cashNum > 0) {
+            const off = Math.round((listNum - cashNum) / listNum * 100);
+            if (off > 0) cash += ` Com ${off}% OFF`;
+          }
+
+          let parc = "";
+          const installments = Array.isArray(offer.Installments) ? offer.Installments : [];
+          if (installments.length) {
+            const usable = installments.filter(i => Number(i.NumberOfInstallments) > 1);
+            const best = (usable.length ? usable : installments)
+              .reduce((a, b) => Number(a.NumberOfInstallments || 0) > Number(b.NumberOfInstallments || 0) ? a : b);
+            const count = Number(best.NumberOfInstallments || 1);
+            const total = Number(best.TotalValuePlusInterestRate || (Number(best.Value || 0) * count));
+            const value = Number(best.Value || 0);
+            if (count > 1 && total > 0 && value > 0) {
+              parc = `ou ${fmt.format(total)} em ${count}x de ${fmt.format(value)}` + (Number(best.InterestRate || 0) === 0 ? " sem juros" : "");
+            }
+          }
+
+          return {
+            name: product.productName,
+            img: sku.images?.[0]?.imageUrl || "",
+            cash,
+            parc,
+            link: product.link || `${STORE.baseUrl}/${product.linkText}/p`
+          };
+        })
+        .filter(Boolean);
+    }
+
     function extractFromVtexState(html) {
       const stateMatch = html.match(/__STATE__\s*=\s*(\{.*?\});/s) || html.match(/__STATE__\s*=\s*(\{.*?\})<\/script>/s);
       if (!stateMatch) return [];
@@ -408,9 +557,12 @@
       status.style.display = "none";
 
       try {
-        const html = await tryFetch(url);
-        let products = extractFromVtexState(html);
-        if (products.length === 0) products = extractFromDom(html);
+        let products = await extractFromCatalogApi(url);
+        if (products.length === 0) {
+          const html = await tryFetch(url);
+          products = extractFromVtexState(html);
+          if (products.length === 0) products = extractFromDom(html);
+        }
 
         if (products.length === 0) {
           status.innerText = `Nenhum produto detectado na ${STORE.label}.`;
