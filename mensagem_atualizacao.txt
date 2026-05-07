@@ -1,1 +1,1 @@
-Limpeza: removidos quatro arquivos vazios e orfaos de testes antigos do ClimaRio.
+Nova proposta visual Codex: criado index-modernizado-codex.html com CSS e JS separados.
