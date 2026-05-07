@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#050505">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Instrument+Serif:ital,wght@0,400;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/codex-modern/codex-modern.css">
 </head>
 <body>
@@ -29,9 +29,9 @@
     <main class="workspace" id="main">
       <header class="hero-panel">
         <div class="hero-copy">
-          <p class="eyebrow">Workspace Dufrio</p>
-          <h1>Ferramentas operacionais, sem ruído.</h1>
-          <p class="hero-lede">Acesso rápido aos fluxos que sustentam orçamento, precificação, scraping e documentação técnica.</p>
+          <p class="eyebrow">Atelier · Workspace Dufrio · 2026</p>
+          <h1 class="hero-title">Onde precisão<br><span class="accent">encontra</span> direção.</h1>
+          <p class="hero-lede">Bem-vindo ao <em>Atelier Dufrio</em>: um painel direto para câmara fria, inteligência comercial em ar-condicionado e rotinas que precisam funcionar sem atrito.</p>
 
           <div class="command-bar" role="search">
             <label class="search-field" for="toolSearch">
@@ -51,10 +51,12 @@
 
         <div class="cinema-stage" aria-label="Área reservada para vídeo ou renderização 3D">
           <div class="stage-frame">
+            <!-- Placeholder leve para render/video: simula profundidade 3D sem biblioteca pesada. -->
+            <div class="mock-3d-object" aria-hidden="true"></div>
             <img src="img/hi_wall.png" alt="" aria-hidden="true">
             <div class="stage-overlay">
               <span>Placeholder 3D / vídeo</span>
-              <strong>Ambiente técnico</strong>
+              <strong>Frame técnico <em>em cena</em></strong>
             </div>
           </div>
           <div class="stage-metrics" aria-label="Resumo do hub">
@@ -78,23 +80,6 @@
         <span id="lastUpdate">Hub sincronizado com o projeto.</span>
       </footer>
     </main>
-  </div>
-
-  <div class="lab-gateway" id="labGateway" hidden>
-    <div class="gateway-surface" role="dialog" aria-modal="true" aria-labelledby="gatewayTitle">
-      <button class="gateway-close" type="button" data-close-labs aria-label="Fechar laboratórios">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-      </button>
-
-      <div class="gateway-copy">
-        <p class="eyebrow">Scraper Labs</p>
-        <h2 id="gatewayTitle">Selecione uma loja no mapa de testes.</h2>
-        <p id="gatewayDesc">Cada laboratório isola uma origem para validar extração antes de promover ajustes ao Scraper Oficial.</p>
-      </div>
-
-      <div class="lab-constellation" id="labConstellation" aria-label="Laboratórios disponíveis"></div>
-      <div class="gateway-status" id="gatewayStatus">Pronto para iniciar</div>
-    </div>
   </div>
 
   <nav class="mobile-dock" id="mobileDock" aria-label="Acesso rápido mobile"></nav>

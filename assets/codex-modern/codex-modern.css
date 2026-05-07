@@ -23,7 +23,10 @@
   --cyan: #0ea5e9;
   --radius: 8px;
   --shadow-soft: 0 22px 70px rgba(0, 0, 0, 0.42);
-  --font: "Outfit", sans-serif;
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Cormorant Garamond", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  --font: var(--font-display);
 }
 
 *,
@@ -40,6 +43,10 @@ body {
   min-height: 100vh;
   margin: 0;
   font-family: var(--font);
+  font-feature-settings: "cv01", "cv02", "ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
   color: var(--text);
   background:
     linear-gradient(135deg, rgba(79, 172, 254, 0.14), transparent 24%),
@@ -249,8 +256,7 @@ svg {
   text-transform: uppercase;
 }
 
-.hero-copy h1,
-.gateway-copy h2 {
+.hero-copy h1 {
   position: relative;
   margin: 0;
   max-width: 780px;
@@ -258,6 +264,19 @@ svg {
   line-height: 0.92;
   font-weight: 900;
   letter-spacing: 0;
+}
+
+.hero-title .accent {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #4facfe, #8b5cf6 60%, #10b981);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  transform: scale(1.04);
 }
 
 .hero-lede {
@@ -268,6 +287,13 @@ svg {
   font-size: 18px;
   line-height: 1.5;
   font-weight: 600;
+}
+
+.hero-lede em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .command-bar {
@@ -346,6 +372,7 @@ svg {
     linear-gradient(180deg, rgba(255,255,255,0.06), transparent),
     #090a0d;
   overflow: hidden;
+  perspective: 900px;
 }
 
 .stage-frame::before {
@@ -372,6 +399,34 @@ svg {
   filter: drop-shadow(0 26px 40px rgba(0,0,0,0.55));
 }
 
+.mock-3d-object {
+  position: absolute;
+  left: 13%;
+  top: 18%;
+  width: 176px;
+  height: 176px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 24px;
+  transform-style: preserve-3d;
+  animation: spin3D 12s linear infinite;
+  box-shadow:
+    0 0 50px rgba(59, 130, 246, 0.18),
+    inset 0 0 50px rgba(139, 92, 246, 0.18);
+  opacity: 0.52;
+}
+
+.mock-3d-object::before,
+.mock-3d-object::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+}
+
+.mock-3d-object::before { transform: translateZ(-50px); }
+.mock-3d-object::after { transform: translateZ(50px); }
+
 .stage-overlay {
   position: absolute;
   left: 18px;
@@ -382,7 +437,6 @@ svg {
 }
 
 .stage-overlay span,
-.gateway-status,
 .tool-meta,
 .result-count,
 .page-footer {
@@ -397,6 +451,13 @@ svg {
   font-size: 28px;
   line-height: 1;
   font-weight: 900;
+}
+
+.stage-overlay strong em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.58);
 }
 
 .stage-metrics {
@@ -482,10 +543,29 @@ svg {
   margin-bottom: 14px;
 }
 
-.section-head h2 {
+.section-title {
   margin: 0;
-  font-size: 16px;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 800;
+  letter-spacing: -1.2px;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.section-title em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.section-num {
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #888888;
   text-transform: uppercase;
 }
 
@@ -508,6 +588,7 @@ svg {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   color: var(--text);
+  text-decoration: none;
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--card-color) 9%, transparent), transparent),
     rgba(255,255,255,0.045);
@@ -521,6 +602,11 @@ svg {
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
+.tool-card > * {
+  position: relative;
+  z-index: 1;
+}
+
 .tool-card::before {
   content: "";
   position: absolute;
@@ -530,6 +616,17 @@ svg {
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.22s ease;
+}
+
+.tool-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), color-mix(in srgb, var(--card-color) 18%, transparent), transparent 40%);
+  transition: opacity 0.28s ease;
 }
 
 .tool-card:hover,
@@ -547,6 +644,63 @@ svg {
   transform: scaleX(1);
 }
 
+.tool-card:hover::after,
+.tool-card:focus-visible::after {
+  opacity: 1;
+}
+
+.tool-card.labs-portal {
+  background:
+    radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.18), transparent 45%),
+    rgba(20, 20, 20, 0.7);
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.labs-orbit {
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  z-index: 0;
+  transform: translateY(-50%);
+  width: 240px;
+  height: 240px;
+  pointer-events: none;
+}
+
+.labs-orbit-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(34, 197, 94, 0.18);
+  animation: orbitSpin 20s linear infinite;
+}
+
+.labs-orbit-ring:nth-child(2) {
+  inset: 12%;
+  animation-duration: 14s;
+  animation-direction: reverse;
+  border-color: rgba(34, 197, 94, 0.12);
+}
+
+.labs-orbit-ring:nth-child(3) {
+  inset: 26%;
+  animation-duration: 26s;
+  border-color: rgba(34, 197, 94, 0.08);
+}
+
+.labs-orbit-ring::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00e676;
+  box-shadow: 0 0 12px #00e676;
+}
+
 .tool-card.is-wide {
   grid-column: span 6;
 }
@@ -556,7 +710,8 @@ svg {
   min-height: 260px;
 }
 
-.tool-top {
+.tool-top,
+.tool-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -575,7 +730,8 @@ svg {
   background: color-mix(in srgb, var(--card-color) 13%, transparent);
 }
 
-.tool-badge {
+.tool-badge,
+.tool-card .tool-badge {
   max-width: 150px;
   padding: 6px 9px;
   border: 1px solid color-mix(in srgb, var(--card-color) 38%, transparent);
@@ -599,7 +755,24 @@ svg {
   text-transform: uppercase;
 }
 
+.tool-title em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.58);
+  text-transform: none;
+}
+
 .tool-copy {
+  display: block;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.tool-desc {
   display: block;
   margin: 10px 0 0;
   color: var(--muted);
@@ -642,190 +815,246 @@ svg {
   box-shadow: 0 0 0 6px rgba(16,185,129,0.12);
 }
 
-.lab-gateway {
+.constellation {
   position: fixed;
   inset: 0;
-  z-index: 80;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: rgba(3, 4, 7, 0.82);
-  backdrop-filter: blur(22px);
-}
-
-.lab-gateway[hidden] {
+  z-index: 100;
   display: none;
+  background: radial-gradient(circle at center, rgba(2, 6, 23, 0.85), rgba(0, 0, 0, 0.97) 70%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  perspective: 1400px;
+  perspective-origin: center 40%;
+  opacity: 0;
+  transition: opacity 1200ms cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.gateway-surface {
-  width: min(1180px, 100%);
-  min-height: min(760px, calc(100vh - 48px));
-  max-height: calc(100vh - 48px);
-  position: relative;
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  gap: 24px;
-  padding: clamp(22px, 3vw, 38px);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background:
-    radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(79, 172, 254, 0.22), transparent 22%),
-    linear-gradient(135deg, rgba(16,185,129,0.12), transparent 38%),
-    var(--surface-strong);
-  box-shadow: 0 36px 120px rgba(0, 0, 0, 0.68);
+.constellation.is-open {
+  display: block;
+  opacity: 1;
 }
 
-/*
-  The gateway is intentionally dramatic: it turns "labs" into a launch surface.
-  The interaction updates --mx/--my from JS, so the light follows the pointer
-  without expensive DOM reflows or animation libraries.
-*/
-.gateway-surface::before {
-  content: "";
+.constellation-stars {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 42px),
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 42px);
-  mask-image: radial-gradient(circle at center, black, transparent 72%);
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, white, transparent 1px),
+    radial-gradient(1.4px 1.4px at 28% 70%, rgba(255,255,255,0.7), transparent 1.5px),
+    radial-gradient(1px 1px at 45% 35%, rgba(255,255,255,0.85), transparent 1px),
+    radial-gradient(1.6px 1.6px at 62% 88%, rgba(255,255,255,0.6), transparent 1.5px),
+    radial-gradient(1px 1px at 78% 18%, rgba(255,255,255,0.9), transparent 1px),
+    radial-gradient(1.2px 1.2px at 88% 60%, rgba(255,255,255,0.7), transparent 1.2px),
+    radial-gradient(1px 1px at 9% 84%, rgba(255,255,255,0.5), transparent 1px),
+    radial-gradient(1.4px 1.4px at 56% 14%, rgba(255,255,255,0.8), transparent 1.5px);
+  background-repeat: no-repeat;
+  animation: starsTwinkle 8s ease-in-out infinite alternate;
 }
 
-.gateway-surface::after {
+.constellation-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, #d4ffd8, #34d399 30%, #065f46 70%, #042f2e);
+  box-shadow:
+    0 0 60px rgba(52, 211, 153, 0.4),
+    0 0 120px rgba(52, 211, 153, 0.2),
+    inset -10px -15px 40px rgba(0, 0, 0, 0.6);
+  animation: corePulse 4s ease-in-out infinite;
+}
+
+.constellation-core-label {
+  position: absolute;
+  top: calc(50% + 100px);
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.constellation-core-label .kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #00e676;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.constellation-core-label .name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+
+.constellation-core-label .name em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.constellation-system {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(8deg) rotateY(var(--rot-y, 0deg));
+  transform-style: preserve-3d;
+  width: 80vmin;
+  height: 80vmin;
+  max-width: 760px;
+  max-height: 760px;
+  animation: systemSpin 60s linear infinite;
+  animation-play-state: var(--spin-state, running);
+}
+
+.satellite {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 124px;
+  height: 124px;
+  margin: -62px 0 0 -62px;
+  transform-style: preserve-3d;
+  transform:
+    rotateY(calc(var(--angle) * 1deg))
+    translateZ(var(--radius, 320px))
+    rotateY(calc(var(--angle) * -1deg));
+  cursor: pointer;
+}
+
+.satellite-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--lab-color) 30%, transparent), transparent 60%),
+    rgba(15, 15, 22, 0.8);
+  border: 1px solid color-mix(in srgb, var(--lab-color) 40%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 30px color-mix(in srgb, var(--lab-color) 15%, transparent);
+  transition: transform 360ms cubic-bezier(0.22, 1.55, 0.36, 1), box-shadow 360ms;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.satellite:hover .satellite-card {
+  transform: scale(1.12);
+  box-shadow:
+    0 20px 60px color-mix(in srgb, var(--lab-color) 35%, transparent),
+    inset 0 0 50px color-mix(in srgb, var(--lab-color) 25%, transparent);
+}
+
+.satellite-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--lab-color) 20%, rgba(0,0,0,0.4));
+  color: var(--lab-color);
+}
+
+.satellite-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  fill: none;
+}
+
+.satellite-name {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.satellite-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: color-mix(in srgb, var(--lab-color) 80%, white);
+  text-transform: uppercase;
+}
+
+.satellite::before {
   content: "";
   position: absolute;
-  width: 58%;
-  aspect-ratio: 1;
-  right: 8%;
   top: 50%;
-  transform: translateY(-50%);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 999px;
-  background:
-    linear-gradient(90deg, transparent 49.6%, rgba(255,255,255,0.1) 49.6% 50.4%, transparent 50.4%),
-    linear-gradient(0deg, transparent 49.6%, rgba(255,255,255,0.08) 49.6% 50.4%, transparent 50.4%);
-  opacity: 0.52;
-  animation: rotateGrid 18s linear infinite;
-}
-
-.gateway-close {
-  position: absolute;
-  right: 18px;
-  top: 18px;
-  z-index: 5;
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  color: var(--text);
-  background: rgba(255,255,255,0.06);
-  cursor: pointer;
-}
-
-.gateway-copy {
-  position: relative;
-  z-index: 2;
-  align-self: end;
-  padding-right: 10px;
-}
-
-.gateway-copy h2 {
-  font-size: clamp(38px, 5vw, 68px);
-}
-
-.gateway-copy p:last-child {
-  max-width: 420px;
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1.5;
-  font-weight: 650;
-}
-
-.lab-constellation {
-  position: relative;
-  z-index: 2;
-  min-height: 520px;
-  display: grid;
-  place-items: center;
-}
-
-.lab-node {
-  --angle: 0deg;
-  --distance: 210px;
-  position: absolute;
   left: 50%;
-  top: 50%;
-  width: 164px;
-  min-height: 126px;
-  transform:
-    translate(-50%, -50%)
-    rotate(var(--angle))
-    translateY(calc(var(--distance) * -1))
-    rotate(calc(var(--angle) * -1));
-  padding: 14px;
-  border: 1px solid color-mix(in srgb, var(--lab-color) 42%, transparent);
-  border-radius: var(--radius);
-  color: var(--text);
-  background: rgba(6, 7, 11, 0.72);
-  cursor: pointer;
-  text-align: left;
-  display: grid;
-  align-content: space-between;
-  gap: 12px;
-  transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+  width: 2px;
+  height: var(--radius, 320px);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--lab-color) 80%, transparent), transparent);
+  transform-origin: 50% 0;
+  transform: rotateY(calc(var(--angle) * 1deg)) translateZ(0) rotate(90deg);
+  opacity: 0.18;
+  pointer-events: none;
 }
 
-.lab-node:hover,
-.lab-node:focus-visible,
-.lab-node.is-focused {
-  outline: 0;
-  border-color: var(--lab-color);
-  background: color-mix(in srgb, var(--lab-color) 18%, #07080c);
-  transform:
-    translate(-50%, -50%)
-    rotate(var(--angle))
-    translateY(calc(var(--distance) * -1))
-    rotate(calc(var(--angle) * -1))
-    scale(1.06);
-}
-
-.lab-logo {
-  width: 42px;
-  height: 32px;
-  object-fit: contain;
-  padding: 5px;
-  border-radius: var(--radius);
-  background: rgba(255,255,255,0.92);
-}
-
-.lab-node strong {
-  display: block;
-  font-size: 13px;
-  line-height: 1.15;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.lab-node span {
-  color: color-mix(in srgb, var(--lab-color) 80%, white);
-  font-size: 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.gateway-status {
+.constellation-close {
   position: absolute;
-  left: clamp(22px, 3vw, 38px);
-  bottom: clamp(22px, 3vw, 38px);
-  z-index: 3;
-  color: var(--green);
+  top: 24px;
+  right: 24px;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 360ms;
 }
 
-.lab-gateway.is-launching .gateway-surface {
-  animation: launchPulse 0.48s ease both;
+.constellation-close:hover {
+  background: rgba(244, 63, 94, 0.18);
+  border-color: rgba(244, 63, 94, 0.4);
+  transform: rotate(90deg);
+}
+
+.constellation-help {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.warp-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease-out;
+}
+
+.warp-flash.is-firing {
+  opacity: 1;
+  transition: opacity 80ms ease-in;
 }
 
 .mobile-dock {
@@ -837,14 +1066,29 @@ svg {
   70%, 100% { transform: translateX(100%); }
 }
 
-@keyframes rotateGrid {
-  to { transform: translateY(-50%) rotate(360deg); }
+@keyframes spin3D {
+  0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
 }
 
-@keyframes launchPulse {
-  0% { filter: brightness(1); }
-  55% { filter: brightness(1.45) saturate(1.24); }
-  100% { filter: brightness(1); }
+@keyframes orbitSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes starsTwinkle {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
+@keyframes corePulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.06); }
+}
+
+@keyframes systemSpin {
+  from { transform: translate(-50%, -50%) rotateX(8deg) rotateY(0deg); }
+  to { transform: translate(-50%, -50%) rotateX(8deg) rotateY(360deg); }
 }
 
 @media (max-width: 1160px) {
@@ -941,42 +1185,33 @@ svg {
     background: color-mix(in srgb, var(--dock-color) 13%, transparent);
   }
 
-  .gateway-surface {
-    grid-template-columns: 1fr;
-    overflow: auto;
+  .constellation-system {
+    width: 95vmin;
+    height: 95vmin;
   }
 
-  .gateway-surface::after {
-    width: 86%;
-    right: 7%;
-    top: 360px;
+  .satellite {
+    width: 96px;
+    height: 96px;
+    margin: -48px 0 0 -48px;
   }
 
-  .gateway-copy {
-    align-self: start;
-    padding-right: 48px;
+  .satellite-card {
+    border-radius: 18px;
+    padding: 12px;
   }
 
-  .lab-constellation {
-    min-height: 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    place-items: stretch;
+  .satellite-name {
+    font-size: 9px;
   }
 
-  .lab-node,
-  .lab-node:hover,
-  .lab-node:focus-visible,
-  .lab-node.is-focused {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: 100%;
-    min-height: 92px;
-    transform: none;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
+  .satellite-meta {
+    display: none;
+  }
+
+  .constellation-help {
+    font-size: 9px;
+    bottom: 20px;
   }
 }
 
@@ -1018,8 +1253,13 @@ svg {
     display: block;
   }
 
-  .gateway-copy h2 {
-    font-size: 36px;
+  .constellation-core {
+    width: 112px;
+    height: 112px;
+  }
+
+  .constellation-core-label {
+    top: calc(50% + 78px);
   }
 }
 

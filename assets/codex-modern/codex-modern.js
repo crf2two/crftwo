@@ -1,26 +1,46 @@
 /*
   Codex Modern JS
-  Plain JavaScript by design: the page is static on GitHub Pages and should stay
-  fast, cacheable, and easy to edit without a bundler.
+  Static, dependency-free orchestration for GitHub Pages. The page keeps the
+  original hub links, adds search/filter ergonomics, and mounts the approved
+  cinematic labs constellation only when requested.
 */
 
 (() => {
+  const DATA = {
+    labs: [
+      { name: "CLIMARIO", desc: "Extração direta via URL.", file: "scraper-climario.html", color: "#f59e0b" },
+      { name: "FRIGELAR", desc: "Linhas isoladas da planilha.", file: "scraper-frigelar.html", color: "#00a859" },
+      { name: "LEVEROS", desc: "Linhas isoladas da planilha.", file: "scraper-leveros.html", color: "#ff6b00" },
+      { name: "CENTRAL AR", desc: "Linhas isoladas da planilha.", file: "scraper-centralar.html", color: "#ec4899" },
+      { name: "DUFRIO", desc: "Linhas isoladas da planilha.", file: "scraper-dufrio.html", color: "#007bff" },
+      { name: "FRIOPEÇAS", desc: "Produtos via link da planilha.", file: "scraper-friopecas.html", color: "#2563eb" },
+      { name: "POLO AR", desc: "Produtos via link da planilha.", file: "scraper-poloar.html", color: "#ef4444" },
+      { name: "WEBCONTINENTAL", desc: "Produtos via link da planilha.", file: "scraper-webcontinental.html", color: "#14b8a6" }
+    ]
+  };
+
+  const ICONS = {
+    beaker: `<svg viewBox="0 0 24 24"><path d="M9 3v6l-5 9a2 2 0 0 0 1.7 3h12.6a2 2 0 0 0 1.7-3l-5-9V3"/><line x1="9" y1="3" x2="15" y2="3"/><line x1="6" y1="14" x2="18" y2="14"/></svg>`
+  };
+
+  const TOOL_ICONS = {
+    box: `<svg viewBox="0 0 24 24"><path d="m21 8-9-5-9 5 9 5 9-5Z"></path><path d="M3 8v8l9 5 9-5V8"></path><path d="M12 13v8"></path></svg>`,
+    grid: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg>`,
+    check: `<svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>`,
+    search: `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>`,
+    sliders: `<svg viewBox="0 0 24 24"><path d="M4 21v-7"></path><path d="M4 10V3"></path><path d="M12 21v-9"></path><path d="M12 8V3"></path><path d="M20 21v-5"></path><path d="M20 12V3"></path><path d="M1 14h6"></path><path d="M9 8h6"></path><path d="M17 16h6"></path></svg>`,
+    clock: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l4 2"></path></svg>`,
+    tag: `<svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"></path><path d="M7 7h.01"></path></svg>`,
+    file: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h5"></path></svg>`,
+    filter: `<svg viewBox="0 0 24 24"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3Z"></path></svg>`,
+    download: `<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10l5 5 5-5"></path><path d="M12 15V3"></path></svg>`
+  };
+
   const GROUPS = [
     { id: "all", label: "Tudo", short: "Tudo", color: "#4facfe" },
-    { id: "camara", label: "Câmara fria", short: "Câmara", color: "#10b981" },
-    { id: "ar", label: "Ar-condicionado", short: "Ar", color: "#f59e0b" },
-    { id: "outros", label: "Outras rotinas", short: "Outros", color: "#8b5cf6" }
-  ];
-
-  const LABS = [
-    { name: "ClimaRio", desc: "Extração direta por URL.", href: "scraper-climario.html", color: "#f59e0b", logo: "img/logo_climario.svg" },
-    { name: "Frigelar", desc: "Links Frigelar da planilha.", href: "scraper-frigelar.html", color: "#00a859", logo: "img/logo_frigelar.svg" },
-    { name: "Leveros", desc: "Links Leveros da planilha.", href: "scraper-leveros.html", color: "#ff6b00", logo: "img/logo_leveros.svg" },
-    { name: "Central Ar", desc: "Links Central Ar da planilha.", href: "scraper-centralar.html", color: "#ec4899", logo: "img/logo_centralar.png" },
-    { name: "Dufrio", desc: "Links Dufrio da planilha.", href: "scraper-dufrio.html", color: "#007bff", logo: "img/logo_dufrio.jpg" },
-    { name: "FrioPeças", desc: "Produtos por link da planilha.", href: "scraper-friopecas.html", color: "#2563eb", logo: "img/logo_friopecas.png" },
-    { name: "Polo Ar", desc: "Produtos via fonte Polo Ar.", href: "scraper-poloar.html", color: "#ef4444", logo: "img/logo_poloar.png" },
-    { name: "Webcontinental", desc: "Produtos por link da planilha.", href: "scraper-webcontinental.html", color: "#14b8a6", logo: "img/logo_webcontinental.png" }
+    { id: "camara", label: "Câmara fria", short: "Câmara", title: "Câmara <em>Fria</em>", num: "01 · Seção", color: "#10b981" },
+    { id: "ar", label: "Ar-condicionado", short: "Ar", title: "Ar <em>Condicionado</em>", num: "02 · Inteligência", color: "#f59e0b" },
+    { id: "outros", label: "Outras rotinas", short: "Outros", title: "Outras <em>Rotinas</em>", num: "03 · Operação", color: "#8b5cf6" }
   ];
 
   const TOOLS = [
@@ -28,6 +48,7 @@
       id: "gabinete",
       group: "camara",
       title: "Simulador de gabinete 3D",
+      titleHtml: "Simulador de <em>Gabinete 3D</em>",
       copy: "Dimensione câmaras, visualize volumes e apoie a montagem do orçamento técnico.",
       href: "simulador-gabinete.html",
       color: "#4facfe",
@@ -39,6 +60,7 @@
       id: "corte",
       group: "camara",
       title: "Plano de corte",
+      titleHtml: "Plano de <em>Corte</em>",
       copy: "Organize painéis PIR/EPS e reduza perda de chapa na preparação do projeto.",
       href: "plano-corte.html",
       color: "#f97316",
@@ -50,6 +72,7 @@
       id: "checklist",
       group: "camara",
       title: "Checklist câmaras frias",
+      titleHtml: "Checklist <em>Câmaras Frias</em>",
       copy: "Colete dados do cliente e gere PDF com briefing completo para orçamento.",
       href: "CheckList.html",
       color: "#10b981",
@@ -61,6 +84,7 @@
       id: "scraper",
       group: "ar",
       title: "Scraper oficial",
+      titleHtml: "Scraper <em>Oficial</em>",
       copy: "Compare preços em tempo real entre Dufrio, Frigelar, Leveros, Central Ar e Polo Ar.",
       href: "scraper-ar.html",
       color: "#f59e0b",
@@ -72,6 +96,7 @@
       id: "comparador",
       group: "ar",
       title: "Comparador de ar",
+      titleHtml: "Comparador de <em>Ar</em>",
       copy: "Avalie ofertas e discrepâncias de preço com leitura direta para tomada de decisão.",
       href: "comparador-ar.html",
       color: "#6366f1",
@@ -83,6 +108,7 @@
       id: "precos-vivo",
       group: "ar",
       title: "Preços ao vivo",
+      titleHtml: "Preços ao <em>Vivo</em>",
       copy: "Visualize produtos capturados pela extensão nas abas abertas das lojas.",
       href: "precos-ao-vivo.html",
       color: "#00e676",
@@ -94,6 +120,7 @@
       id: "precificacao",
       group: "ar",
       title: "Precificação SKU's",
+      titleHtml: "Precificação <em>SKU's</em>",
       copy: "Calcule valores de SKU no 365 usando a referência comercial do site.",
       href: "precificacao-ar.html",
       color: "#0ea5e9",
@@ -104,19 +131,21 @@
       id: "scraper-labs",
       group: "ar",
       title: "Laboratórios de scraper",
-      copy: "Teste cada loja isoladamente antes de levar ajustes ao fluxo oficial.",
+      titleHtml: "Laboratórios de <em>Scraper</em>",
+      copy: "Bancada experimental — scrapers individuais por loja. Onde refinamos antes de promover ao Oficial.",
       href: "#laboratorios",
       color: "#22c55e",
       meta: "8 ambientes",
-      badge: "Gateway",
-      icon: "radar",
-      labs: true,
+      badge: "LAB",
+      icon: "beaker",
+      action: "labs",
       size: "wide"
     },
     {
       id: "cotacao",
       group: "outros",
       title: "Cotação express",
+      titleHtml: "Cotação <em>Express</em>",
       copy: "Monte orçamentos rápidos de infraestrutura de ar-condicionado.",
       href: "cotacoes.html",
       color: "#8b5cf6",
@@ -127,6 +156,7 @@
       id: "extracao",
       group: "outros",
       title: "Extração de códigos",
+      titleHtml: "Extração de <em>Códigos</em>",
       copy: "Extraia códigos com quantidade em estoque e acelere conferências internas.",
       href: "itens-quantidade.html",
       color: "#d946ef",
@@ -138,6 +168,7 @@
       id: "download",
       group: "outros",
       title: "Baixar projeto",
+      titleHtml: "Baixar <em>Projeto</em>",
       copy: "Faça download do pacote completo do projeto e da extensão.",
       href: "https://github.com/crftwoo/thiago.luz.dufrio/archive/refs/heads/main.zip",
       color: "#94a3b8",
@@ -152,20 +183,6 @@
     query: ""
   };
 
-  const icon = {
-    box: `<svg viewBox="0 0 24 24"><path d="m21 8-9-5-9 5 9 5 9-5Z"></path><path d="M3 8v8l9 5 9-5V8"></path><path d="M12 13v8"></path></svg>`,
-    grid: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg>`,
-    check: `<svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>`,
-    search: `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>`,
-    sliders: `<svg viewBox="0 0 24 24"><path d="M4 21v-7"></path><path d="M4 10V3"></path><path d="M12 21v-9"></path><path d="M12 8V3"></path><path d="M20 21v-5"></path><path d="M20 12V3"></path><path d="M1 14h6"></path><path d="M9 8h6"></path><path d="M17 16h6"></path></svg>`,
-    clock: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l4 2"></path></svg>`,
-    tag: `<svg viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"></path><path d="M7 7h.01"></path></svg>`,
-    radar: `<svg viewBox="0 0 24 24"><path d="M12 20a8 8 0 1 0-8-8"></path><path d="M12 16a4 4 0 1 0-4-4"></path><path d="m12 12 7-7"></path><path d="M3 21h18"></path></svg>`,
-    file: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h5"></path></svg>`,
-    filter: `<svg viewBox="0 0 24 24"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3Z"></path></svg>`,
-    download: `<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10l5 5 5-5"></path><path d="M12 15V3"></path></svg>`
-  };
-
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
   const normalize = (value) => String(value || "")
@@ -176,7 +193,6 @@
   function init() {
     renderNavigation();
     renderTools();
-    renderLabs();
     bindEvents();
     hydrateMeta();
   }
@@ -208,7 +224,10 @@
     board.innerHTML = visibleGroups.map((group) => `
       <section class="tool-section" data-section="${group.id}">
         <div class="section-head">
-          <h2>${group.label}</h2>
+          <div>
+            <div class="section-num">${group.num}</div>
+            <h2 class="section-title">${group.title}</h2>
+          </div>
           <span>${group.tools.length} ${group.tools.length === 1 ? "ferramenta" : "ferramentas"}</span>
         </div>
         <div class="tool-grid">
@@ -220,23 +239,51 @@
     $("#emptyState").hidden = filtered.length > 0;
     $("#resultCount").textContent = `${filtered.length} de ${TOOLS.length} ferramentas visíveis`;
     $("#toolCount").textContent = TOOLS.length;
-    $("#labCount").textContent = LABS.length;
+    $("#labCount").textContent = DATA.labs.length;
   }
 
   function renderToolCard(tool) {
     const size = tool.size === "hero" ? " is-hero" : tool.size === "wide" ? " is-wide" : "";
+    const iconMarkup = tool.icon === "beaker" ? ICONS.beaker : TOOL_ICONS[tool.icon];
+
+    if (tool.action === "labs") {
+      return `
+        <a class="tool-card labs-portal${size}"
+           data-id="${tool.id}"
+           href="#"
+           data-action="labs"
+           style="--card-color:${tool.color}">
+          <div class="labs-orbit">
+            <div class="labs-orbit-ring"></div>
+            <div class="labs-orbit-ring"></div>
+            <div class="labs-orbit-ring"></div>
+          </div>
+          <div class="tool-head">
+            <div class="tool-icon">${iconMarkup}</div>
+            <span class="tool-badge">${tool.badge}</span>
+          </div>
+          <div>
+            <h3 class="tool-title">${tool.titleHtml}</h3>
+            <p class="tool-desc">${tool.copy}</p>
+          </div>
+          <span class="tool-meta">${tool.meta}</span>
+        </a>
+      `;
+    }
+
     return `
-      <button class="tool-card${size}" type="button" data-tool="${tool.id}" style="--card-color: ${tool.color}">
+      <a class="tool-card${size}" href="${tool.href}" data-id="${tool.id}" ${tool.download ? 'data-action="download"' : ""}
+        style="--card-color: ${tool.color}">
         <span class="tool-top">
-          <span class="tool-icon" aria-hidden="true">${icon[tool.icon]}</span>
+          <span class="tool-icon" aria-hidden="true">${iconMarkup}</span>
           ${tool.badge ? `<span class="tool-badge">${tool.badge}</span>` : ""}
         </span>
         <span class="tool-body">
-          <span class="tool-title">${tool.title}</span>
+          <span class="tool-title">${tool.titleHtml}</span>
           <span class="tool-copy">${tool.copy}</span>
         </span>
         <span class="tool-meta">${tool.meta}</span>
-      </button>
+      </a>
     `;
   }
 
@@ -249,122 +296,63 @@
     });
   }
 
-  function renderLabs() {
-    const constellation = $("#labConstellation");
-    const angleStep = 360 / LABS.length;
-
-    constellation.innerHTML = LABS.map((lab, index) => `
-      <button class="lab-node" type="button" data-lab="${index}"
-        style="--lab-color: ${lab.color}; --angle: ${index * angleStep}deg">
-        <img class="lab-logo" src="${lab.logo}" alt="" loading="lazy">
-        <span>
-          <strong>${lab.name}</strong>
-          <span>${lab.desc}</span>
-        </span>
-      </button>
-    `).join("");
-  }
-
   function bindEvents() {
     $("#toolSearch").addEventListener("input", (event) => {
       state.query = event.target.value;
       renderTools();
     });
 
-    document.addEventListener("click", (event) => {
-      const filterButton = event.target.closest("[data-filter]");
-      const toolButton = event.target.closest("[data-tool]");
-      const openLabsButton = event.target.closest("[data-open-labs]");
-      const closeLabsButton = event.target.closest("[data-close-labs]");
-      const labButton = event.target.closest("[data-lab]");
-
-      if (filterButton) setFilter(filterButton.dataset.filter);
-      if (toolButton) openTool(toolButton.dataset.tool);
-      if (openLabsButton) openLabsGateway();
-      if (closeLabsButton) closeLabsGateway();
-      if (labButton) launchLab(Number(labButton.dataset.lab));
+    $("#toolsGrid").addEventListener("mousemove", (event) => {
+      const card = event.target.closest(".tool-card");
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
+      card.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
     });
 
-    $("#labGateway").addEventListener("click", (event) => {
-      if (event.target.id === "labGateway") closeLabsGateway();
-    });
-
-    $("#labGateway").addEventListener("pointermove", (event) => {
-      const surface = $(".gateway-surface");
-      const rect = surface.getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width) * 100;
-      const y = ((event.clientY - rect.top) / rect.height) * 100;
-      surface.style.setProperty("--mx", `${x}%`);
-      surface.style.setProperty("--my", `${y}%`);
-    });
-
-    $("#labConstellation").addEventListener("focusin", updateLabPreview);
-    $("#labConstellation").addEventListener("pointerover", updateLabPreview);
+    document.addEventListener("click", onCardClick);
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeLabsGateway();
+      if (event.key === "Escape") Constellation.close();
     });
 
     window.addEventListener("scroll", updateDockVisibility, { passive: true });
     updateDockVisibility();
   }
 
+  function onCardClick(event) {
+    const filterButton = event.target.closest("[data-filter]");
+    const labsButton = event.target.closest("[data-open-labs]");
+    const card = event.target.closest(".tool-card");
+
+    if (filterButton) {
+      setFilter(filterButton.dataset.filter);
+      return;
+    }
+
+    if (labsButton) {
+      event.preventDefault();
+      Constellation.open();
+      return;
+    }
+
+    if (!card) return;
+
+    if (card.dataset.action === "labs") {
+      event.preventDefault();
+      Constellation.open();
+      return;
+    }
+
+    if (card.dataset.action === "download" && !window.confirm("Baixar o pacote completo do projeto?")) {
+      event.preventDefault();
+    }
+  }
+
   function setFilter(filter) {
     state.filter = filter;
     renderNavigation();
     renderTools();
-  }
-
-  function openTool(id) {
-    const tool = TOOLS.find((item) => item.id === id);
-    if (!tool) return;
-    if (tool.labs) {
-      openLabsGateway();
-      return;
-    }
-    if (tool.download && !window.confirm("Baixar o pacote completo do projeto?")) return;
-    window.location.href = tool.href;
-  }
-
-  function openLabsGateway() {
-    const gateway = $("#labGateway");
-    gateway.hidden = false;
-    document.body.style.overflow = "hidden";
-    requestAnimationFrame(() => {
-      $(".lab-node", gateway)?.focus({ preventScroll: true });
-    });
-  }
-
-  function closeLabsGateway() {
-    const gateway = $("#labGateway");
-    if (gateway.hidden) return;
-    gateway.hidden = true;
-    gateway.classList.remove("is-launching");
-    document.body.style.overflow = "";
-    $("#gatewayStatus").textContent = "Pronto para iniciar";
-  }
-
-  function updateLabPreview(event) {
-    const node = event.target.closest("[data-lab]");
-    if (!node) return;
-    const lab = LABS[Number(node.dataset.lab)];
-    $$(".lab-node").forEach((item) => item.classList.toggle("is-focused", item === node));
-    $("#gatewayTitle").textContent = `Abrir laboratório ${lab.name}.`;
-    $("#gatewayDesc").textContent = lab.desc;
-    $("#gatewayStatus").textContent = "Origem selecionada";
-    $(".gateway-surface").style.setProperty("--mx", "68%");
-    $(".gateway-surface").style.setProperty("--my", "42%");
-  }
-
-  function launchLab(index) {
-    const lab = LABS[index];
-    const gateway = $("#labGateway");
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    $("#gatewayStatus").textContent = `Iniciando ${lab.name}...`;
-    gateway.classList.add("is-launching");
-    window.setTimeout(() => {
-      window.location.href = lab.href;
-    }, reducedMotion ? 0 : 430);
   }
 
   function hydrateMeta() {
@@ -389,6 +377,133 @@
   function updateDockVisibility() {
     $("#mobileDock").classList.toggle("is-visible", window.scrollY > 460);
   }
+
+  const Constellation = (() => {
+    let overlay = null;
+    let dragging = false;
+    let startX = 0;
+    let baseRot = 0;
+    let currentRot = 0;
+
+    function buildSatellite(lab, i, total) {
+      const angle = (360 / total) * i;
+      return `
+        <a class="satellite"
+           href="${lab.file}"
+           style="--angle:${angle}; --radius:300px; --lab-color:${lab.color}"
+           data-name="${lab.name}">
+          <div class="satellite-card">
+            <div class="satellite-icon">${ICONS.beaker}</div>
+            <div>
+              <div class="satellite-name">${lab.name}</div>
+              <div class="satellite-meta">${lab.desc}</div>
+            </div>
+          </div>
+        </a>
+      `;
+    }
+
+    function ensureOverlay() {
+      if (overlay) return overlay;
+
+      overlay = document.createElement("div");
+      overlay.className = "constellation";
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+      overlay.setAttribute("aria-label", "Constelação de Laboratórios");
+      overlay.innerHTML = `
+        <div class="constellation-stars"></div>
+
+        <button class="constellation-close" type="button" aria-label="Fechar constelação">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+
+        <div class="constellation-system">
+          ${DATA.labs.map((lab, i) => buildSatellite(lab, i, DATA.labs.length)).join("")}
+        </div>
+
+        <div class="constellation-core" aria-hidden="true"></div>
+        <div class="constellation-core-label">
+          <div class="kicker">Atelier Lab</div>
+          <div class="name">Câmara de <em>Experimentos</em></div>
+        </div>
+
+        <div class="constellation-help">
+          Arraste para girar · ESC para fechar · Clique para entrar
+        </div>
+      `;
+
+      overlay.querySelector(".constellation-close").addEventListener("click", close);
+
+      overlay.querySelectorAll(".satellite").forEach((sat) => {
+        sat.addEventListener("click", (event) => {
+          event.preventDefault();
+          warpTo(sat.getAttribute("href"));
+        });
+      });
+
+      overlay.addEventListener("pointerdown", onDown);
+      overlay.addEventListener("pointermove", onDrag);
+      overlay.addEventListener("pointerup", onUp);
+      overlay.addEventListener("pointercancel", onUp);
+
+      document.body.appendChild(overlay);
+      return overlay;
+    }
+
+    function open() {
+      const o = ensureOverlay();
+      document.body.style.overflow = "hidden";
+      o.style.display = "block";
+      requestAnimationFrame(() => o.classList.add("is-open"));
+    }
+
+    function close() {
+      if (!overlay) return;
+      overlay.classList.remove("is-open");
+      document.body.style.overflow = "";
+      setTimeout(() => { if (overlay) overlay.style.display = "none"; }, 1200);
+    }
+
+    function onDown(event) {
+      if (event.target.closest("a, button")) return;
+      dragging = true;
+      startX = event.clientX;
+      baseRot = currentRot;
+      overlay.style.setProperty("--spin-state", "paused");
+    }
+
+    function onDrag(event) {
+      if (!dragging) return;
+      const dx = event.clientX - startX;
+      currentRot = baseRot + dx * 0.4;
+      const system = overlay.querySelector(".constellation-system");
+      system.style.transform = `translate(-50%, -50%) rotateX(8deg) rotateY(${currentRot}deg)`;
+    }
+
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      overlay.style.setProperty("--spin-state", "running");
+      setTimeout(() => {
+        const system = overlay.querySelector(".constellation-system");
+        system.style.transform = "";
+      }, 600);
+    }
+
+    function warpTo(href) {
+      const flash = document.createElement("div");
+      flash.className = "warp-flash";
+      document.body.appendChild(flash);
+      requestAnimationFrame(() => flash.classList.add("is-firing"));
+      setTimeout(() => { window.location.href = href; }, 280);
+    }
+
+    return { open, close };
+  })();
 
   init();
 })();
