@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <meta name="description" content="Atelier Dufrio — workspace cinematográfico para câmara fria, ar-condicionado e operação.">
+
+  <title>Atelier Dufrio · Cinematic Workspace</title>
+
+  <!-- ============================================================
+       FONTES
+       Outfit (mantida do original)  : display geométrico moderno
+       Instrument Serif (italic)     : alma editorial em destaques
+       IBM Plex Mono                 : timestamps e metadados
+       Carregadas via preconnect + display=swap para evitar FOUC
+       ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Instrument+Serif:ital,wght@0,400;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Folha cinematográfica -->
+  <link rel="stylesheet" href="css/modernizado.css">
+</head>
+
+<body>
+
+  <!-- ============================================================
+       AMBIENTE — três camadas atmosféricas (aurora + scanline + grain)
+       Posicionada como fixed -1 para nunca interferir nos cliques.
+       ============================================================ -->
+  <div class="ambient-layer" aria-hidden="true">
+    <div class="aurora aurora-1"></div>
+    <div class="aurora aurora-2"></div>
+    <div class="aurora aurora-3"></div>
+    <div class="ambient-scanlines"></div>
+    <div class="ambient-grain"></div>
+  </div>
+
+
+  <!-- ============================================================
+       TOPBAR — barra superior cinematográfica
+       Inspirada em interfaces de pós-produção (DaVinci/Premiere)
+       ============================================================ -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-mark">REC · Workspace Online</span>
+      <span class="topbar-clock" aria-label="Horário local">--:--:--</span>
+    </div>
+    <div class="topbar-right">
+      <a class="btn-ghost" href="index.html" title="Versão clássica do hub">
+        Versão Clássica
+      </a>
+      <img class="topbar-logo" src="https://www.dufrio.com.br/media/logo/websites/1/Logo_Dufrio_3_1_.webp" alt="Dufrio" crossorigin="anonymous">
+    </div>
+  </header>
+
+
+  <main class="shell">
+
+    <!-- ========================================================
+         HERO — primeira impressão cinematográfica
+         Coluna esquerda: tipografia editorial + CTA
+         Coluna direita : "vitrine" 16:9 com placeholder de
+                          loop em vídeo (Higgsfield-style) e
+                          orb 3D (Nano Banana-style)
+         ======================================================== -->
+    <section class="hero" id="section-hero">
+      <div class="hero-stage">
+
+        <span class="hero-eyebrow">Atelier · Cinematic Workspace · 2026</span>
+
+        <!-- Título com palavra-chave em italic serif:
+             "Atelier" carrega o gradiente cinematográfico,
+             ancorando a identidade de marca. -->
+        <h1 class="hero-title">
+          Onde precisão<br>
+          <span class="accent">encontra</span> direção.
+        </h1>
+
+        <p class="hero-lede">
+          Bem-vindo ao <em>Atelier Dufrio</em>: um workspace que reúne, num só plano,
+          os instrumentos de câmara fria, a inteligência de mercado em ar-condicionado
+          e a operação do dia-a-dia. Pensado como um <em>set de filmagem</em> — onde
+          cada ferramenta entra em cena no momento certo.
+        </p>
+
+        <div class="hero-cta-row">
+          <a class="btn-primary" href="#section-camara">
+            Explorar Ateliê
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+          <a class="btn-ghost" href="#section-changelog">
+            Última cena gravada
+          </a>
+        </div>
+      </div>
+
+      <!-- Vitrine cinematográfica:
+           - <video> aceita src real (loop, muted, autoplay).
+             Quando vazio, o fallback CSS toma conta.
+           - HUD imitando câmera profissional (REC + timestamp).
+           - Orb 3D (Nano Banana-style) sobrepõe com float. -->
+      <aside class="hero-cinematic" aria-label="Tomada cinematográfica em loop">
+        <!-- Placeholder de vídeo: deixar vazio renderiza o fallback.
+             Para ativar com vídeo real, basta apontar src para um mp4. -->
+        <video class="vid-loop" autoplay muted loop playsinline></video>
+        <div class="hero-cinematic-fallback"></div>
+
+        <!-- Nano Banana 3D — orb dourado com depth -->
+        <div class="nano-orb" aria-hidden="true"></div>
+
+        <!-- HUD cinematográfico -->
+        <div class="hero-hud">
+          <span class="rec">REC · 4K</span>
+          <span class="ts">00:00:42:18</span>
+          <span class="scene">SCENE 01 · TAKE 03</span>
+          <span class="lens">35mm · f/1.8</span>
+        </div>
+      </aside>
+    </section>
+
+
+    <!-- ========================================================
+         SEÇÕES — montadas via JS a partir de DATA.sections
+         Mantém a divisão original (Câmara / Ar / Outros)
+         mas com cabeçalhos editoriais com numeração 01-02-03.
+         ======================================================== -->
+    <div id="sections"></div>
+
+
+    <!-- ========================================================
+         CHANGELOG — última atualização em formato editorial
+         Substitui o painel pequeno do original por uma "stream"
+         com hierarquia clara e timestamps técnicos.
+         ======================================================== -->
+    <section class="changelog" id="section-changelog">
+      <div class="changelog-head">
+        <h3 class="changelog-title">Última <em>cena gravada</em></h3>
+        <span class="changelog-status">Sistemas online</span>
+      </div>
+
+      <article class="changelog-card">
+        <div class="changelog-meta">
+          <span class="date" id="chDate">--</span>
+          <span class="time" id="chTime">--</span>
+        </div>
+        <h4 class="changelog-entry-title" id="chTitle">Carregando histórico…</h4>
+        <p class="changelog-entry-desc" id="chDesc">Sincronizando com o repositório.</p>
+      </article>
+    </section>
+
+
+    <!-- ========================================================
+         FOOTER — minimalista e em mono
+         ======================================================== -->
+    <footer class="foot">
+      <span>Criado em 16/09/2024 · <em>by Thiago Luz</em></span>
+      <span>v Cinematic · Atelier Dufrio</span>
+    </footer>
+
+  </main>
+
+
+  <!-- ============================================================
+       MOBILE DOCK — doca magnética inferior
+       Aparece apenas em telas ≤ 768px. Os data-target apontam
+       para os IDs das seções para scroll suave.
+       ============================================================ -->
+  <nav class="dock" aria-label="Navegação rápida">
+    <div class="dock-row">
+      <button class="dock-btn is-active" data-target="section-hero" aria-label="Início">
+        <svg viewBox="0 0 24 24"><path d="M3 12 12 3l9 9"/><path d="M5 10v10h14V10"/></svg>
+      </button>
+      <button class="dock-btn" data-target="section-camara" aria-label="Câmara Fria">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </button>
+      <button class="dock-btn" data-target="section-ar" aria-label="Ar Condicionado">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+      </button>
+      <button class="dock-btn" data-target="section-outros" aria-label="Outras">
+        <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
+    </div>
+  </nav>
+
+
+  <!-- ============================================================
+       SCRIPT — orquestração principal
+       defer garante que o DOM esteja pronto sem bloquear render.
+       ============================================================ -->
+  <script src="js/modernizado.js" defer></script>
+</body>
+</html>
