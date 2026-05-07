@@ -1,1 +1,1 @@
-Lab FrioPecas: preco principal agora usa Pix e parcelamento segue o card do site.
+Lab FrioPecas: links com varios BTUs agora renderizam todos os produtos do link.
