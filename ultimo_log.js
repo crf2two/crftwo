@@ -1,1 +1,1 @@
-const LATEST_LOG = { message: 'Hub limpo: os scrapers individuais agora ficam dentro de um unico card "Laboratorios de Scraper". Ao clicar, abre um painel na propria tela com todos os labs por loja para escolher e entrar.', dateIso: '2026-05-07T07:35:00-03:00' };
+const LATEST_LOG = { message: 'Limpeza: removidos quatro arquivos vazios e orfaos de testes antigos do ClimaRio.', dateIso: '2026-05-07T09:43:00-03:00' };

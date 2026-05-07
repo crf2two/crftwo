@@ -1,1 +1,1 @@
-Hub limpo: os scrapers individuais agora ficam dentro de um unico card "Laboratorios de Scraper". Ao clicar, abre um painel na propria tela com todos os labs por loja para escolher e entrar.
+Limpeza: removidos quatro arquivos vazios e orfaos de testes antigos do ClimaRio.
