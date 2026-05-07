@@ -1,1 +1,1 @@
-Limpeza: removidos index-modernizado-codex.html e assets dedicados; mantido apenas o hub oficial.
+Scraper Oficial: corrigida copia de imagem em cards Central Ar e Frigelar.

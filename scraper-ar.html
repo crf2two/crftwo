@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Scraper Oficial</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1214,6 +1215,117 @@
       showStep("step-tipo");
     }
 
+    function normalizeCopyImageUrl(url) {
+      let cleanUrl = String(url || "").trim();
+      if (!cleanUrl) throw new Error("Imagem ausente");
+
+      if (cleanUrl.includes("workers.dev") && cleanUrl.includes("url=")) {
+        try {
+          cleanUrl = new URL(cleanUrl).searchParams.get("url") || cleanUrl;
+        } catch (_) {}
+      }
+
+      if (cleanUrl.startsWith("//")) cleanUrl = "https:" + cleanUrl;
+      return cleanUrl;
+    }
+
+    function imageProxyUrls(url, storeName) {
+      const cleanUrl = normalizeCopyImageUrl(url);
+      const store = String(storeName || "").toLowerCase();
+      const proxied = [
+        "https://wsrv.nl/?url=" + encodeURIComponent(cleanUrl),
+        "https://images.weserv.nl/?url=" + encodeURIComponent(cleanUrl),
+        "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(cleanUrl)
+      ];
+      const urls = (store === "frigelar" || store === "central ar")
+        ? [...proxied, cleanUrl]
+        : [cleanUrl, ...proxied];
+      return [...new Set(urls)];
+    }
+
+    function detectImageMime(buffer, contentType, sourceUrl) {
+      const bytes = new Uint8Array(buffer.slice(0, 12));
+      if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+      if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return "image/png";
+      if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46) return "image/gif";
+      if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45) return "image/webp";
+
+      const headerType = String(contentType || "").split(";")[0].trim().toLowerCase();
+      if (headerType.startsWith("image/")) return headerType;
+
+      const lowerUrl = String(sourceUrl || "").toLowerCase();
+      if (lowerUrl.includes(".png")) return "image/png";
+      if (lowerUrl.includes(".webp")) return "image/webp";
+      return "image/jpeg";
+    }
+
+    async function decodeImageBlob(blob) {
+      if (typeof createImageBitmap === "function") {
+        try {
+          return await createImageBitmap(blob);
+        } catch (_) {}
+      }
+
+      return await new Promise((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(blob);
+        const image = new Image();
+        image.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(image);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("Falha ao decodificar imagem"));
+        };
+        image.src = objectUrl;
+      });
+    }
+
+    async function convertImageToPng(blob) {
+      const decoded = await decodeImageBlob(blob);
+      const width = decoded.width || decoded.naturalWidth;
+      const height = decoded.height || decoded.naturalHeight;
+      if (!width || !height) throw new Error("Imagem sem dimensoes");
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(decoded, 0, 0);
+      if (typeof decoded.close === "function") decoded.close();
+
+      return await new Promise((resolve, reject) => {
+        canvas.toBlob(blobPng => {
+          if (blobPng) resolve(blobPng);
+          else reject(new Error("Falha ao gerar PNG"));
+        }, "image/png");
+      });
+    }
+
+    async function getCopyableImageBlob(imageUrl, storeName) {
+      let lastError = null;
+
+      for (const candidateUrl of imageProxyUrls(imageUrl, storeName)) {
+        try {
+          const response = await fetch(candidateUrl, { cache: "no-store" });
+          if (!response.ok) throw new Error("HTTP " + response.status);
+
+          const buffer = await response.arrayBuffer();
+          if (!buffer.byteLength) throw new Error("Imagem vazia");
+
+          const mimeType = detectImageMime(buffer, response.headers.get("content-type"), candidateUrl);
+          const imageBlob = new Blob([buffer], { type: mimeType });
+          return await convertImageToPng(imageBlob);
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      throw lastError || new Error("Nao foi possivel copiar a imagem");
+    }
+
     function createCard(p, store) {
       const card = document.createElement("div"); card.className = "product-card";
 
@@ -1237,18 +1349,11 @@
         
         if (isMobile) {
           // Mobile: busca a imagem pelo proxy (resolve CORS) e compartilha o arquivo real
-          const PROXY = "https://frigelar-proxy.crftwo.workers.dev/?url=";
           overlaySpan.textContent = "⏳ Aguarde...";
           try {
-            const resp = await fetch(PROXY + encodeURIComponent(p.image));
-            const rawBlob = await resp.blob();
-            // Força o MIME type correto baseado na URL (proteção contra Content-Type errado do proxy)
-            const imgUrl = p.image.toLowerCase();
-            const mimeType = imgUrl.includes('.png') ? 'image/png' : 'image/jpeg';
-            const blob = new Blob([rawBlob], { type: mimeType });
-            const ext = mimeType === 'image/png' ? '.png' : '.jpg';
-            const fileName = (p.title.substring(0, 40).replace(/[^a-zA-Z0-9]/g, '_') || 'produto') + ext;
-            const file = new File([blob], fileName, { type: mimeType });
+            const blob = await getCopyableImageBlob(p.image, p.storeName);
+            const fileName = (p.title.substring(0, 40).replace(/[^a-zA-Z0-9]/g, '_') || 'produto') + '.png';
+            const file = new File([blob], fileName, { type: "image/png" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
               // Compartilha o arquivo de imagem real (iOS 15+ e Android Chrome)
@@ -1274,41 +1379,7 @@
           // Desktop: copia imagem para clipboard
           overlaySpan.textContent = "⏳...";
           try {
-            const isFrigelar = p.storeName.toLowerCase() === "frigelar";
-            let blob;
-
-            if (isFrigelar) {
-              // Frigelar sempre via Proxy para evitar Tainted Canvas
-              const PROXY = "https://frigelar-proxy.crftwo.workers.dev/?url=";
-              const resp = await fetch(PROXY + encodeURIComponent(p.image));
-              blob = await resp.blob();
-            } else {
-              // Outras lojas: tenta carregar direto primeiro (mais rápido)
-              const tempImg = new Image();
-              tempImg.crossOrigin = "anonymous";
-              tempImg.src = p.image;
-              await new Promise((res, rej) => {
-                tempImg.onload = res;
-                tempImg.onerror = rej;
-              });
-              const cv = document.createElement("canvas");
-              cv.width = tempImg.naturalWidth; cv.height = tempImg.naturalHeight;
-              const ctx = cv.getContext("2d");
-              ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0,0,cv.width,cv.height);
-              ctx.drawImage(tempImg, 0, 0);
-              blob = await new Promise(r => cv.toBlob(r, "image/png"));
-            }
-
-            // Se for blob de JPG (da Frigelar por exemplo), converte para PNG antes de copiar
-            if (blob.type !== "image/png") {
-              const bmp = await createImageBitmap(blob);
-              const cv = document.createElement("canvas");
-              cv.width = bmp.width; cv.height = bmp.height;
-              const ctx = cv.getContext("2d");
-              ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0,0,cv.width,cv.height);
-              ctx.drawImage(bmp, 0, 0);
-              blob = await new Promise(r => cv.toBlob(r, "image/png"));
-            }
+            const blob = await getCopyableImageBlob(p.image, p.storeName);
 
             await navigator.clipboard.write([
               new ClipboardItem({ "image/png": blob })
@@ -1317,8 +1388,7 @@
             setTimeout(()=>{overlay.classList.remove("copied");overlaySpan.textContent="📷 Copiar Foto";},1800);
           } catch(e) {
             console.error("Erro ao copiar imagem:", e);
-            await navigator.clipboard.writeText(p.image);
-            overlay.classList.add("copied"); overlaySpan.textContent = "🔗 URL Copiada!";
+            overlay.classList.add("copied"); overlaySpan.textContent = "⚠️ Erro ao Copiar";
             setTimeout(()=>{overlay.classList.remove("copied");overlaySpan.textContent="📷 Copiar Foto";},1800);
           }
         }

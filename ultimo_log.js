@@ -1,1 +1,1 @@
-const LATEST_LOG = { message: 'Limpeza: removidos index-modernizado-codex.html e assets dedicados; mantido apenas o hub oficial.', dateIso: '2026-05-07T15:00:00-03:00' };
+const LATEST_LOG = { message: 'Scraper Oficial: corrigida copia de imagem em cards Central Ar e Frigelar.', dateIso: '2026-05-07T15:25:00-03:00' };
