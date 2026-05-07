@@ -373,7 +373,11 @@
     /* Laboratórios: cards mais discretos e compactos */
     [data-id="scraper-friopecas"],
     [data-id="scraper-poloar"],
-    [data-id="scraper-webcontinental"] {
+    [data-id="scraper-webcontinental"],
+    [data-id="scraper-frigelar"],
+    [data-id="scraper-leveros"],
+    [data-id="scraper-centralar"],
+    [data-id="scraper-dufrio"] {
       grid-column: span 1;
       min-height: 140px;
       padding: 20px;
@@ -382,22 +386,46 @@
     }
     [data-id="scraper-friopecas"]:hover,
     [data-id="scraper-poloar"]:hover,
-    [data-id="scraper-webcontinental"]:hover { opacity: 1; }
+    [data-id="scraper-webcontinental"]:hover,
+    [data-id="scraper-frigelar"]:hover,
+    [data-id="scraper-leveros"]:hover,
+    [data-id="scraper-centralar"]:hover,
+    [data-id="scraper-dufrio"]:hover { opacity: 1; }
     [data-id="scraper-friopecas"] .card-title,
     [data-id="scraper-poloar"] .card-title,
-    [data-id="scraper-webcontinental"] .card-title { font-size: 14px; margin-bottom: 6px; }
+    [data-id="scraper-webcontinental"] .card-title,
+    [data-id="scraper-frigelar"] .card-title,
+    [data-id="scraper-leveros"] .card-title,
+    [data-id="scraper-centralar"] .card-title,
+    [data-id="scraper-dufrio"] .card-title { font-size: 14px; margin-bottom: 6px; }
     [data-id="scraper-friopecas"] .card-desc,
     [data-id="scraper-poloar"] .card-desc,
-    [data-id="scraper-webcontinental"] .card-desc { font-size: 11px; }
+    [data-id="scraper-webcontinental"] .card-desc,
+    [data-id="scraper-frigelar"] .card-desc,
+    [data-id="scraper-leveros"] .card-desc,
+    [data-id="scraper-centralar"] .card-desc,
+    [data-id="scraper-dufrio"] .card-desc { font-size: 11px; }
     [data-id="scraper-friopecas"] .icon-box,
     [data-id="scraper-poloar"] .icon-box,
-    [data-id="scraper-webcontinental"] .icon-box { width: 38px; height: 38px; }
+    [data-id="scraper-webcontinental"] .icon-box,
+    [data-id="scraper-frigelar"] .icon-box,
+    [data-id="scraper-leveros"] .icon-box,
+    [data-id="scraper-centralar"] .icon-box,
+    [data-id="scraper-dufrio"] .icon-box { width: 38px; height: 38px; }
     [data-id="scraper-friopecas"] .icon-box svg,
     [data-id="scraper-poloar"] .icon-box svg,
-    [data-id="scraper-webcontinental"] .icon-box svg { width: 18px; height: 18px; }
+    [data-id="scraper-webcontinental"] .icon-box svg,
+    [data-id="scraper-frigelar"] .icon-box svg,
+    [data-id="scraper-leveros"] .icon-box svg,
+    [data-id="scraper-centralar"] .icon-box svg,
+    [data-id="scraper-dufrio"] .icon-box svg { width: 18px; height: 18px; }
     [data-id="scraper-friopecas"] .badge,
     [data-id="scraper-poloar"] .badge,
-    [data-id="scraper-webcontinental"] .badge { font-size: 9px; padding: 4px 10px; }
+    [data-id="scraper-webcontinental"] .badge,
+    [data-id="scraper-frigelar"] .badge,
+    [data-id="scraper-leveros"] .badge,
+    [data-id="scraper-centralar"] .badge,
+    [data-id="scraper-dufrio"] .badge { font-size: 9px; padding: 4px 10px; }
 
     /* Mobile: força todo card a ocupar a linha inteira (corrige cards estreitos) */
     @media (max-width: 768px) {
@@ -591,7 +619,7 @@
       { nome: "CHECKLIST CÂMARAS FRIAS - GERAR PDF", desc: "Formulário passo-a-passo. Geração de PDF para orçamento de câmara frigorífica.", arquivo: "CheckList.html", icone: svgChecklist, color: "#10b981", slug: "checklist", category: "camara" },
       
       // Ar Condicionado
-      { nome: "SCRAPER OFICIAL", desc: "Comparação de preços em tempo real entre Dufrio, Frigelar, Leveros e Central Ar.", arquivo: "scraper-ar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`, color: "#f59e0b", slug: "scraper", category: "ar" },
+      { nome: "SCRAPER OFICIAL", desc: "Comparação de preços em tempo real entre Dufrio, Frigelar, Leveros, Central Ar e Polo Ar.", arquivo: "scraper-ar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`, color: "#f59e0b", slug: "scraper", category: "ar" },
       { nome: "COMPARADOR DE AR-CONDICIONADO", desc: "Análise de preços da concorrência em tempo real.", arquivo: "comparador-ar.html", icone: svgComparar, color: "#6366f1", slug: "comparador", category: "ar" },
       { nome: "PREÇOS AO VIVO", badge: "Em Produção", desc: "Visualiza em cards os produtos raspados pela extensão das abas abertas nas lojas.", arquivo: "precos-ao-vivo.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`, color: "#00e676", slug: "precos-vivo", category: "ar" },
       { nome: "PRECIFICAÇÃO SKU'S (SITE)", desc: "Calculadora para precificar SKU's no 365 com o valor do site.", arquivo: "precificacao-ar.html", icone: svgPrecificar, color: "#0ea5e9", slug: "precificacao", category: "ar" },
@@ -601,6 +629,10 @@
       { nome: "COTAÇÃO EXPRESS", desc: "Orçamento rápido para infra-estrutura de ar condicionado.", arquivo: "cotacoes.html", icone: svgCotar, color: "#8b5cf6", slug: "cotacao", category: "outros" },
       { nome: "EXTRAÇÃO DE CÓDIGOS", desc: "Extração de códigos que constam quantidade em estoque.", arquivo: "itens-quantidade.html", icone: svgFiltro, color: "#d946ef", slug: "extracao", category: "outros" },
       { nome: "SCRAPER CLIMARIO", desc: "Extração direta de produtos do site ClimaRio via URL.", arquivo: "scraper-climario.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#f59e0b", slug: "scraper-climario", category: "ar" },
+      { nome: "SCRAPER FRIGELAR", badge: "Laboratório", desc: "Extração isolada dos links Frigelar da planilha.", arquivo: "scraper-frigelar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#00a859", slug: "scraper-frigelar", category: "ar" },
+      { nome: "SCRAPER LEVEROS", badge: "Laboratório", desc: "Extração isolada dos links Leveros da planilha.", arquivo: "scraper-leveros.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#ff6b00", slug: "scraper-leveros", category: "ar" },
+      { nome: "SCRAPER CENTRAL AR", badge: "Laboratório", desc: "Extração isolada dos links Central Ar da planilha.", arquivo: "scraper-centralar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#ec4899", slug: "scraper-centralar", category: "ar" },
+      { nome: "SCRAPER DUFRIO", badge: "Laboratório", desc: "Extração isolada dos links Dufrio da planilha.", arquivo: "scraper-dufrio.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#007bff", slug: "scraper-dufrio", category: "ar" },
       { nome: "SCRAPER FRIOPEÇAS", badge: "Laboratório", desc: "Extração de produtos do site FrioPeças. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-friopecas.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#2563eb", slug: "scraper-friopecas", category: "ar" },
       { nome: "SCRAPER POLO AR", badge: "Laboratório", desc: "Extração de produtos do site Polo Ar. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-poloar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#ef4444", slug: "scraper-poloar", category: "ar" },
       { nome: "SCRAPER WEBCONTINENTAL", badge: "Laboratório", desc: "Extração de produtos do site Webcontinental. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-webcontinental.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#14b8a6", slug: "scraper-webcontinental", category: "ar" },
@@ -670,6 +702,12 @@
     // Dados de atualizações embutidos (Fallback)
     const updatesData = {
       "updates": [
+        {
+          "date": "07/05/2026",
+          "time": "00:30",
+          "title": "Labs individuais por loja",
+          "description": "Criados laboratorios isolados para Frigelar, Leveros, Central Ar e Dufrio. Cada lab usa a mesma planilha, respeita o link exato da linha selecionada e renderiza cards da propria loja para testes antes de promover ajustes ao Scraper Oficial."
+        },
         {
           "date": "06/05/2026",
           "time": "20:30",
