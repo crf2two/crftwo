@@ -1,1 +1,1 @@
-const LATEST_LOG = { message: 'Criados laboratorios individuais para Frigelar, Leveros, Central Ar e Dufrio. Cada pagina carrega o link exato da planilha por tipo, BTU e ciclo e renderiza cards isolados para testar antes de levar mudancas ao Scraper Oficial.', dateIso: '2026-05-07T00:30:00+00:00' };
+const LATEST_LOG = { message: 'Hub limpo: os scrapers individuais agora ficam dentro de um unico card "Laboratorios de Scraper". Ao clicar, abre um painel na propria tela com todos os labs por loja para escolher e entrar.', dateIso: '2026-05-07T07:35:00-03:00' };

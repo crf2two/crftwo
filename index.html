@@ -370,62 +370,151 @@
     [data-id="extracao"] { grid-column: span 2; }
     [data-id="download"] { grid-column: span 1; }
 
-    /* Laboratórios: cards mais discretos e compactos */
-    [data-id="scraper-friopecas"],
-    [data-id="scraper-poloar"],
-    [data-id="scraper-webcontinental"],
-    [data-id="scraper-frigelar"],
-    [data-id="scraper-leveros"],
-    [data-id="scraper-centralar"],
-    [data-id="scraper-dufrio"] {
-      grid-column: span 1;
-      min-height: 140px;
-      padding: 20px;
-      opacity: 0.55;
-      transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+    [data-id="scraper-labs"] { grid-column: span 2; }
+
+    .labs-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      background: rgba(2, 6, 23, 0.74);
+      backdrop-filter: blur(18px);
     }
-    [data-id="scraper-friopecas"]:hover,
-    [data-id="scraper-poloar"]:hover,
-    [data-id="scraper-webcontinental"]:hover,
-    [data-id="scraper-frigelar"]:hover,
-    [data-id="scraper-leveros"]:hover,
-    [data-id="scraper-centralar"]:hover,
-    [data-id="scraper-dufrio"]:hover { opacity: 1; }
-    [data-id="scraper-friopecas"] .card-title,
-    [data-id="scraper-poloar"] .card-title,
-    [data-id="scraper-webcontinental"] .card-title,
-    [data-id="scraper-frigelar"] .card-title,
-    [data-id="scraper-leveros"] .card-title,
-    [data-id="scraper-centralar"] .card-title,
-    [data-id="scraper-dufrio"] .card-title { font-size: 14px; margin-bottom: 6px; }
-    [data-id="scraper-friopecas"] .card-desc,
-    [data-id="scraper-poloar"] .card-desc,
-    [data-id="scraper-webcontinental"] .card-desc,
-    [data-id="scraper-frigelar"] .card-desc,
-    [data-id="scraper-leveros"] .card-desc,
-    [data-id="scraper-centralar"] .card-desc,
-    [data-id="scraper-dufrio"] .card-desc { font-size: 11px; }
-    [data-id="scraper-friopecas"] .icon-box,
-    [data-id="scraper-poloar"] .icon-box,
-    [data-id="scraper-webcontinental"] .icon-box,
-    [data-id="scraper-frigelar"] .icon-box,
-    [data-id="scraper-leveros"] .icon-box,
-    [data-id="scraper-centralar"] .icon-box,
-    [data-id="scraper-dufrio"] .icon-box { width: 38px; height: 38px; }
-    [data-id="scraper-friopecas"] .icon-box svg,
-    [data-id="scraper-poloar"] .icon-box svg,
-    [data-id="scraper-webcontinental"] .icon-box svg,
-    [data-id="scraper-frigelar"] .icon-box svg,
-    [data-id="scraper-leveros"] .icon-box svg,
-    [data-id="scraper-centralar"] .icon-box svg,
-    [data-id="scraper-dufrio"] .icon-box svg { width: 18px; height: 18px; }
-    [data-id="scraper-friopecas"] .badge,
-    [data-id="scraper-poloar"] .badge,
-    [data-id="scraper-webcontinental"] .badge,
-    [data-id="scraper-frigelar"] .badge,
-    [data-id="scraper-leveros"] .badge,
-    [data-id="scraper-centralar"] .badge,
-    [data-id="scraper-dufrio"] .badge { font-size: 9px; padding: 4px 10px; }
+
+    .labs-overlay.is-open { display: flex; }
+
+    .labs-panel {
+      width: min(1040px, 100%);
+      max-height: min(82vh, 780px);
+      overflow: auto;
+      padding: 32px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at top left, rgba(239, 68, 68, 0.16), transparent 32%),
+        rgba(15, 15, 25, 0.97);
+      box-shadow: 0 28px 90px rgba(0,0,0,0.55);
+    }
+
+    .labs-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .labs-kicker {
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .labs-title {
+      color: var(--text-main);
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .labs-close {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      color: var(--text-main);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .labs-close:hover {
+      border-color: rgba(239, 68, 68, 0.65);
+      color: #fff;
+      background: rgba(239, 68, 68, 0.18);
+    }
+
+    .labs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .lab-card {
+      min-height: 158px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px;
+      color: var(--text-main);
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.045);
+      transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+    }
+
+    .lab-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--lab-color);
+      background: rgba(255,255,255,0.075);
+    }
+
+    .lab-card .icon-box {
+      width: 42px;
+      height: 42px;
+      color: var(--lab-color);
+      background: color-mix(in srgb, var(--lab-color) 14%, transparent);
+      border-color: color-mix(in srgb, var(--lab-color) 40%, transparent);
+    }
+
+    .lab-card .icon-box svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .lab-card-title {
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.28;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      margin-bottom: 8px;
+    }
+
+    .lab-card-desc {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .lab-card-meta {
+      color: var(--lab-color);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 768px) {
+      .labs-overlay { padding: 14px; align-items: flex-start; }
+      .labs-panel { padding: 22px; margin-top: 18px; max-height: calc(100vh - 36px); }
+      .labs-title { font-size: 22px; }
+      .labs-grid { grid-template-columns: 1fr; }
+    }
 
     /* Mobile: força todo card a ocupar a linha inteira (corrige cards estreitos) */
     @media (max-width: 768px) {
@@ -610,6 +699,18 @@
     const svgDownload = `<svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`;
     const svgChecklist = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>`;
     const svgBox3D = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>`;
+    const svgScraper = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`;
+
+    const SCRAPER_LABS = [
+      { nome: "SCRAPER CLIMARIO", desc: "Extração direta de produtos do site ClimaRio via URL.", arquivo: "scraper-climario.html", color: "#f59e0b" },
+      { nome: "SCRAPER FRIGELAR", desc: "Extração isolada dos links Frigelar da planilha.", arquivo: "scraper-frigelar.html", color: "#00a859" },
+      { nome: "SCRAPER LEVEROS", desc: "Extração isolada dos links Leveros da planilha.", arquivo: "scraper-leveros.html", color: "#ff6b00" },
+      { nome: "SCRAPER CENTRAL AR", desc: "Extração isolada dos links Central Ar da planilha.", arquivo: "scraper-centralar.html", color: "#ec4899" },
+      { nome: "SCRAPER DUFRIO", desc: "Extração isolada dos links Dufrio da planilha.", arquivo: "scraper-dufrio.html", color: "#007bff" },
+      { nome: "SCRAPER FRIOPEÇAS", desc: "Extração de produtos do site FrioPeças a partir do link da planilha.", arquivo: "scraper-friopecas.html", color: "#2563eb" },
+      { nome: "SCRAPER POLO AR", desc: "Extração de produtos do site Polo Ar a partir do link da planilha.", arquivo: "scraper-poloar.html", color: "#ef4444" },
+      { nome: "SCRAPER WEBCONTINENTAL", desc: "Extração de produtos do site Webcontinental a partir do link da planilha.", arquivo: "scraper-webcontinental.html", color: "#14b8a6" }
+    ];
 
     // Nomes estritamente idênticos solicitados pelo usuário
     const ferramentas = [
@@ -623,24 +724,20 @@
       { nome: "COMPARADOR DE AR-CONDICIONADO", desc: "Análise de preços da concorrência em tempo real.", arquivo: "comparador-ar.html", icone: svgComparar, color: "#6366f1", slug: "comparador", category: "ar" },
       { nome: "PREÇOS AO VIVO", badge: "Em Produção", desc: "Visualiza em cards os produtos raspados pela extensão das abas abertas nas lojas.", arquivo: "precos-ao-vivo.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`, color: "#00e676", slug: "precos-vivo", category: "ar" },
       { nome: "PRECIFICAÇÃO SKU'S (SITE)", desc: "Calculadora para precificar SKU's no 365 com o valor do site.", arquivo: "precificacao-ar.html", icone: svgPrecificar, color: "#0ea5e9", slug: "precificacao", category: "ar" },
-
+      { nome: "LABORATÓRIOS DE SCRAPER", badge: "Laboratório", desc: "Scrapers individuais por loja para testar antes de levar ajustes ao Scraper Oficial.", arquivo: "#laboratorios", icone: svgScraper, color: "#22c55e", slug: "scraper-labs", category: "ar", isLabGroup: true },
 
       // Outras
       { nome: "COTAÇÃO EXPRESS", desc: "Orçamento rápido para infra-estrutura de ar condicionado.", arquivo: "cotacoes.html", icone: svgCotar, color: "#8b5cf6", slug: "cotacao", category: "outros" },
       { nome: "EXTRAÇÃO DE CÓDIGOS", desc: "Extração de códigos que constam quantidade em estoque.", arquivo: "itens-quantidade.html", icone: svgFiltro, color: "#d946ef", slug: "extracao", category: "outros" },
-      { nome: "SCRAPER CLIMARIO", desc: "Extração direta de produtos do site ClimaRio via URL.", arquivo: "scraper-climario.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#f59e0b", slug: "scraper-climario", category: "ar" },
-      { nome: "SCRAPER FRIGELAR", badge: "Laboratório", desc: "Extração isolada dos links Frigelar da planilha.", arquivo: "scraper-frigelar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#00a859", slug: "scraper-frigelar", category: "ar" },
-      { nome: "SCRAPER LEVEROS", badge: "Laboratório", desc: "Extração isolada dos links Leveros da planilha.", arquivo: "scraper-leveros.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#ff6b00", slug: "scraper-leveros", category: "ar" },
-      { nome: "SCRAPER CENTRAL AR", badge: "Laboratório", desc: "Extração isolada dos links Central Ar da planilha.", arquivo: "scraper-centralar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#ec4899", slug: "scraper-centralar", category: "ar" },
-      { nome: "SCRAPER DUFRIO", badge: "Laboratório", desc: "Extração isolada dos links Dufrio da planilha.", arquivo: "scraper-dufrio.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#007bff", slug: "scraper-dufrio", category: "ar" },
-      { nome: "SCRAPER FRIOPEÇAS", badge: "Laboratório", desc: "Extração de produtos do site FrioPeças. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-friopecas.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#2563eb", slug: "scraper-friopecas", category: "ar" },
-      { nome: "SCRAPER POLO AR", badge: "Laboratório", desc: "Extração de produtos do site Polo Ar. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-poloar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#ef4444", slug: "scraper-poloar", category: "ar" },
-      { nome: "SCRAPER WEBCONTINENTAL", badge: "Laboratório", desc: "Extração de produtos do site Webcontinental. Link Hi-Wall 9000 Frio puxado da planilha.", arquivo: "scraper-webcontinental.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`, color: "#14b8a6", slug: "scraper-webcontinental", category: "ar" },
       { nome: "BAIXAR PROJETO", desc: "Baixar projeto e arquivos da extensão.", arquivo: "https://github.com/crftwoo/thiago.luz.dufrio/archive/refs/heads/main.zip", icone: svgDownload, color: "#94a3b8", isDownload: true, slug: "download", category: "outros" }
     ];
 
     function openTool(index) {
       const f = ferramentas[index];
+      if (f.isLabGroup) {
+        openLabsPanel();
+        return;
+      }
       if (f.isDownload) {
         if (confirm(`Baixar projeto e a extensão zipada?`)) {
           const l = document.createElement("a");
@@ -651,6 +748,66 @@
       }
       window.location.href = f.arquivo;
     }
+
+    function openLabsPanel() {
+      const panel = document.getElementById('labsOverlay') || createLabsPanel();
+      panel.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLabsPanel() {
+      const panel = document.getElementById('labsOverlay');
+      if (!panel) return;
+      panel.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+
+    function createLabsPanel() {
+      const overlay = document.createElement('div');
+      overlay.id = 'labsOverlay';
+      overlay.className = 'labs-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-labelledby', 'labsTitle');
+      overlay.innerHTML = `
+        <div class="labs-panel">
+          <div class="labs-head">
+            <div>
+              <div class="labs-kicker">Laboratórios individuais</div>
+              <div class="labs-title" id="labsTitle">Escolha o scraper da loja</div>
+            </div>
+            <button class="labs-close" type="button" aria-label="Fechar laboratórios" data-close-labs>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="labs-grid">
+            ${SCRAPER_LABS.map(lab => `
+              <a class="lab-card" href="${lab.arquivo}" style="--lab-color: ${lab.color}">
+                <div>
+                  <div class="icon-box">${svgScraper}</div>
+                </div>
+                <div>
+                  <div class="lab-card-title">${lab.nome}</div>
+                  <div class="lab-card-desc">${lab.desc}</div>
+                </div>
+                <div class="lab-card-meta">Abrir laboratório</div>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay || event.target.closest('[data-close-labs]')) {
+          closeLabsPanel();
+        }
+      });
+      document.body.appendChild(overlay);
+      return overlay;
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeLabsPanel();
+    });
 
     const gridC = document.getElementById('gridCamara');
     const gridA = document.getElementById('gridAr');
@@ -674,12 +831,6 @@
         </div>
       `;
 
-      // LABORATÓRIO: FRIOPEÇAS
-      const labFriopecas = document.createElement('a');
-      labFriopecas.href = "test-friopecas.html";
-      labFriopecas.className = "tool-card";
-      labFriopecas.innerHTML = `<div class="tool-icon">🧪</div><div class="tool-info"><div class="tool-name">Lab: FrioPeças</div><div class="tool-desc">Teste de raspagem VTEX IO (Filtros Fixos)</div></div>`;
-
       if(f.category === 'camara') gridC.appendChild(card);
       else if(f.category === 'ar') gridA.appendChild(card);
       else gridO.appendChild(card);
@@ -702,6 +853,12 @@
     // Dados de atualizações embutidos (Fallback)
     const updatesData = {
       "updates": [
+        {
+          "date": "07/05/2026",
+          "time": "07:35",
+          "title": "Hub limpo para laboratórios",
+          "description": "Os scrapers individuais agora ficam dentro de um único card Laboratórios de Scraper. Ao clicar, abre um painel na própria tela com todos os labs por loja para escolher e entrar."
+        },
         {
           "date": "07/05/2026",
           "time": "00:30",

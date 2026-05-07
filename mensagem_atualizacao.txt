@@ -1,1 +1,1 @@
-Criados laboratorios individuais para Frigelar, Leveros, Central Ar e Dufrio. Cada pagina carrega o link exato da planilha por tipo, BTU e ciclo e renderiza cards isolados para testar antes de levar mudancas ao Scraper Oficial.
+Hub limpo: os scrapers individuais agora ficam dentro de um unico card "Laboratorios de Scraper". Ao clicar, abre um painel na propria tela com todos os labs por loja para escolher e entrar.
