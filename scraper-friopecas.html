@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Scraper FrioPeças - Laboratório</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -172,8 +173,17 @@
     let sheetLoadPromise = null;
 
     // Helpers exatamente iguais ao scraper-ar.html
-    const norm = (s) => String(s || "").toLowerCase().replace(/[\s\-_.]/g, "");
-    const normalizeCiclo = (c) => String(c || "").toLowerCase().trim().replace(/^só\s+/, "");
+    const norm = (s) => String(s || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[\s\-_.]/g, "");
+    const normalizeCiclo = (c) => String(c || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/^so\s+/, "");
     const sortBTUs = (a, b) => {
       const getVal = (s) => parseInt(String(s).replace(/[.,]/g, "").match(/\d+/) || [0], 10);
       return getVal(a) - getVal(b);
@@ -419,6 +429,169 @@
     }
 
     // ------------------------------------------------------------
+    // Extracao principal via VTEX Catalog API
+    // ------------------------------------------------------------
+    const API_PROXIES = [
+      "https://frigelar-proxy.crftwo.workers.dev/?url=",
+      "https://api.codetabs.com/v1/proxy?quest=",
+      "https://api.allorigins.win/get?url="
+    ];
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      }).format(value).replace(/\u00a0/g, " ");
+    }
+
+    function getOrderParam(parsedUrl) {
+      const order = parsedUrl.searchParams.get("order") || parsedUrl.searchParams.get("O") || "";
+      const sort = parsedUrl.searchParams.get("sort") || "";
+      const value = String(order || sort).toLowerCase();
+      if (value.includes("desc")) return "OrderByPriceDESC";
+      return "OrderByPriceASC";
+    }
+
+    function categoryMapFor(path, rawMap) {
+      if (rawMap) {
+        const parts = rawMap.split(",").filter(Boolean);
+        if (parts.length) return parts.map(() => "c").join(",");
+      }
+      const depth = path.split("/").filter(Boolean).length || 1;
+      return Array.from({ length: depth }, () => "c").join(",");
+    }
+
+    function buildCatalogApiUrls(searchUrl) {
+      let parsed;
+      try { parsed = new URL(searchUrl); } catch(e) { return []; }
+
+      const rawQuery = parsed.searchParams.get("query");
+      const path = (rawQuery || parsed.pathname || "/").replace(/\/+$/, "");
+      const safePath = path.startsWith("/") ? path : "/" + path;
+      const map = categoryMapFor(safePath, parsed.searchParams.get("map"));
+      const order = getOrderParam(parsed);
+
+      return [`${STORE.baseUrl}/api/catalog_system/pub/products/search${safePath}?map=${map}&O=${order}`];
+    }
+
+    async function fetchApiText(targetUrl) {
+      let lastError = null;
+      for (const proxy of API_PROXIES) {
+        try {
+          const resp = await fetch(proxy + encodeURIComponent(targetUrl), { cache: "no-store" });
+          if (!resp.ok && resp.status !== 206) throw new Error("HTTP " + resp.status);
+
+          if (proxy.includes("allorigins")) {
+            const json = await resp.json();
+            if (json && json.contents) return json.contents;
+            throw new Error("Resposta sem contents");
+          }
+
+          return await resp.text();
+        } catch(e) {
+          lastError = e;
+        }
+      }
+      throw lastError || new Error("Falha na API VTEX");
+    }
+
+    async function fetchCatalogProducts(apiUrl) {
+      const products = [];
+      for (let from = 0; from < 200; from += 50) {
+        const to = from + 49;
+        const sep = apiUrl.includes("?") ? "&" : "?";
+        const raw = await fetchApiText(`${apiUrl}${sep}_from=${from}&_to=${to}&_=${Date.now()}`);
+        let data;
+        try { data = JSON.parse(raw); } catch(e) { break; }
+        if (!Array.isArray(data) || data.length === 0) break;
+        products.push(...data);
+        if (data.length < 50) break;
+      }
+      return products;
+    }
+
+    function productMatchesCycle(product) {
+      const target = normalizeCiclo(selection.ciclo);
+      if (!target) return true;
+      const haystack = norm([...(product.Ciclo || []), product.productName || ""].join(" "));
+      if (target.includes("quente")) return haystack.includes("quente");
+      if (target.includes("frio")) return haystack.includes("frio") && !haystack.includes("quente");
+      return true;
+    }
+
+    function getAvailableSku(product) {
+      const items = Array.isArray(product.items) ? product.items : [];
+      for (const sku of items) {
+        const sellers = Array.isArray(sku.sellers) ? sku.sellers : [];
+        const seller = sellers.find(s => s?.commertialOffer?.IsAvailable !== false) || sellers[0];
+        const offer = seller?.commertialOffer || {};
+        const price = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+        if (price > 0 && offer.IsAvailable !== false) return { sku, offer };
+      }
+      return null;
+    }
+
+    function formatInstallment(offer) {
+      const installments = Array.isArray(offer.Installments) ? offer.Installments : [];
+      if (!installments.length) return "";
+
+      const multi = installments.filter(i => Number(i.NumberOfInstallments) > 1);
+      const noInterest = multi.filter(i => Number(i.InterestRate || 0) === 0);
+      const pool = noInterest.length ? noInterest : multi;
+      if (!pool.length) return "";
+
+      const best = pool.reduce((a, b) =>
+        Number(a.NumberOfInstallments || 0) > Number(b.NumberOfInstallments || 0) ? a : b
+      );
+      const count = Number(best.NumberOfInstallments || 0);
+      const total = Number(best.TotalValuePlusInterestRate || (Number(best.Value || 0) * count));
+      const value = Number(best.Value || (total / count));
+      if (!count || !total || !value) return "";
+
+      const suffix = Number(best.InterestRate || 0) === 0 ? " sem juros" : "";
+      return `ou ${formatCurrency(total)} em ${count}x de ${formatCurrency(value)}${suffix}`;
+    }
+
+    function buildProductLink(product, sku) {
+      if (product.link) return product.link;
+      const slug = product.linkText;
+      const itemId = sku?.itemId;
+      if (slug && itemId && !slug.endsWith(itemId)) return `${STORE.baseUrl}/${slug}-${itemId}/p`;
+      return slug ? `${STORE.baseUrl}/${slug}/p` : STORE.baseUrl;
+    }
+
+    async function scrapeCatalog(searchUrl) {
+      const apiUrls = buildCatalogApiUrls(searchUrl);
+      const rawProducts = [];
+      for (const apiUrl of apiUrls) {
+        rawProducts.push(...await fetchCatalogProducts(apiUrl));
+      }
+
+      const seen = new Set();
+      return rawProducts
+        .filter(product => product && product.productName && productMatchesCycle(product))
+        .map(product => {
+          const available = getAvailableSku(product);
+          if (!available) return null;
+
+          const { sku, offer } = available;
+          const id = product.productId || product.linkText || product.productName;
+          if (seen.has(id)) return null;
+          seen.add(id);
+
+          const price = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+          return {
+            name: product.productName,
+            img: sku.images?.[0]?.imageUrl || "",
+            cash: price > 0 ? formatCurrency(price) : "Consulte o site",
+            parc: formatInstallment(offer),
+            link: buildProductLink(product, sku)
+          };
+        })
+        .filter(Boolean);
+    }
+
+    // ------------------------------------------------------------
     // Main scraper
     // ------------------------------------------------------------
     async function runScraper() {
@@ -436,9 +609,12 @@
       status.style.display = "none";
 
       try {
-        const html = await tryFetch(url);
-        let products = extractFromVtexState(html);
-        if (products.length === 0) products = extractFromDom(html);
+        let products = await scrapeCatalog(url);
+        if (products.length === 0) {
+          const html = await tryFetch(url);
+          products = extractFromVtexState(html);
+          if (products.length === 0) products = extractFromDom(html);
+        }
 
         if (products.length === 0) {
           status.innerText = `Nenhum produto detectado na ${STORE.label}.`;
