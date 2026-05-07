@@ -1,1 +1,1 @@
-Lab FrioPecas: corrigido match da planilha e renderizacao por link selecionado.
+Lab FrioPecas: preco principal agora usa Pix e parcelamento segue o card do site.

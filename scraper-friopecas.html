@@ -531,6 +531,15 @@
       return null;
     }
 
+    function getPixPrice(offer) {
+      const options = offer?.PaymentOptions?.installmentOptions || [];
+      const pixOption = options.find(option => norm(option?.paymentName).includes("pix"));
+      const pixInstallment = pixOption?.installments?.find(item => Number(item.count || 0) === 1)
+        || pixOption?.installments?.[0];
+      const pixCents = Number(pixInstallment?.total || pixInstallment?.value || 0);
+      return pixCents > 0 ? pixCents / 100 : 0;
+    }
+
     function formatInstallment(offer) {
       const installments = Array.isArray(offer.Installments) ? offer.Installments : [];
       if (!installments.length) return "";
@@ -548,8 +557,7 @@
       const value = Number(best.Value || (total / count));
       if (!count || !total || !value) return "";
 
-      const suffix = Number(best.InterestRate || 0) === 0 ? " sem juros" : "";
-      return `ou ${formatCurrency(total)} em ${count}x de ${formatCurrency(value)}${suffix}`;
+      return `ou ${formatCurrency(total)} em até ${count}x de ${formatCurrency(value)}`;
     }
 
     function buildProductLink(product, sku) {
@@ -579,11 +587,12 @@
           if (seen.has(id)) return null;
           seen.add(id);
 
-          const price = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+          const pixPrice = getPixPrice(offer);
+          const basePrice = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
           return {
             name: product.productName,
             img: sku.images?.[0]?.imageUrl || "",
-            cash: price > 0 ? formatCurrency(price) : "Consulte o site",
+            cash: pixPrice > 0 ? `${formatCurrency(pixPrice)} no Pix` : (basePrice > 0 ? `${formatCurrency(basePrice)} à vista` : "Consulte o site"),
             parc: formatInstallment(offer),
             link: buildProductLink(product, sku)
           };
@@ -632,7 +641,7 @@
               <div class="card-body">
                 <div class="card-title" title="${p.name}">${p.name}</div>
                 <div class="price-box">
-                  <div class="price-cash">${p.cash}<span class="price-label">à vista</span></div>
+                  <div class="price-cash">${p.cash}</div>
                   <div class="price-parc">${p.parc || ""}</div>
                 </div>
                 <a href="${p.link}" target="_blank" class="card-btn">Ver na ${STORE.label}</a>
