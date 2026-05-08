@@ -1,1 +1,1 @@
-Lab FrioPecas: links com varios BTUs agora renderizam todos os produtos do link.
+Lab FrioPecas: removidos indisponiveis e respeitado ciclo do link da planilha.

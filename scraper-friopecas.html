@@ -67,7 +67,6 @@
     .card-title { font-size: 16px; font-weight: 700; line-height: 1.5; color: #fff; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 72px; }
     .price-box { margin-top: auto; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
     .price-cash { font-size: 26px; font-weight: 900; color: var(--green); letter-spacing: -1px; }
-    .price-cash.unavailable { color: var(--muted); font-size: 20px; letter-spacing: 0; }
     .price-label { font-size: 11px; color: var(--green); text-transform: uppercase; font-weight: 800; margin-left: 4px; }
     .price-parc { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 6px; }
     .card-btn { display: block; width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); border-radius: 12px; color: #fff; text-decoration: none; text-align: center; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 18px; transition: 0.3s; }
@@ -493,6 +492,40 @@
       });
     }
 
+    function getCycleFilterFromUrl(searchUrl) {
+      let parsed;
+      try { parsed = new URL(searchUrl); } catch(e) { return ""; }
+
+      const pathParts = (value) => String(value || "")
+        .replace(/^\/+|\/+$/g, "")
+        .split("/")
+        .filter(Boolean);
+
+      const queryParts = pathParts(parsed.searchParams.get("query") || parsed.pathname || "/");
+      const initialParts = pathParts(parsed.searchParams.get("initialQuery"));
+      const mapParts = String(parsed.searchParams.get("map") || "").split(",").filter(Boolean);
+      const baseParts = initialParts.length > 0 ? initialParts : queryParts.slice(0, Math.min(2, queryParts.length));
+      const extraParts = queryParts.slice(baseParts.length);
+      const extraMaps = mapParts.slice(baseParts.length);
+
+      const cycleIndex = extraMaps.findIndex(map => norm(map).includes("ciclo"));
+      if (cycleIndex < 0) return "";
+
+      const cycle = norm(extraParts[cycleIndex]);
+      if (cycle.includes("quente")) return "quente";
+      if (cycle.includes("frio")) return "frio";
+      return "";
+    }
+
+    function productMatchesCycleFilter(product, cycleFilter) {
+      if (!cycleFilter) return true;
+
+      const haystack = norm([...(product.Ciclo || []), product.productName || ""].join(" "));
+      if (cycleFilter === "quente") return haystack.includes("quente");
+      if (cycleFilter === "frio") return haystack.includes("frio") && !haystack.includes("quente");
+      return true;
+    }
+
     async function fetchApiText(targetUrl) {
       let lastError = null;
       for (const proxy of API_PROXIES) {
@@ -599,6 +632,7 @@
 
     async function scrapeCatalog(searchUrl) {
       const apiUrls = buildCatalogApiUrls(searchUrl);
+      const cycleFilter = getCycleFilterFromUrl(searchUrl);
       const rawProducts = [];
       for (const apiUrl of apiUrls) {
         rawProducts.push(...await fetchCatalogProducts(apiUrl));
@@ -620,16 +654,16 @@
           if (!productOffer) return null;
 
           const { sku, offer, available } = productOffer;
+          if (!available || !productMatchesCycleFilter(product, cycleFilter)) return null;
 
           const pixPrice = getPixPrice(offer);
           const basePrice = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
           return {
             name: product.productName,
             img: sku.images?.[0]?.imageUrl || "",
-            cash: available ? (pixPrice > 0 ? `${formatCurrency(pixPrice)} no Pix` : (basePrice > 0 ? `${formatCurrency(basePrice)} à vista` : "Consulte o site")) : "Produto indisponível",
-            parc: available ? formatInstallment(offer) : "",
-            link: buildProductLink(product, sku),
-            available
+            cash: pixPrice > 0 ? `${formatCurrency(pixPrice)} no Pix` : (basePrice > 0 ? `${formatCurrency(basePrice)} à vista` : "Consulte o site"),
+            parc: formatInstallment(offer),
+            link: buildProductLink(product, sku)
           };
         })
         .filter(Boolean);
@@ -676,7 +710,7 @@
               <div class="card-body">
                 <div class="card-title" title="${p.name}">${p.name}</div>
                 <div class="price-box">
-                  <div class="price-cash${p.available === false ? " unavailable" : ""}">${p.cash}</div>
+                  <div class="price-cash">${p.cash}</div>
                   <div class="price-parc">${p.parc || ""}</div>
                 </div>
                 <a href="${p.link}" target="_blank" class="card-btn">Ver na ${STORE.label}</a>
