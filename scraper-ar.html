@@ -42,9 +42,7 @@
 
     /* Locked state: only selected stays visible, others fade and collapse */
     .options-grid.locked .option-btn:not(.selected) { opacity: 0; transform: translateY(-10px) scale(0.85); max-width: 0 !important; max-height: 0 !important; flex: 0 0 0 !important; margin: 0 !important; padding: 0 !important; border-width: 0 !important; pointer-events: none; overflow: hidden; }
-    .options-grid.locked .option-btn.selected { position: relative; cursor: pointer; }
-    .options-grid.locked .option-btn.selected::after { content: "↻"; position: absolute; top: 6px; right: 10px; font-size: 13px; opacity: 0.55; color: var(--blue); transition: opacity 0.2s, transform 0.3s; }
-    .options-grid.locked .option-btn.selected:hover::after { opacity: 1; transform: rotate(-25deg); }
+    .options-grid.locked .option-btn.selected { cursor: pointer; }
 
     /* Confirmation bounce when an option is picked */
     @keyframes confirm-bounce { 0% { transform: scale(1); } 35% { transform: scale(1.08); } 70% { transform: scale(0.97); } 100% { transform: scale(1); } }
