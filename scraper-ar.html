@@ -47,10 +47,10 @@
     .loading-sheet { color: var(--blue); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; animation: pulse 1.5s infinite; text-align: center; width: 100%; padding: 40px 0; }
 
     /* GRID DE PRODUTOS */
-    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 28px; width: 100%; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; margin-top: 28px; width: 100%; }
 
     /* CARD */
-    .product-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden; backdrop-filter: blur(16px); display: flex; flex-direction: column; transition: all 0.25s; position: relative; }
+    .product-card { background: linear-gradient(180deg, rgba(18,18,28,0.95), rgba(12,12,20,0.98)); border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden; backdrop-filter: blur(16px); display: flex; flex-direction: column; transition: all 0.25s; position: relative; box-shadow: 0 14px 36px rgba(0,0,0,0.28); }
     .product-card:hover { border-color: rgba(79,172,254,0.3); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(79,172,254,0.1); }
 
     /* LOJA BADGE */
@@ -66,32 +66,32 @@
     .store-badge.store-poloar { background: linear-gradient(135deg, #004f9f, #ef3b2d); border-color: rgba(239,59,45,0.55); }
 
     /* FOTO */
-    .product-img-wrap { width: 100%; aspect-ratio: 1.1/1; background: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; border-bottom: 1px solid var(--card-border); }
-    .product-img-wrap img { width: 95%; height: 95%; object-fit: contain; transition: transform 0.3s; }
-    .product-img-wrap:hover img { transform: scale(1.08); }
+    .product-img-wrap { width: 100%; aspect-ratio: 1.08/1; background: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .product-img-wrap img { width: 90%; height: 90%; object-fit: contain; transition: transform 0.3s; }
+    .product-img-wrap:hover img { transform: scale(1.045); }
     .img-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.2s; }
     .img-overlay span { font-size: 10px; font-weight: 900; letter-spacing: 2px; color: white; text-transform: uppercase; background: rgba(79,172,254,0.3); border: 1px solid rgba(79,172,254,0.5); padding: 8px 16px; border-radius: 8px; }
     .product-img-wrap:hover .img-overlay { opacity: 1; }
     .img-overlay.copied span { background: rgba(0,230,118,0.3); border-color: rgba(0,230,118,0.5); color: var(--green); }
 
     /* INFO AREA */
-    .product-info { padding: 18px 14px 10px; cursor: pointer; position: relative; flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 140px; }
+    .product-info { padding: 20px 14px 10px; cursor: pointer; position: relative; flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 178px; }
     .product-info:hover { background: rgba(255,255,255,0.02); }
     .copy-hint { position: absolute; top: 10px; right: 10px; font-size: 8px; font-weight: 900; color: rgba(79,172,254,0.6); letter-spacing: 1px; text-transform: uppercase; opacity: 0; transition: 0.2s; z-index: 5; }
     .product-info:hover .copy-hint { opacity: 1; }
     .product-info.copied .copy-hint { opacity: 1; color: var(--green); content: "COPIADO!"; }
 
-    .product-title { font-size: 15px; font-weight: 800; color: #ffffff; line-height: 1.3; margin-bottom: 14px; text-align: center; display: flex; align-items: center; justify-content: center; width: 100%; overflow-wrap: break-word; word-break: break-word; }
-    .prices-wrap { display: flex; flex-direction: column; gap: 6px; align-items: center; width: 100%; text-align: center; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.04); }
+    .product-title { font-size: 15px; font-weight: 850; color: #ffffff; line-height: 1.32; margin-bottom: 16px; text-align: center; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; width: 100%; min-height: 79px; overflow: hidden; overflow-wrap: break-word; word-break: break-word; }
+    .prices-wrap { display: flex; flex-direction: column; gap: 6px; align-items: center; width: 100%; text-align: center; background: rgba(3,3,10,0.62); padding: 14px 10px; border-radius: 13px; border: 1px solid rgba(255,255,255,0.06); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); margin-top: auto; }
     
-    .price-vista { font-size: 20px; font-weight: 900; color: #00e676; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; text-shadow: 0 0 12px rgba(0,230,118,0.2); }
+    .price-vista { font-size: 21px; font-weight: 900; color: #00e676; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; text-shadow: 0 0 14px rgba(0,230,118,0.2); letter-spacing: 0; }
     .discount-badge { font-size: 10px; font-weight: 800; color: #00e676; background: rgba(0,230,118,0.12); border: 1px solid rgba(0,230,118,0.3); padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; white-space: nowrap; }
     
-    .price-install { font-size: 12px; color: #a1a1aa; font-weight: 600; text-align: center; line-height: 1.4; }
+    .price-install { font-size: 12px; color: #b7b7c8; font-weight: 700; text-align: center; line-height: 1.35; }
 
     /* BOTAO LINK */
-    .card-footer { padding: 10px 14px 14px; }
-    .btn-link { display: block; width: 100%; padding: 9px; border-radius: 10px; background: linear-gradient(135deg, rgba(79,172,254,0.12), rgba(167,139,250,0.12)); border: 1px solid rgba(79,172,254,0.25); color: var(--blue); font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-align: center; cursor: pointer; transition: all 0.2s; font-family: "Outfit", sans-serif; }
+    .card-footer { margin-top: auto; padding: 8px 14px 12px; border-top: 1px solid rgba(255,255,255,0.04); background: rgba(255,255,255,0.015); }
+    .btn-link { display: block; width: 100%; padding: 8px; border-radius: 9px; background: rgba(79,172,254,0.08); border: 1px solid rgba(79,172,254,0.22); color: #79bdff; font-size: 9px; font-weight: 900; letter-spacing: 1.7px; text-transform: uppercase; text-align: center; cursor: pointer; transition: all 0.2s; font-family: "Outfit", sans-serif; }
     .btn-link:hover { background: linear-gradient(135deg, rgba(79,172,254,0.25), rgba(167,139,250,0.25)); border-color: rgba(79,172,254,0.5); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,172,254,0.15); }
 
     @media (max-width: 768px) {
@@ -112,13 +112,18 @@
       .tipo-btn img { width: 70px; }
       .tipo-btn span { font-size: 12px; }
 
-      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; }
-      .product-card { border-radius: 12px; }
-      .product-title { font-size: 12px; margin-bottom: 10px; }
-      .product-img-wrap { aspect-ratio: 1/1; }
-      .price-vista { font-size: 16px; }
-      .discount-badge { font-size: 8px; padding: 2px 8px; }
-      .price-install { font-size: 10px; }
+      .products-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; margin-top: 22px; }
+      .product-card { border-radius: 16px; max-width: 640px; width: 100%; margin: 0 auto; }
+      .product-img-wrap { aspect-ratio: 4/3; }
+      .product-img-wrap img { width: 88%; height: 88%; }
+      .product-info { padding: 22px 20px 12px; min-height: 178px; }
+      .product-title { font-size: 18px; line-height: 1.22; margin-bottom: 18px; min-height: auto; -webkit-line-clamp: 3; }
+      .prices-wrap { padding: 16px 14px; gap: 7px; border-radius: 14px; }
+      .price-vista { font-size: 25px; }
+      .discount-badge { font-size: 9px; padding: 3px 9px; }
+      .price-install { font-size: 13px; }
+      .card-footer { padding: 8px 18px 14px; }
+      .btn-link { padding: 9px; font-size: 9px; letter-spacing: 1.8px; opacity: 0.82; }
 
       .store-badge { font-size: 8px; padding: 2px 8px; }
 
@@ -154,20 +159,21 @@
       .tipo-btn img { width: 55px; }
       .tipo-btn span { font-size: 11px; }
 
-      .products-grid { grid-template-columns: 1fr; gap: 8px; }
-      .product-card { border-radius: 10px; }
-      .product-info { padding: 14px 10px 8px; min-height: 120px; }
-      .product-title { font-size: 11px; margin-bottom: 8px; }
-      .product-img-wrap { aspect-ratio: 1/1; border-bottom: none; }
+      .products-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .product-card { border-radius: 16px; }
+      .product-info { padding: 20px 16px 12px; min-height: 168px; }
+      .product-title { font-size: 16px; line-height: 1.25; margin-bottom: 14px; -webkit-line-clamp: 3; }
+      .product-img-wrap { aspect-ratio: 4/3; }
+      .product-img-wrap img { width: 88%; height: 88%; }
       .img-overlay span { font-size: 9px; padding: 6px 12px; }
 
-      .prices-wrap { padding: 10px; gap: 4px; border-radius: 10px; }
-      .price-vista { font-size: 14px; gap: 3px; }
-      .discount-badge { font-size: 7px; padding: 2px 6px; }
-      .price-install { font-size: 9px; line-height: 1.3; }
+      .prices-wrap { padding: 14px 12px; gap: 5px; border-radius: 12px; }
+      .price-vista { font-size: 23px; gap: 3px; }
+      .discount-badge { font-size: 8px; padding: 2px 7px; }
+      .price-install { font-size: 12px; line-height: 1.35; }
 
-      .card-footer { padding: 8px 10px 10px; }
-      .btn-link { padding: 8px; font-size: 8px; border-radius: 8px; }
+      .card-footer { padding: 7px 14px 12px; }
+      .btn-link { padding: 8px; font-size: 8px; border-radius: 8px; opacity: 0.76; }
 
       .store-badge { font-size: 7px; padding: 2px 6px; top: 8px; left: 8px; }
       .copy-hint { font-size: 7px; top: 6px; right: 6px; }

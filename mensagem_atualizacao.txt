@@ -1,1 +1,1 @@
-Scraper Oficial: ClimaRio integrada como nova loja no grid de resultados.
+Scraper Oficial: cards refinados para prints mais legíveis no mobile e no desktop.
