@@ -746,7 +746,7 @@
       { nome: "SCRAPER LEVEROS", desc: "Extração isolada dos links Leveros da planilha.", arquivo: "scraper-leveros.html", color: "#ff6b00", official: true },
       { nome: "SCRAPER CENTRAL AR", desc: "Extração isolada dos links Central Ar da planilha.", arquivo: "scraper-centralar.html", color: "#ec4899", official: true },
       { nome: "SCRAPER DUFRIO", desc: "Extração isolada dos links Dufrio da planilha.", arquivo: "scraper-dufrio.html", color: "#007bff", official: true },
-      { nome: "SCRAPER FRIOPEÇAS", desc: "Extração de produtos do site FrioPeças a partir do link da planilha.", arquivo: "scraper-friopecas.html", color: "#2563eb", official: false },
+      { nome: "SCRAPER FRIOPEÇAS", desc: "Extração de produtos do site FrioPeças a partir do link da planilha.", arquivo: "scraper-friopecas.html", color: "#2563eb", official: true },
       { nome: "SCRAPER POLO AR", desc: "Extração de produtos do site Polo Ar a partir do link da planilha.", arquivo: "scraper-poloar.html", color: "#ef4444", official: true },
       { nome: "SCRAPER WEBCONTINENTAL", desc: "Extração de produtos do site Webcontinental a partir do link da planilha.", arquivo: "scraper-webcontinental.html", color: "#14b8a6", official: false }
     ];
@@ -759,7 +759,7 @@
       { nome: "CHECKLIST CÂMARAS FRIAS - GERAR PDF", desc: "Formulário passo-a-passo. Geração de PDF para orçamento de câmara frigorífica.", arquivo: "CheckList.html", icone: svgChecklist, color: "#10b981", slug: "checklist", category: "camara" },
       
       // Ar Condicionado
-      { nome: "SCRAPER OFICIAL", desc: "Comparação de preços em tempo real entre Dufrio, Frigelar, Leveros, Central Ar e Polo Ar.", arquivo: "scraper-ar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`, color: "#f59e0b", slug: "scraper", category: "ar" },
+      { nome: "SCRAPER OFICIAL", desc: "Comparação de preços em tempo real entre Dufrio, Frigelar, Leveros, Central Ar, Polo Ar e FrioPeças.", arquivo: "scraper-ar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`, color: "#f59e0b", slug: "scraper", category: "ar" },
       { nome: "COMPARADOR DE AR-CONDICIONADO", desc: "Análise de preços da concorrência em tempo real.", arquivo: "comparador-ar.html", icone: svgComparar, color: "#6366f1", slug: "comparador", category: "ar" },
       { nome: "PREÇOS AO VIVO", badge: "Em Produção", desc: "Visualiza em cards os produtos raspados pela extensão das abas abertas nas lojas.", arquivo: "precos-ao-vivo.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`, color: "#00e676", slug: "precos-vivo", category: "ar" },
       { nome: "PRECIFICAÇÃO SKU'S (SITE)", desc: "Calculadora para precificar SKU's no 365 com o valor do site.", arquivo: "precificacao-ar.html", icone: svgPrecificar, color: "#0ea5e9", slug: "precificacao", category: "ar" },
@@ -893,6 +893,12 @@
     // Dados de atualizações embutidos (Fallback)
     const updatesData = {
       "updates": [
+        {
+          "date": "08/05/2026",
+          "time": "09:50",
+          "title": "FrioPeças no Scraper Oficial",
+          "description": "O Scraper Oficial agora também busca produtos da FrioPeças pelo link da planilha, mantendo estoque, ciclo, preço Pix, parcelamento, imagem e link do produto no mesmo grid das demais lojas."
+        },
         {
           "date": "08/05/2026",
           "time": "08:44",

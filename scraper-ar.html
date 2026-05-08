@@ -60,6 +60,7 @@
     .store-badge.store-centralar { background: linear-gradient(135deg, rgba(160,30,100,0.95), rgba(236,72,153,0.25)); border-color: rgba(236,72,153,0.4); }
     .store-badge.store-dufrio { background: linear-gradient(135deg, #004a99, #007bff); border-color: #007bff; }
     .store-badge.store-dufrio { background: linear-gradient(135deg, #004a99, #007bff); border-color: #007bff; }
+    .store-badge.store-friopecas { background: linear-gradient(135deg, #005ca8, #2563eb); border-color: rgba(37,99,235,0.55); }
     .store-badge.store-poloar { background: linear-gradient(135deg, #004f9f, #ef3b2d); border-color: rgba(239,59,45,0.55); }
 
     /* FOTO */
@@ -204,6 +205,7 @@
     .filter-btn.store-frigelar.active { background: rgba(0,230,118,0.2); border-color: rgba(0,230,118,0.5); color: var(--green); box-shadow: 0 0 10px rgba(0,230,118,0.2); }
     .filter-btn.store-leveros.active { background: rgba(255,107,0,0.2); border-color: rgba(255,107,0,0.5); color: #ff6b00; box-shadow: 0 0 10px rgba(255,107,0,0.2); }
     .filter-btn.store-centralar.active { background: rgba(236,72,153,0.2); border-color: rgba(236,72,153,0.5); color: #ec4899; box-shadow: 0 0 10px rgba(236,72,153,0.2); }
+    .filter-btn.store-friopecas.active { background: rgba(37,99,235,0.2); border-color: rgba(37,99,235,0.5); color: #60a5fa; box-shadow: 0 0 10px rgba(37,99,235,0.2); }
     .filter-btn.store-poloar.active { background: rgba(239,59,45,0.2); border-color: rgba(239,59,45,0.5); color: #ef4444; box-shadow: 0 0 10px rgba(239,59,45,0.2); }
 
     /* SYNC STATUS */
@@ -989,6 +991,253 @@
       } catch(e) { console.error("Polo Ar erro:", e); return []; }
     }
 
+    async function scrapeFriopecas(url) {
+      const STORE_URL = "https://www.friopecas.com.br";
+      const PROXIES = [
+        "https://frigelar-proxy.crftwo.workers.dev/?url=",
+        "https://api.codetabs.com/v1/proxy?quest=",
+        "https://api.allorigins.win/get?url="
+      ];
+
+      const normalizeText = (value) => String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
+      const normText = (value) => normalizeText(value).replace(/[\s\-_.]/g, "");
+
+      const formatCurrency = (value) => new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      }).format(value).replace(/\u00a0/g, " ");
+
+      const getOrderParam = (parsedUrl) => {
+        const order = parsedUrl.searchParams.get("order") || parsedUrl.searchParams.get("O") || "";
+        const sort = parsedUrl.searchParams.get("sort") || "";
+        const value = String(order || sort).toLowerCase();
+        if (value.includes("desc")) return "OrderByPriceDESC";
+        return "OrderByPriceASC";
+      };
+
+      const pathParts = (value) => String(value || "")
+        .replace(/^\/+|\/+$/g, "")
+        .split("/")
+        .filter(Boolean);
+
+      const buildCatalogApiUrls = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return []; }
+
+        const queryParts = pathParts(parsed.searchParams.get("query") || parsed.pathname || "/");
+        const initialParts = pathParts(parsed.searchParams.get("initialQuery"));
+        const mapParts = String(parsed.searchParams.get("map") || "").split(",").filter(Boolean);
+        const baseParts = initialParts.length > 0 ? initialParts : queryParts.slice(0, Math.min(2, queryParts.length));
+        const extraParts = queryParts.slice(baseParts.length);
+        const extraMaps = mapParts.slice(baseParts.length);
+        const order = getOrderParam(parsed);
+
+        const groups = [];
+        extraParts.forEach((segment, index) => {
+          const key = extraMaps[index] || `extra-${index}`;
+          let group = groups.find(item => item.key === key);
+          if (!group) {
+            group = { key, values: [] };
+            groups.push(group);
+          }
+          group.values.push(segment);
+        });
+
+        const combinations = groups.length
+          ? groups.reduce((acc, group) => acc.flatMap(combo => group.values.map(value => [...combo, value])), [[]])
+          : [[]];
+
+        return combinations.map(combo => {
+          const finalParts = [...baseParts, ...combo];
+          const path = "/" + finalParts.join("/");
+          const map = finalParts.map(() => "c").join(",");
+          return `${STORE_URL}/api/catalog_system/pub/products/search${path}?map=${map}&O=${order}`;
+        });
+      };
+
+      const getCycleFilterFromUrl = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return ""; }
+
+        const queryParts = pathParts(parsed.searchParams.get("query") || parsed.pathname || "/");
+        const initialParts = pathParts(parsed.searchParams.get("initialQuery"));
+        const mapParts = String(parsed.searchParams.get("map") || "").split(",").filter(Boolean);
+        const baseParts = initialParts.length > 0 ? initialParts : queryParts.slice(0, Math.min(2, queryParts.length));
+        const extraParts = queryParts.slice(baseParts.length);
+        const extraMaps = mapParts.slice(baseParts.length);
+
+        const cycleIndex = extraMaps.findIndex(map => normText(map).includes("ciclo"));
+        if (cycleIndex < 0) return "";
+
+        const cycle = normText(extraParts[cycleIndex]);
+        if (cycle.includes("quente")) return "quente";
+        if (cycle.includes("frio")) return "frio";
+        return "";
+      };
+
+      const productMatchesCycleFilter = (product, cycleFilter) => {
+        if (!cycleFilter) return true;
+
+        const haystack = normText([...(product.Ciclo || []), product.productName || ""].join(" "));
+        if (cycleFilter === "quente") return haystack.includes("quente");
+        if (cycleFilter === "frio") return haystack.includes("frio") && !haystack.includes("quente");
+        return true;
+      };
+
+      const fetchApiText = async (targetUrl) => {
+        let lastError = null;
+        for (const proxy of PROXIES) {
+          try {
+            const resp = await fetch(proxy + encodeURIComponent(targetUrl), { cache: "no-store" });
+            if (!resp.ok && resp.status !== 206) throw new Error("HTTP " + resp.status);
+
+            if (proxy.includes("allorigins")) {
+              const json = await resp.json();
+              if (json && json.contents) return json.contents;
+              throw new Error("Resposta sem contents");
+            }
+
+            return await resp.text();
+          } catch(e) {
+            lastError = e;
+          }
+        }
+        throw lastError || new Error("Falha na API VTEX FrioPecas");
+      };
+
+      const fetchCatalogProducts = async (apiUrl) => {
+        const products = [];
+        for (let from = 0; from < 200; from += 50) {
+          const to = from + 49;
+          const sep = apiUrl.includes("?") ? "&" : "?";
+          const raw = await fetchApiText(`${apiUrl}${sep}_from=${from}&_to=${to}&_=${Date.now()}`);
+          let data;
+          try { data = JSON.parse(raw); } catch(e) { break; }
+          if (!Array.isArray(data) || data.length === 0) break;
+          products.push(...data);
+          if (data.length < 50) break;
+        }
+        return products;
+      };
+
+      const getProductOffer = (product) => {
+        const items = Array.isArray(product.items) ? product.items : [];
+        for (const sku of items) {
+          const sellers = Array.isArray(sku.sellers) ? sku.sellers : [];
+          for (const seller of sellers) {
+            const offer = seller?.commertialOffer || {};
+            const price = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+            const quantity = Number(offer.AvailableQuantity ?? 1);
+            if (price > 0 && offer.IsAvailable !== false && quantity > 0) {
+              return { sku, offer };
+            }
+          }
+        }
+        return null;
+      };
+
+      const getPixPrice = (offer) => {
+        const options = offer?.PaymentOptions?.installmentOptions || [];
+        const pixOption = options.find(option => normText(option?.paymentName).includes("pix"));
+        const pixInstallment = pixOption?.installments?.find(item => Number(item.count || 0) === 1)
+          || pixOption?.installments?.[0];
+        const pixCents = Number(pixInstallment?.total || pixInstallment?.value || 0);
+        return pixCents > 0 ? pixCents / 100 : 0;
+      };
+
+      const formatInstallment = (offer) => {
+        const installments = Array.isArray(offer.Installments) ? offer.Installments : [];
+        if (!installments.length) return "";
+
+        const multi = installments.filter(i => Number(i.NumberOfInstallments) > 1);
+        const noInterest = multi.filter(i => Number(i.InterestRate || 0) === 0);
+        const pool = noInterest.length ? noInterest : multi;
+        if (!pool.length) return "";
+
+        const best = pool.reduce((a, b) =>
+          Number(a.NumberOfInstallments || 0) > Number(b.NumberOfInstallments || 0) ? a : b
+        );
+        const count = Number(best.NumberOfInstallments || 0);
+        const total = Number(best.TotalValuePlusInterestRate || (Number(best.Value || 0) * count));
+        const value = Number(best.Value || (total / count));
+        if (!count || !total || !value) return "";
+
+        return `ou ${formatCurrency(total)} em at\u00e9 ${count}x de ${formatCurrency(value)}`;
+      };
+
+      const buildProductLink = (product, sku) => {
+        if (product.link) return product.link.startsWith("http") ? product.link : STORE_URL + product.link;
+        const slug = product.linkText;
+        const itemId = sku?.itemId;
+        if (slug && itemId && !slug.endsWith(itemId)) return `${STORE_URL}/${slug}-${itemId}/p`;
+        return slug ? `${STORE_URL}/${slug}/p` : STORE_URL;
+      };
+
+      const getSortPrice = (product) => {
+        const item = getProductOffer(product);
+        const offer = item?.offer || {};
+        return Number(getPixPrice(offer) || offer.SpotPrice || offer.Price || offer.ListPrice || Number.MAX_SAFE_INTEGER);
+      };
+
+      const sortCatalogProducts = (products, searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return products; }
+        const desc = getOrderParam(parsed) === "OrderByPriceDESC";
+        return products.sort((a, b) => desc ? getSortPrice(b) - getSortPrice(a) : getSortPrice(a) - getSortPrice(b));
+      };
+
+      try {
+        const apiUrls = buildCatalogApiUrls(url);
+        const cycleFilter = getCycleFilterFromUrl(url);
+        const rawProducts = [];
+
+        for (const apiUrl of apiUrls) {
+          try {
+            rawProducts.push(...await fetchCatalogProducts(apiUrl));
+          } catch(e) {
+            console.warn("FrioPecas Catalog API falhou:", apiUrl, e);
+          }
+        }
+
+        const seen = new Set();
+        const uniqueProducts = rawProducts
+          .filter(product => product && product.productName)
+          .filter(product => {
+            const id = product.productId || product.linkText || product.productName;
+            if (seen.has(id)) return false;
+            seen.add(id);
+            return true;
+          });
+
+        return sortCatalogProducts(uniqueProducts, url)
+          .map(product => {
+            const productOffer = getProductOffer(product);
+            if (!productOffer || !productMatchesCycleFilter(product, cycleFilter)) return null;
+
+            const { sku, offer } = productOffer;
+            const pixPrice = getPixPrice(offer);
+            const basePrice = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+            const spot = pixPrice > 0
+              ? `${formatCurrency(pixPrice)} no Pix`
+              : (basePrice > 0 ? `${formatCurrency(basePrice)} \u00e0 vista` : "Consulte o site");
+
+            return {
+              title: product.productName,
+              image: sku.images?.[0]?.imageUrl || "",
+              spot,
+              install: formatInstallment(offer),
+              link: buildProductLink(product, sku),
+              discount: 0
+            };
+          })
+          .filter(Boolean);
+      } catch(e) { console.error("FrioPecas erro:", e); return []; }
+    }
+
 
 
 
@@ -1024,17 +1273,23 @@
 
         console.log("📋 Links encontrados:", links.length, "— Sites:", links.map(l => l.Site));
 
-        // Matching frouxo: ignora case, espaços extras, hífens, pontos.
-        // Dufrio foi removida temporariamente (re-implementação pendente).
-        const norm = (s) => String(s || '').toLowerCase().replace(/[\s\-_.]/g, '');
+        // Matching frouxo: ignora case, acentos, espaços extras, hífens e pontos.
+        const norm = (s) => String(s || '')
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .replace(/[\s\-_.]/g, '');
         const frigelarLink = links.find(l => l.Site && norm(l.Site).includes("frigelar"));
         const leverosLink  = links.find(l => l.Site && norm(l.Site).includes("leveros"));
         const dufrioLink   = links.find(l => l.Site && norm(l.Site).includes("dufrio"));
         const poloArLink   = links.find(l => l.Site && norm(l.Site).includes("poloar"));
+        const friopecasLink = links.find(l => l.Site && norm(l.Site).includes("friopecas"));
         console.log("📋 Match das lojas:", {
           frigelar: frigelarLink ? `✓ "${frigelarLink.Site}"` : "✗ nenhum",
           leveros:  leverosLink  ? `✓ "${leverosLink.Site}"`  : "✗ nenhum",
-          dufrio:   dufrioLink   ? `✓ "${dufrioLink.Site}"`   : "✗ nenhum"
+          dufrio:   dufrioLink   ? `✓ "${dufrioLink.Site}"`   : "✗ nenhum",
+          poloAr:   poloArLink   ? `✓ "${poloArLink.Site}"`   : "✗ nenhum",
+          friopecas: friopecasLink ? `✓ "${friopecasLink.Site}"` : "✗ nenhum"
         });
 
         document.getElementById("loading-msg").innerText = "BUSCANDO LOJAS...";
@@ -1073,7 +1328,13 @@
           );
         }
 
-
+        if (friopecasLink && friopecasLink.Link) {
+          scrapePromises.push(
+            scrapeFriopecas(friopecasLink.Link).then(products => {
+              return products.map(p => ({...p, storeName: "FrioPeças"}));
+            })
+          );
+        }
 
         // Central Ar — URL crua da planilha (mesma regra das outras lojas).
         // Matching frouxo no nome do site: aceita "Central Ar", "centralar",
@@ -1174,10 +1435,12 @@
         const btn = document.createElement("button");
         btn.className = "filter-btn"; 
         if (type === "lojas") {
-            if (item.toLowerCase() === "frigelar") btn.classList.add("store-frigelar");
-            if (item.toLowerCase() === "leveros") btn.classList.add("store-leveros");
-            if (item.toLowerCase() === "central ar") btn.classList.add("store-centralar");
-            if (item.toLowerCase() === "polo ar") btn.classList.add("store-poloar");
+            const storeKey = item.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            if (storeKey === "frigelar") btn.classList.add("store-frigelar");
+            if (storeKey === "leveros") btn.classList.add("store-leveros");
+            if (storeKey === "central ar") btn.classList.add("store-centralar");
+            if (storeKey === "friopecas") btn.classList.add("store-friopecas");
+            if (storeKey === "polo ar") btn.classList.add("store-poloar");
         }
         btn.innerText = item;
         btn.onclick = () => toggleFilter(btn, type, item);
@@ -1231,13 +1494,13 @@
 
     function imageProxyUrls(url, storeName) {
       const cleanUrl = normalizeCopyImageUrl(url);
-      const store = String(storeName || "").toLowerCase();
+      const store = String(storeName || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
       const proxied = [
         "https://wsrv.nl/?url=" + encodeURIComponent(cleanUrl),
         "https://images.weserv.nl/?url=" + encodeURIComponent(cleanUrl),
         "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(cleanUrl)
       ];
-      const urls = (store === "frigelar" || store === "central ar")
+      const urls = (store === "frigelar" || store === "central ar" || store === "friopecas")
         ? [...proxied, cleanUrl]
         : [cleanUrl, ...proxied];
       return [...new Set(urls)];
@@ -1330,10 +1593,12 @@
       const card = document.createElement("div"); card.className = "product-card";
 
       const badge = document.createElement("div"); badge.className = "store-badge";
-      if (store.toLowerCase() === "frigelar") badge.classList.add("store-frigelar");
-      if (store.toLowerCase() === "leveros") badge.classList.add("store-leveros");
-      if (store.toLowerCase() === "central ar") badge.classList.add("store-centralar");
-      if (store.toLowerCase() === "polo ar") badge.classList.add("store-poloar");
+      const storeKey = String(store || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      if (storeKey === "frigelar") badge.classList.add("store-frigelar");
+      if (storeKey === "leveros") badge.classList.add("store-leveros");
+      if (storeKey === "central ar") badge.classList.add("store-centralar");
+      if (storeKey === "friopecas") badge.classList.add("store-friopecas");
+      if (storeKey === "polo ar") badge.classList.add("store-poloar");
       badge.textContent = store;
 
       const imgWrap = document.createElement("div"); imgWrap.className = "product-img-wrap";

@@ -1,1 +1,1 @@
-Hub: labs de scraper agora indicam quais lojas ja estao no Scraper Oficial.
+Scraper Oficial: FrioPecas integrada como nova loja no grid de resultados.

@@ -1,1 +1,1 @@
-const LATEST_LOG = { message: 'Hub: labs de scraper agora indicam quais lojas ja estao no Scraper Oficial.', dateIso: '2026-05-08T08:44:00-03:00' };
+const LATEST_LOG = { message: 'Scraper Oficial: FrioPecas integrada como nova loja no grid de resultados.', dateIso: '2026-05-08T09:50:00-03:00' };
