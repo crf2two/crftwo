@@ -1,1 +1,1 @@
-const LATEST_LOG = { message: 'Scraper Oficial: cards refinados para prints mais legíveis no mobile e no desktop.', dateIso: '2026-05-08T17:33:00-03:00' };
+const LATEST_LOG = { message: 'Hub: cantos dos cards corrigidos no mobile para preservar o arredondamento no iPhone.', dateIso: '2026-05-08T17:57:00-03:00' };

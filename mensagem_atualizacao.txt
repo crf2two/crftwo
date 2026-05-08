@@ -1,1 +1,1 @@
-Scraper Oficial: cards refinados para prints mais legíveis no mobile e no desktop.
+Hub: cantos dos cards corrigidos no mobile para preservar o arredondamento no iPhone.
