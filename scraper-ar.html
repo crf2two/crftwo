@@ -30,14 +30,25 @@
     h2 { font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; margin-top: 20px; }
 
     .options-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; width: 100%; }
-    .option-btn { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--card-border); padding: 14px 28px; border-radius: 12px; cursor: pointer; transition: all 0.2s; color: var(--text); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-family: "Outfit", sans-serif; }
+    .option-btn { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--card-border); padding: 14px 28px; border-radius: 12px; cursor: pointer; transition: opacity 0.3s, transform 0.25s, max-width 0.35s cubic-bezier(0.4,0,0.2,1), max-height 0.35s, padding 0.3s, margin 0.3s, border-width 0.3s, flex-basis 0.3s, flex-grow 0.3s, background 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s; color: var(--text); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-family: "Outfit", sans-serif; }
     .option-btn:hover { border-color: #4facfe55; background: rgba(79,172,254,0.08); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,172,254,0.1); }
+    .option-btn:active { transform: scale(0.96); }
     .tipo-btn { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 24px 20px; width: 190px; }
     .tipo-btn img { width: 150px; transition: transform 0.3s; filter: drop-shadow(0 0 14px rgba(79,172,254,0.35)); mix-blend-mode: screen; }
     .tipo-btn:hover img { transform: scale(1.06); filter: drop-shadow(0 0 20px rgba(79,172,254,0.6)); }
 
     .option-btn.selected { background: rgba(79,172,254,0.15); border-color: rgba(79,172,254,0.6); box-shadow: 0 0 20px rgba(79,172,254,0.25); color: #fff; }
     .tipo-btn.selected img { transform: scale(1.06); filter: drop-shadow(0 0 25px rgba(79,172,254,0.7)); }
+
+    /* Locked state: only selected stays visible, others fade and collapse */
+    .options-grid.locked .option-btn:not(.selected) { opacity: 0; transform: translateY(-10px) scale(0.85); max-width: 0 !important; max-height: 0 !important; flex: 0 0 0 !important; margin: 0 !important; padding: 0 !important; border-width: 0 !important; pointer-events: none; overflow: hidden; }
+    .options-grid.locked .option-btn.selected { position: relative; cursor: pointer; }
+    .options-grid.locked .option-btn.selected::after { content: "↻"; position: absolute; top: 6px; right: 10px; font-size: 13px; opacity: 0.55; color: var(--blue); transition: opacity 0.2s, transform 0.3s; }
+    .options-grid.locked .option-btn.selected:hover::after { opacity: 1; transform: rotate(-25deg); }
+
+    /* Confirmation bounce when an option is picked */
+    @keyframes confirm-bounce { 0% { transform: scale(1); } 35% { transform: scale(1.08); } 70% { transform: scale(0.97); } 100% { transform: scale(1); } }
+    .option-btn.bounce { animation: confirm-bounce 0.45s ease-out; }
 
     #loading-results { display: none; flex-direction: column; align-items: center; gap: 14px; padding: 50px; margin-top: 20px; }
     .spinner { width: 36px; height: 36px; border: 3px solid rgba(79,172,254,0.15); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.9s linear infinite; }
@@ -108,9 +119,10 @@
 
       .options-grid { gap: 10px; }
       .option-btn { padding: 10px 16px; font-size: 10px; }
-      .tipo-btn { width: 100%; flex-direction: row; padding: 16px 12px; gap: 10px; }
-      .tipo-btn img { width: 70px; }
-      .tipo-btn span { font-size: 12px; }
+      #tipo-options { flex-wrap: nowrap; max-width: 480px; margin: 0 auto; gap: 10px; }
+      .tipo-btn { flex: 1 1 0; width: auto; min-width: 0; flex-direction: column; padding: 16px 8px; gap: 10px; min-height: 150px; justify-content: center; }
+      .tipo-btn img { width: 88%; max-width: 96px; }
+      .tipo-btn span { font-size: 11px; line-height: 1.2; text-align: center; }
 
       .products-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; margin-top: 22px; }
       .product-card { border-radius: 16px; max-width: 640px; width: 100%; margin: 0 auto; }
@@ -155,9 +167,10 @@
 
       .options-grid { gap: 8px; }
       .option-btn { padding: 8px 12px; font-size: 9px; }
-      .tipo-btn { padding: 12px 8px; gap: 8px; }
-      .tipo-btn img { width: 55px; }
-      .tipo-btn span { font-size: 11px; }
+      #tipo-options { gap: 8px; }
+      .tipo-btn { padding: 14px 6px; gap: 8px; min-height: 130px; }
+      .tipo-btn img { width: 88%; max-width: 80px; }
+      .tipo-btn span { font-size: 10px; }
 
       .products-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
       .product-card { border-radius: 16px; }
@@ -385,17 +398,28 @@
 
     function renderTipos() {
       const c = document.getElementById("tipo-options"); c.innerHTML = "";
+      c.classList.toggle("locked", !!selection.tipo);
       const tipos = sheetData && sheetData.length > 0 ? [...new Set(sheetData.map(i=>i.Tipo))] : ["Hiwall", "Piso Teto", "Cassete"];
       tipos.forEach(t => {
-        const b = document.createElement("button"); 
+        const b = document.createElement("button");
         b.className = "option-btn tipo-btn" + (selection.tipo === t ? " selected" : "");
-        
+
         let imgName = t;
         if (t === "Hiwall" || t === "Hi Wall") imgName = "Hi Wall";
         b.innerHTML = "<img src='"+(IMAGES[imgName]||"img/hi_wall.png")+"' onerror=\"this.src='https://placehold.co/80';\"><span>"+t+"</span>";
-        
+
         b.onclick = () => selectTipo(t); c.appendChild(b);
       });
+    }
+
+    function bounceSelected(containerId) {
+      const sel = document.querySelector("#" + containerId + " .option-btn.selected");
+      if (sel) {
+        sel.classList.remove("bounce");
+        void sel.offsetWidth;
+        sel.classList.add("bounce");
+        setTimeout(() => sel.classList.remove("bounce"), 500);
+      }
     }
 
     function formatBTU(btu) { 
@@ -406,77 +430,129 @@
     }
     function formatCiclo(ciclo) { return String(ciclo).toLowerCase().trim() === "frio" ? "Só Frio" : ciclo; }
 
-    async function selectTipo(t) { 
-      selection.tipo = t; 
-      selection.btu = ""; 
+    function lockGrid(containerId, matchValue, getValue) {
+      const c = document.getElementById(containerId);
+      const buttons = Array.from(c.querySelectorAll(".option-btn"));
+      buttons.forEach(b => b.classList.toggle("selected", getValue(b) === matchValue));
+      c.classList.add("locked");
+    }
+
+    function unlockGrid(containerId) {
+      const c = document.getElementById(containerId);
+      c.classList.remove("locked");
+      Array.from(c.querySelectorAll(".option-btn")).forEach(b => b.classList.remove("selected"));
+    }
+
+    async function selectTipo(t) {
+      // Tocar no selecionado reabre as opcoes
+      if (selection.tipo === t) {
+        selection.tipo = "";
+        selection.btu = "";
+        selection.ciclo = "";
+        unlockGrid("tipo-options");
+        document.getElementById("step-btus").classList.remove("active");
+        document.getElementById("step-ciclo").classList.remove("active");
+        document.getElementById("step-resultados").classList.remove("active");
+        document.getElementById("loading-results").style.display = "none";
+        return;
+      }
+
+      selection.tipo = t;
+      selection.btu = "";
       selection.ciclo = "";
-      renderTipos();
-      
+
+      lockGrid("tipo-options", t, b => {
+        const span = b.querySelector("span");
+        return span ? span.innerText : "";
+      });
+      bounceSelected("tipo-options");
+
       document.getElementById("step-ciclo").classList.remove("active");
       document.getElementById("step-resultados").classList.remove("active");
       document.getElementById("loading-results").style.display = "none";
-      
+
       if (sheetLoadPromise) {
           await sheetLoadPromise;
       }
-      
+
       const sortBTUs = (a, b) => {
         const getVal = (s) => parseInt(String(s).replace(/[.,]/g, "").match(/\d+/) || [0], 10);
         return getVal(a) - getVal(b);
       };
-      
+
       const btus = [...new Set(sheetData.filter(i=>i.Tipo===t).map(i=>i.BTUs))].sort(sortBTUs);
-      renderOptions("btu-options", btus, selectBTU, selection.btu, formatBTU); 
+      renderOptions("btu-options", btus, selectBTU, selection.btu, formatBTU);
       document.getElementById("step-btus").classList.add("active");
-      
-      setTimeout(() => document.getElementById("step-btus").scrollIntoView({behavior: 'smooth', block: 'center'}), 100);
+
+      setTimeout(() => document.getElementById("step-btus").scrollIntoView({behavior: 'smooth', block: 'center'}), 280);
     }
 
-    function selectBTU(b) { 
-      selection.btu = b; 
+    function selectBTU(b) {
+      // Tocar no selecionado reabre as opcoes
+      if (selection.btu === b) {
+        selection.btu = "";
+        selection.ciclo = "";
+        unlockGrid("btu-options");
+        document.getElementById("step-ciclo").classList.remove("active");
+        document.getElementById("step-resultados").classList.remove("active");
+        document.getElementById("loading-results").style.display = "none";
+        return;
+      }
+
+      selection.btu = b;
       selection.ciclo = "";
-      
-      const sortBTUs = (a, b) => {
-        const getVal = (s) => parseInt(String(s).replace(/[.,]/g, "").match(/\d+/) || [0], 10);
-        return getVal(a) - getVal(b);
-      };
-      
-      const btus = [...new Set(sheetData.filter(i=>i.Tipo===selection.tipo).map(i=>i.BTUs))].sort(sortBTUs);
-      renderOptions("btu-options", btus, selectBTU, selection.btu, formatBTU);
-      
+
+      const labelB = formatBTU(b);
+      lockGrid("btu-options", labelB, btn => btn.innerText.trim());
+      bounceSelected("btu-options");
+
       document.getElementById("step-resultados").classList.remove("active");
       document.getElementById("loading-results").style.display = "none";
-      
-      const ciclos = [...new Set(sheetData.filter(i=>i.Tipo===selection.tipo&&i.BTUs===selection.btu).map(i=>i.Ciclo))];
-      renderOptions("ciclo-options", ciclos, selectCiclo, selection.ciclo, formatCiclo); 
-      document.getElementById("step-ciclo").classList.add("active");
-      
-      setTimeout(() => document.getElementById("step-ciclo").scrollIntoView({behavior: 'smooth', block: 'center'}), 100);
-    }
 
-    function selectCiclo(c) { 
-      selection.ciclo = c; 
       const ciclos = [...new Set(sheetData.filter(i=>i.Tipo===selection.tipo&&i.BTUs===selection.btu).map(i=>i.Ciclo))];
       renderOptions("ciclo-options", ciclos, selectCiclo, selection.ciclo, formatCiclo);
-      
+      document.getElementById("step-ciclo").classList.add("active");
+
+      setTimeout(() => document.getElementById("step-ciclo").scrollIntoView({behavior: 'smooth', block: 'center'}), 280);
+    }
+
+    function selectCiclo(c) {
+      // Tocar no selecionado reabre as opcoes (cancela busca/resultados)
+      if (selection.ciclo === c) {
+        selection.ciclo = "";
+        unlockGrid("ciclo-options");
+        document.getElementById("step-resultados").classList.remove("active");
+        document.getElementById("loading-results").style.display = "none";
+        document.getElementById("results-grid").innerHTML = "";
+        document.getElementById("filters-section").style.display = "none";
+        document.getElementById("results-stats").style.display = "none";
+        return;
+      }
+
+      selection.ciclo = c;
+      const labelC = formatCiclo(c);
+      lockGrid("ciclo-options", labelC, btn => btn.innerText.trim());
+      bounceSelected("ciclo-options");
+
       document.getElementById("loading-results").style.display = "flex";
       document.getElementById("step-resultados").classList.add("active");
       document.getElementById("results-grid").innerHTML = "";
-      
+
       setTimeout(() => document.getElementById("step-resultados").scrollIntoView({behavior: 'smooth', block: 'start'}), 100);
-      
-      startScraping(); 
+
+      startScraping();
     }
 
-    function renderOptions(id, opts, cb, currentSelection, formatter) { 
-      const c = document.getElementById(id); c.innerHTML=""; 
+    function renderOptions(id, opts, cb, currentSelection, formatter) {
+      const c = document.getElementById(id); c.innerHTML="";
+      c.classList.toggle("locked", !!currentSelection);
       opts.forEach(o => {
         const b = document.createElement("button");
         b.className = "option-btn" + (currentSelection === o ? " selected" : "");
         b.innerText = formatter ? formatter(o) : o;
         b.onclick = () => cb(o);
         c.appendChild(b);
-      }); 
+      });
     }
 
     // --- FORMATO DE COPIA (igual extensao) ---
@@ -2123,7 +2199,12 @@
       document.getElementById("filters-section").style.display = "none";
       document.getElementById("selection-summary").style.display = "none";
       document.getElementById("results-stats").style.display = "none";
-      showStep("step-tipo");
+      document.getElementById("step-btus").classList.remove("active");
+      document.getElementById("step-ciclo").classList.remove("active");
+      document.getElementById("step-resultados").classList.remove("active");
+      document.getElementById("loading-results").style.display = "none";
+      renderTipos();
+      document.getElementById("step-tipo").scrollIntoView({behavior: 'smooth', block: 'start'});
     }
 
     function normalizeCopyImageUrl(url) {
