@@ -1,1 +1,1 @@
-Verde removido do Otimizador de Corte
+Ajusta mobile do Checklist sem alterar logica

@@ -2,7 +2,12 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Checklist Câmaras Frias - Gerar PDF</title>
     <!-- REMOVIDO THREE.JS PARA DEIXAR O PROJETO MAIS LEVE E UNIFICAR O ESTILO 3D -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -31,6 +36,7 @@
             background: #050505 !important;
             color: var(--text-main);
             padding-bottom: 600px;
+            overflow-x: hidden;
         }
 
         .container { position: relative; z-index: 10; 
@@ -642,6 +648,102 @@
         }
         .btn-remover-frame:hover { background: #dc2626; transform: none; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* ========== DEFENSIVO GERAL ========== */
+        h1, h3, label, p, span, td, th, button, .info-box, .sub-pergunta {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .container, .pergunta-container, .info-box,
+        .simulador-wrapper, .controles-3d, .card-frame { min-width: 0; }
+        .table-responsive-wrapper { -webkit-overflow-scrolling: touch; }
+
+        /* ========== MOBILE / TABLET REFINADO ========== */
+        @media (max-width: 900px) {
+            body { padding: 30px 14px; padding-bottom: 120px; }
+            .container { max-width: 100%; }
+            h1 { font-size: 26px; letter-spacing: -0.5px; }
+            .sub-head { font-size: 11px; padding-bottom: 18px; margin-bottom: 28px; letter-spacing: 0.8px; }
+            .pergunta-container { padding: 20px 18px; border-radius: 16px; margin-bottom: 18px; }
+            h3 { font-size: 15px; margin-bottom: 12px; padding-bottom: 8px; }
+            label { font-size: 14px; margin-bottom: 10px; }
+
+            /* iOS: >=16px evita zoom no foco. !important pra ganhar de regras antigas. */
+            input[type="text"], input[type="number"], input[type="tel"],
+            input[type="email"], input[type="date"], select, textarea {
+                font-size: 16px !important;
+                padding: 14px 14px;
+                width: 100%;
+                max-width: 100%;
+                border-radius: 10px;
+            }
+            .input-numero { width: 100%; max-width: 120px; padding: 12px; font-size: 16px !important; }
+
+            /* Simulador 3D / Visualizador */
+            .simulador-wrapper { padding: 16px; gap: 12px; margin-top: 12px; }
+            .controles-3d { gap: 12px; }
+            .controle-grupo { padding: 12px; }
+            #canvas-container { min-height: 240px; max-height: 50vh; }
+            .inputs-linha { gap: 10px; flex-wrap: wrap; }
+            .inputs-linha input[type="range"] { flex: 1 1 100%; }
+
+            /* Auxiliar de capacidade */
+            .auxiliar-header { flex-direction: column; align-items: stretch; gap: 12px; }
+            .footer-auxiliar { flex-direction: column; gap: 10px; align-items: stretch; }
+            .visualizer-auxiliar { height: 240px !important; }
+
+            /* Portas - convencional */
+            .linha-porta { padding: 12px; gap: 12px; }
+            .porta-titulo { font-size: 14px; }
+
+            /* Walking Cooler / Frame */
+            .secao-walking-cooler { padding: 16px; border-radius: 14px; }
+            .card-frame { padding: 14px; gap: 10px; }
+
+            /* Botões: largura total e quebra liberada */
+            .btn-prox-etapa, .btn-calc-ajuda, .btn-confirmar-porta,
+            button.btn-prox-etapa, button.btn-calc-ajuda, button.btn-confirmar-porta {
+                width: 100%;
+                padding: 16px;
+                font-size: 13px;
+                white-space: normal;
+                line-height: 1.3;
+            }
+
+            /* Botão flutuante "Voltar ao Hub" */
+            .btn-voltar-global { padding: 6px 12px; font-size: 10px; top: 12px; left: 12px; }
+            .btn-voltar-global svg { width: 14px; height: 14px; }
+
+            /* Tabelas: rolagem só dentro do wrapper */
+            .table-responsive-wrapper { margin: 12px -4px 0; padding: 0 4px; }
+            .table-responsive-wrapper table { min-width: 480px; }
+
+            /* Info boxes e sub-perguntas */
+            .info-box { padding: 14px; border-radius: 12px; font-size: 13px; }
+            .sub-pergunta { padding: 12px; padding-left: 14px; margin-top: 10px; border-radius: 10px; }
+
+            /* Radio: empilhamento já existe, só refina padding */
+            .radio-option { padding: 14px 16px; font-size: 14px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 24px 12px; padding-bottom: 100px; }
+            h1 { font-size: 22px; }
+            .sub-head { font-size: 10px; padding-bottom: 14px; margin-bottom: 22px; }
+            .pergunta-container { padding: 16px 14px; border-radius: 14px; }
+            #canvas-container { min-height: 220px; }
+            .visualizer-auxiliar { height: 220px !important; }
+            .table-responsive-wrapper table { min-width: 420px; }
+        }
+
+        /* Hover só em desktop (evita "stuck" em touch) */
+        @media (hover: none) {
+            .btn-prox-etapa:hover, .btn-calc-ajuda:hover, .btn-confirmar-porta:hover,
+            .radio-option:hover, button:hover, .btn-voltar-global:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
     </style>
 </head>
 <body>
