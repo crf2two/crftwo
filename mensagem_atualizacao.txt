@@ -1,1 +1,1 @@
-Ajusta responsividade mobile do Otimizador de Corte
+Cache-Control no Otimizador + regras de fuso e viewport no AGENTS.md

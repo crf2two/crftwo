@@ -36,6 +36,28 @@ HTML, CSS, JavaScript, ajustes visuais, responsividade, textos, scrapers, docume
 }
 ```
 
+### ⏰ Fuso horário (obrigatório)
+
+Os campos `time` (no `updatesData`) e `dateIso` (em `ultimo_log.js`) usam **horário de Brasília — UTC-3**.
+
+Antes de gerar qualquer timestamp, rodar:
+
+```bash
+TZ='America/Sao_Paulo' date "+%H:%M  %d/%m/%Y  %Y-%m-%dT%H:%M:%S-03:00"
+```
+
+Nunca usar `new Date()`, `date` sem `TZ`, ou tentar adivinhar o horário — em sandboxes/CI o servidor costuma estar em UTC e gera timestamps 3 horas adiantados.
+
+### 📱 Meta viewport obrigatória (mobile)
+
+**Toda página HTML do projeto precisa ter no `<head>`**:
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+```
+
+Sem essa tag, o navegador mobile renderiza em modo desktop (~980px de viewport) e **nenhuma `@media (max-width: ...)` é ativada**. Qualquer responsividade aplicada no CSS fica invisível no celular. Ao alterar uma ferramenta interna, sempre conferir se ela tem essa meta tag — várias páginas antigas podem não ter.
+
 ### Três arquivos precisam ser atualizados em TODO commit
 
 A área "Última atualização" do Hub lê de `ultimo_log.js` (`LATEST_LOG`) como prioridade — só cai pro `updatesData` se `LATEST_LOG` não existir. Por isso:
