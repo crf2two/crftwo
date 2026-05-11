@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#050505">
     <title>Simulador de Gabinete 3D</title>
     <!-- Fontes -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -30,6 +31,7 @@
             background: #050505 !important;
             color: var(--text-main);
             height: 100vh;
+            height: 100dvh;
             display: flex;
             overflow: hidden;
             font-feature-settings: "cv01", "cv02";
@@ -251,6 +253,11 @@
             flex-grow: 1;
             position: relative;
             background: transparent !important;
+            min-width: 0; /* permite encolher dentro do flex */
+        }
+        #canvas-container canvas {
+            display: block;
+            touch-action: none; /* evita que o navegador role a página ao girar/zoom */
         }
         
         /* Esconder Spinners de campos numéricos */
@@ -263,6 +270,112 @@
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 8px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 8px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
+        /* ---------- MOBILE / TABLET ---------- */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+                overflow: hidden;        /* o sidebar interno scrolla, página não */
+                height: 100vh;
+                height: 100dvh;
+            }
+
+            /* Canvas vai PRIMEIRO (em cima), sidebar embaixo */
+            #canvas-container {
+                order: 1;
+                flex-grow: 0;
+                width: 100%;
+                height: 45vh;
+                height: 45dvh;
+                min-height: 280px;
+                flex-shrink: 0;
+                border-bottom: 1px solid var(--border);
+                background: #050505 !important;
+            }
+
+            #sidebar {
+                order: 2;
+                width: 100%;
+                height: auto;
+                flex: 1 1 auto;
+                min-height: 0;
+                padding: 18px 16px 28px;
+                border-right: none;
+                border-top: 1px solid var(--border);
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .header h1 { font-size: 22px; letter-spacing: -0.5px; }
+            .header p { font-size: 11px; margin-bottom: 18px; }
+            .header a { margin-bottom: 16px !important; }
+
+            .card { padding: 16px; margin-bottom: 14px; border-radius: 14px; }
+            .row { gap: 10px; }
+            .input-group { margin-bottom: 12px; }
+
+            /* iOS: font-size >= 16 evita zoom automático no foco */
+            input, select {
+                font-size: 16px;
+                height: 46px;
+                padding: 10px 14px;
+                border-radius: 10px;
+            }
+
+            #btn-calcular { padding: 16px; font-size: 13px; border-radius: 12px; }
+
+            /* Legendas compactas no canto do canvas */
+            .canvas-overlay {
+                top: 10px;
+                right: 10px;
+                gap: 6px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                max-width: calc(100% - 20px);
+            }
+            .legend-item {
+                padding: 6px 10px;
+                font-size: 9px;
+                border-radius: 8px;
+                gap: 6px;
+            }
+            .dot { width: 6px; height: 6px; }
+
+            /* Auroras gastam GPU — encolhe no mobile */
+            .aurora {
+                width: 320px !important;
+                height: 320px !important;
+                filter: blur(80px) !important;
+                opacity: 0.18 !important;
+            }
+        }
+
+        /* Telas bem pequenas: esconder auroras de vez */
+        @media (max-width: 480px) {
+            .aurora { display: none !important; }
+            #canvas-container { height: 42vh; height: 42dvh; }
+            .header h1 { font-size: 20px; }
+        }
+
+        /* Modo paisagem em celular: 3D ocupa metade horizontal, sidebar a outra metade */
+        @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+            body { flex-direction: row; }
+            #canvas-container {
+                order: 0;
+                width: 55%;
+                height: 100vh;
+                height: 100dvh;
+                border-bottom: none;
+                border-right: 1px solid var(--border);
+            }
+            #sidebar {
+                order: 1;
+                width: 45%;
+                height: 100vh;
+                height: 100dvh;
+                border-top: none;
+                padding: 14px 14px 24px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -355,11 +468,20 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        // Cap pixel ratio em 2 — em celulares modernos (DPR 3+) renderizar a 3x mata FPS sem ganho visível
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         container.appendChild(renderer.domElement);
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        // Touch: 1 dedo gira, 2 dedos faz pinch-zoom + pan
+        controls.touches = {
+            ONE: THREE.TOUCH.ROTATE,
+            TWO: THREE.TOUCH.DOLLY_PAN
+        };
+        controls.minDistance = 1.5;
+        controls.maxDistance = 80;
         
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
         const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -439,9 +561,15 @@
             const size = new THREE.Vector3(); box.getSize(size);
             const maxDim = Math.max(size.x, size.y, size.z);
             const fov = camera.fov * (Math.PI / 180);
-            const distance = Math.abs(maxDim / (2 * Math.tan(fov / 2))) * 1.5;
+            // Three.js usa FOV vertical → em telas retrato (aspect < 1) é preciso recuar mais
+            // pra a largura caber no quadro.
+            const aspect = camera.aspect || 1;
+            const fitHeightDistance = maxDim / (2 * Math.tan(fov / 2));
+            const fitWidthDistance = fitHeightDistance / Math.min(aspect, 1);
+            const distance = Math.max(fitHeightDistance, fitWidthDistance) * 1.5;
             camera.position.copy(center).add(new THREE.Vector3(1, 0.8, 1).normalize().multiplyScalar(distance));
-            if (window.controls) { controls.target.copy(center); controls.update(); }
+            controls.target.copy(center);
+            controls.update();
         }
 
         function gerarProjeto(exibirRelatorio = false) {
@@ -541,7 +669,23 @@
         }
 
         function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
-        window.addEventListener('resize', () => { camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight); });
+
+        function handleResize() {
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            if (w === 0 || h === 0) return;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.setSize(w, h, false);
+            fitCameraToRoom();
+        }
+        window.addEventListener('resize', handleResize);
+        // No mobile, mudar orientação dispara resize com timing instável — reenquadrar depois.
+        window.addEventListener('orientationchange', () => setTimeout(handleResize, 250));
+        // Algumas WebViews só dão o tamanho final após o primeiro frame.
+        requestAnimationFrame(handleResize);
+
         aoMudarTipo(); animate();
     </script>
 </body>
