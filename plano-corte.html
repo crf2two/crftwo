@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#050505">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -209,22 +210,6 @@
       font-weight: 800;
     }
 
-    /* Aurora extra (verde-esmeralda) alinhada ao Hub */
-    .aurora-3 {
-      position: fixed;
-      width: 600px;
-      height: 600px;
-      border-radius: 50%;
-      filter: blur(150px);
-      z-index: -1;
-      opacity: 0.15;
-      background: #10b981;
-      top: 40%;
-      left: 40%;
-      animation: auroraAnim 25s infinite alternate ease-in-out;
-      pointer-events: none;
-    }
-
     /* Defensivo: textos longos e containers flex */
     h1, .sub-title, h3, button, td, th {
       overflow-wrap: anywhere;
@@ -280,7 +265,6 @@
       .box { margin-top: 14px; }
       .table-responsive table { min-width: 420px; }
       th, td { padding: 9px 6px; }
-      .aurora-3, .aurora { opacity: 0.22 !important; }
     }
 
     /* Hover só em desktop (touch não fica "stuck") */
@@ -314,7 +298,6 @@
     </style>
     <div class="aurora" style="position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(120px);z-index:-1;opacity:0.25;background:#3b82f6;top:-10%;left:-10%;animation:auroraAnim 15s infinite alternate ease-in-out;pointer-events:none;"></div>
     <div class="aurora" style="position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(120px);z-index:-1;opacity:0.25;background:#8b5cf6;bottom:-10%;right:-5%;animation:auroraAnim 20s infinite alternate ease-in-out;pointer-events:none;"></div>
-    <div class="aurora-3"></div>
 
 
 <!-- BOTAO VOLTAR FLUTUANTE GLOBAL -->
