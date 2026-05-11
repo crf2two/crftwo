@@ -29,7 +29,7 @@
     const accent2 = STORE.accent2 || accent;
     const accentRgb = STORE.accentRgb || "79, 172, 254";
 
-    document.title = `Scraper ${STORE.label || "Loja"} - Laboratório`;
+    document.title = `Scraper ${STORE.label || "Loja"}`;
     document.head.insertAdjacentHTML("beforeend", `
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
       <style>
@@ -118,13 +118,13 @@
       <div class="aurora a2"></div>
       <a href="index.html" class="btn-back">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Painel Dufrio
+        Voltar ao Hub
       </a>
       <div class="container">
         <div class="header-area">
           <span class="lab-tag">Laboratório</span>
           <h1>Scraper ${STORE.label || "Loja"}</h1>
-          <p>Selecione tipo, BTU e ciclo</p>
+          <p>Teste individual do scraper da ${STORE.label || "loja"}.</p>
         </div>
         <div id="step-tipo" class="step-section active"><h2>Selecione o Tipo</h2><div class="options-grid" id="tipo-options"></div></div>
         <div id="step-btus" class="step-section"><h2>Selecione os BTUs</h2><div class="options-grid" id="btu-options"></div></div>

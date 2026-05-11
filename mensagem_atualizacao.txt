@@ -1,1 +1,1 @@
-Hub: cantos dos cards corrigidos no mobile para preservar o arredondamento no iPhone.
+Hub reorganizado com seções principais, Laboratório de Scrapers e Ferramentas Ocultas no index.

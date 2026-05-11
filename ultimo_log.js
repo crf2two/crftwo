@@ -1,1 +1,1 @@
-const LATEST_LOG = { message: 'Hub: cantos dos cards corrigidos no mobile para preservar o arredondamento no iPhone.', dateIso: '2026-05-08T17:57:00-03:00' };
+const LATEST_LOG = { message: 'Hub reorganizado com seções principais, Laboratório de Scrapers e Ferramentas Ocultas no index.', dateIso: '2026-05-11T17:55:00-03:00' };

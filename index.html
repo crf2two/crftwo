@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Hub de Ferramentas - Dufrio</title>
+  <title>Hub de Ferramentas Dufrio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
 
@@ -447,6 +447,15 @@
       text-transform: uppercase;
     }
 
+    .labs-desc {
+      max-width: 620px;
+      margin-top: 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
     .labs-close {
       flex: 0 0 auto;
       width: 44px;
@@ -568,6 +577,25 @@
       font-weight: 900;
       letter-spacing: 1.2px;
       text-transform: uppercase;
+    }
+
+    .lab-card-badge {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: var(--lab-color);
+      font-size: 9px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
     @media (max-width: 768px) {
@@ -718,22 +746,19 @@
     
     <div class="header">
       <div class="header-text">
-        <h1>Workspace</h1>
-        <p>Hub central de ferramentas - Dufrio.</p>
+        <h1>Hub de Ferramentas Dufrio</h1>
+        <p>Ferramentas internas para vendas, orçamentos e análise de mercado.</p>
       </div>
       <div class="logo-container">
-        <img src="https://www.dufrio.com.br/media/logo/websites/1/Logo_Dufrio_3_1_.webp" alt="Dufrio" crossorigin="anonymous">
+        <img id="dufrioLogo" src="https://www.dufrio.com.br/media/logo/websites/1/Logo_Dufrio_3_1_.webp" alt="Dufrio" crossorigin="anonymous">
       </div>
     </div>
 
-    <div class="section-title">Soluções em Câmara Fria</div>
+    <div class="section-title">Câmara Fria — Apoio Técnico e Comercial</div>
     <div class="bento-grid" id="gridCamara"></div>
 
     <div class="section-title">Soluções em Ar Condicionado</div>
     <div class="bento-grid" id="gridAr"></div>
-
-    <div class="section-title">Outras Ferramentas</div>
-    <div class="bento-grid" id="gridOutros"></div>
 
     <div class="meta-footer">
       <div><span class="status-dot"></span> Sistemas Operacionais e Online<br><span style="font-size: 14px; opacity: 0.8; display: block; margin-top: 5px;">Criado em 16/09/2024 por Thiago Luz</span></div>
@@ -763,44 +788,44 @@
     const svgScraper = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="8 11 10 13 14 9"/></svg>`;
 
     const SCRAPER_LABS = [
-      { nome: "SCRAPER CLIMARIO", desc: "Extração direta de produtos do site ClimaRio via URL.", arquivo: "scraper-climario.html", color: "#f59e0b", official: true },
-      { nome: "SCRAPER FRIGELAR", desc: "Extração isolada dos links Frigelar da planilha.", arquivo: "scraper-frigelar.html", color: "#00a859", official: true },
-      { nome: "SCRAPER LEVEROS", desc: "Extração isolada dos links Leveros da planilha.", arquivo: "scraper-leveros.html", color: "#ff6b00", official: true },
-      { nome: "SCRAPER CENTRAL AR", desc: "Extração isolada dos links Central Ar da planilha.", arquivo: "scraper-centralar.html", color: "#ec4899", official: true },
-      { nome: "SCRAPER DUFRIO", desc: "Extração isolada dos links Dufrio da planilha.", arquivo: "scraper-dufrio.html", color: "#007bff", official: true },
-      { nome: "SCRAPER FRIOPEÇAS", desc: "Extração de produtos do site FrioPeças a partir do link da planilha.", arquivo: "scraper-friopecas.html", color: "#2563eb", official: true },
-      { nome: "SCRAPER POLO AR", desc: "Extração de produtos do site Polo Ar a partir do link da planilha.", arquivo: "scraper-poloar.html", color: "#ef4444", official: true },
-      { nome: "SCRAPER WEBCONTINENTAL", desc: "Extração de produtos do site Webcontinental a partir do link da planilha.", arquivo: "scraper-webcontinental.html", color: "#14b8a6", official: true }
+      { nome: "Scraper Clima Rio", loja: "Clima Rio", desc: "Teste individual do scraper da Clima Rio.", arquivo: "scraper-climario.html", color: "#f59e0b" },
+      { nome: "Scraper Frigelar", loja: "Frigelar", desc: "Teste individual do scraper da Frigelar.", arquivo: "scraper-frigelar.html", color: "#00a859" },
+      { nome: "Scraper Leveros", loja: "Leveros", desc: "Teste individual do scraper da Leveros.", arquivo: "scraper-leveros.html", color: "#ff6b00" },
+      { nome: "Scraper Central Ar", loja: "Central Ar", desc: "Teste individual do scraper da Central Ar.", arquivo: "scraper-centralar.html", color: "#ec4899" },
+      { nome: "Scraper Dufrio", loja: "Dufrio", desc: "Teste individual do scraper da Dufrio.", arquivo: "scraper-dufrio.html", color: "#007bff" },
+      { nome: "Scraper FrioPeças", loja: "FrioPeças", desc: "Teste individual do scraper da FrioPeças.", arquivo: "scraper-friopecas.html", color: "#2563eb" },
+      { nome: "Scraper Polo Ar", loja: "Polo Ar", desc: "Teste individual do scraper da Polo Ar.", arquivo: "scraper-poloar.html", color: "#ef4444" },
+      { nome: "Scraper WebContinental", loja: "WebContinental", desc: "Teste individual do scraper da WebContinental.", arquivo: "scraper-webcontinental.html", color: "#14b8a6" }
     ];
 
-    // Nomes estritamente idênticos solicitados pelo usuário
+    // Nomes e descrições organizados para comunicação direta no Hub.
     const ferramentas = [
       // Câmara Fria
-      { nome: "SIMULADOR DE GABINETE 3D", desc: "Visualização 3D e cálculo de painéis (PIR/EPS) para câmaras.", arquivo: "simulador-gabinete.html", icone: svgBox3D, color: "#4facfe", slug: "gabinete", category: "camara" },
-      { nome: "PLANO DE CORTE - PAINÉIS", desc: "Otimização de cortes de paineis EPS/PIR para melhor aproveitamento das chapas de 12m.", arquivo: "plano-corte.html", icone: svgCorte, color: "#f97316", slug: "corte", category: "camara" },
-      { nome: "CHECKLIST CÂMARAS FRIAS - GERAR PDF", desc: "Formulário passo-a-passo. Geração de PDF para orçamento de câmara frigorífica.", arquivo: "CheckList.html", icone: svgChecklist, color: "#10b981", slug: "checklist", category: "camara" },
+      { nome: "Simulador 3D de Câmara Fria", desc: "Visualize a câmara fria em 3D e gere o cálculo de painéis para orçamento.", arquivo: "simulador-gabinete.html", icone: svgBox3D, color: "#4facfe", slug: "gabinete", category: "camara" },
+      { nome: "Otimizador de Corte de Painéis PIR/EPS", desc: "Calcule o melhor aproveitamento dos painéis PIR/EPS e reduza desperdícios no corte.", arquivo: "plano-corte.html", icone: svgCorte, color: "#f97316", slug: "corte", category: "camara" },
+      { nome: "Checklist Câmaras Frias - Gerar PDF", desc: "Ferramenta para padronizar o levantamento de dados e apoiar o vendedor na geração de orçamentos completos de câmara fria em PDF.", arquivo: "CheckList.html", icone: svgChecklist, color: "#10b981", slug: "checklist", category: "camara" },
       
       // Ar Condicionado
-      { nome: "SCRAPER OFICIAL", desc: "Comparação de preços em tempo real entre a Dufrio e seus principais concorrentes do mercado de ar-condicionado.", arquivo: "scraper-ar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`, color: "#f59e0b", slug: "scraper", category: "ar" },
-      { nome: "COMPARADOR DE AR-CONDICIONADO", desc: "Análise de preços da concorrência em tempo real.", arquivo: "comparador-ar.html", icone: svgComparar, color: "#6366f1", slug: "comparador", category: "ar" },
-      { nome: "PREÇOS AO VIVO", badge: "Em Produção", desc: "Visualiza em cards os produtos raspados pela extensão das abas abertas nas lojas.", arquivo: "precos-ao-vivo.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`, color: "#00e676", slug: "precos-vivo", category: "ar" },
-      { nome: "PRECIFICAÇÃO SKU'S (SITE)", desc: "Calculadora para precificar SKU's no 365 com o valor do site.", arquivo: "precificacao-ar.html", icone: svgPrecificar, color: "#0ea5e9", slug: "precificacao", category: "ar" },
-      { nome: "LABORATÓRIOS DE SCRAPER", badge: "Laboratório", desc: "Scrapers individuais por loja para testar antes de levar ajustes ao Scraper Oficial.", arquivo: "#laboratorios", icone: svgScraper, color: "#22c55e", slug: "scraper-labs", category: "ar", isLabGroup: true },
+      { nome: "Scraper Oficial", desc: "Scraper principal para buscar preços dos concorrentes, organizar ofertas de ar-condicionado e apoiar decisões comerciais.", arquivo: "scraper-ar.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`, color: "#f59e0b", slug: "scraper", category: "ar" },
+      { nome: "Comparador de Preços de Ar-Condicionado", desc: "Ferramenta para comparar ofertas de ar-condicionado e apoiar decisões comerciais.", arquivo: "comparador-ar.html", icone: svgComparar, color: "#6366f1", slug: "comparador", category: "ar" },
+      { nome: "Precificação de SKU’s — Site x 365", desc: "Calcule o desconto proporcional entre SKU’s e ajuste os preços no 365 com base no valor praticado no site, apoiando a precificação de itens compostos como Hi Wall, Piso Teto e K7.", arquivo: "precificacao-ar.html", icone: svgPrecificar, color: "#0ea5e9", slug: "precificacao", category: "ar" },
+      { nome: "Cotação Express — Infraestrutura", desc: "Gere orçamentos rápidos de infraestrutura para instalação de ar-condicionado.", arquivo: "cotacoes.html", icone: svgCotar, color: "#8b5cf6", slug: "cotacao", category: "ar" },
+      { nome: "Laboratório de Scrapers", badge: "Laboratório", desc: "Área de testes para validar os scrapers individuais antes de usar no Scraper Oficial.", arquivo: "#laboratorios", icone: svgScraper, color: "#22c55e", slug: "scraper-labs", category: "ar", isLabGroup: true },
 
-      // Outras
-      { nome: "COTAÇÃO EXPRESS", desc: "Orçamento rápido para infra-estrutura de ar condicionado.", arquivo: "cotacoes.html", icone: svgCotar, color: "#8b5cf6", slug: "cotacao", category: "outros" },
-      { nome: "EXTRAÇÃO DE CÓDIGOS", desc: "Extração de códigos que constam quantidade em estoque.", arquivo: "itens-quantidade.html", icone: svgFiltro, color: "#d946ef", slug: "extracao", category: "outros" },
-      { nome: "BAIXAR PROJETO", desc: "Baixar projeto e arquivos da extensão.", arquivo: "https://github.com/crftwoo/thiago.luz.dufrio/archive/refs/heads/main.zip", icone: svgDownload, color: "#94a3b8", isDownload: true, slug: "download", category: "outros" }
+      // Ferramentas Ocultas
+      { nome: "Preços ao Vivo", badge: "Em Produção", desc: "Painel interno para visualizar ofertas capturadas pela extensão.", arquivo: "precos-ao-vivo.html", icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`, color: "#00e676", slug: "precos-vivo", category: "hidden" },
+      { nome: "Extrator de Códigos", desc: "Cole uma lista e extraia automaticamente os códigos com quantidade em estoque.", arquivo: "itens-quantidade.html", icone: svgFiltro, color: "#d946ef", slug: "extracao", category: "hidden" },
+      { nome: "Baixar Projeto", desc: "Download do projeto completo, incluindo a extensão.", arquivo: "https://github.com/crftwoo/thiago.luz.dufrio/archive/refs/heads/main.zip", icone: svgDownload, color: "#94a3b8", isDownload: true, slug: "download", category: "hidden" }
     ];
 
-    function openTool(index) {
-      const f = ferramentas[index];
+    function openToolItem(f) {
+      if (!f) return;
       if (f.isLabGroup) {
         openLabsPanel();
         return;
       }
       if (f.isDownload) {
-        if (confirm(`Baixar projeto e a extensão zipada?`)) {
+        if (confirm(`Baixar projeto completo, incluindo a extensão?`)) {
           const l = document.createElement("a");
           l.href = f.arquivo; l.download = "extensao-dufrio.zip";
           document.body.appendChild(l); l.click(); l.remove();
@@ -810,6 +835,17 @@
       window.location.href = f.arquivo;
     }
 
+    function openTool(index) {
+      openToolItem(ferramentas[index]);
+    }
+
+    function closePanel(panelId) {
+      const panel = document.getElementById(panelId);
+      if (!panel) return;
+      panel.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+
     function openLabsPanel() {
       const panel = document.getElementById('labsOverlay') || createLabsPanel();
       panel.classList.add('is-open');
@@ -817,10 +853,17 @@
     }
 
     function closeLabsPanel() {
-      const panel = document.getElementById('labsOverlay');
-      if (!panel) return;
-      panel.classList.remove('is-open');
-      document.body.style.overflow = '';
+      closePanel('labsOverlay');
+    }
+
+    function openHiddenToolsPanel() {
+      const panel = document.getElementById('hiddenToolsOverlay') || createHiddenToolsPanel();
+      panel.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeHiddenToolsPanel() {
+      closePanel('hiddenToolsOverlay');
     }
 
     function createLabsPanel() {
@@ -834,10 +877,11 @@
         <div class="labs-panel">
           <div class="labs-head">
             <div>
-              <div class="labs-kicker">Laboratórios individuais</div>
-              <div class="labs-title" id="labsTitle">Escolha o scraper da loja</div>
+              <div class="labs-kicker">Área de testes</div>
+              <div class="labs-title" id="labsTitle">Laboratório de Scrapers</div>
+              <div class="labs-desc">Área de testes para validar os scrapers individuais antes de usar no Scraper Oficial.</div>
             </div>
-            <button class="labs-close" type="button" aria-label="Fechar laboratórios" data-close-labs>
+            <button class="labs-close" type="button" aria-label="Fechar Laboratório de Scrapers" data-close-labs>
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
@@ -846,13 +890,12 @@
               <a class="lab-card" href="${lab.arquivo}" style="--lab-color: ${lab.color}">
                 <div class="lab-card-top">
                   <div class="icon-box">${svgScraper}</div>
-                  <span class="lab-card-status ${lab.official ? 'is-official' : 'is-lab'}">${lab.official ? '✓ No oficial' : 'Lab'}</span>
                 </div>
                 <div>
                   <div class="lab-card-title">${lab.nome}</div>
                   <div class="lab-card-desc">${lab.desc}</div>
                 </div>
-                <div class="lab-card-meta">Abrir laboratório</div>
+                <div class="lab-card-meta">Abrir scraper</div>
               </a>
             `).join('')}
           </div>
@@ -867,15 +910,70 @@
       return overlay;
     }
 
+    function createHiddenToolsPanel() {
+      const hiddenTools = ferramentas.filter(tool => tool.category === 'hidden');
+      const overlay = document.createElement('div');
+      overlay.id = 'hiddenToolsOverlay';
+      overlay.className = 'labs-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-labelledby', 'hiddenToolsTitle');
+      overlay.innerHTML = `
+        <div class="labs-panel">
+          <div class="labs-head">
+            <div>
+              <div class="labs-kicker">Recursos internos</div>
+              <div class="labs-title" id="hiddenToolsTitle">Ferramentas Ocultas</div>
+              <div class="labs-desc">Recursos internos não exibidos na tela principal.</div>
+            </div>
+            <button class="labs-close" type="button" aria-label="Fechar Ferramentas Ocultas" data-close-hidden-tools>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="labs-grid">
+            ${hiddenTools.map(tool => `
+              <a class="lab-card" href="${tool.arquivo}" data-tool-slug="${tool.slug}" style="--lab-color: ${tool.color}">
+                <div class="lab-card-top">
+                  <div class="icon-box">${tool.icone}</div>
+                  ${tool.badge ? `<span class="lab-card-badge">${tool.badge}</span>` : ''}
+                </div>
+                <div>
+                  <div class="lab-card-title">${tool.nome}</div>
+                  <div class="lab-card-desc">${tool.desc}</div>
+                </div>
+                <div class="lab-card-meta">Abrir ferramenta</div>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      overlay.addEventListener('click', (event) => {
+        const toolCard = event.target.closest('[data-tool-slug]');
+        if (toolCard) {
+          event.preventDefault();
+          openToolItem(ferramentas.find(tool => tool.slug === toolCard.dataset.toolSlug));
+          return;
+        }
+        if (event.target === overlay || event.target.closest('[data-close-hidden-tools]')) {
+          closeHiddenToolsPanel();
+        }
+      });
+      document.body.appendChild(overlay);
+      return overlay;
+    }
+
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') closeLabsPanel();
+      if (event.key === 'Escape') {
+        closeLabsPanel();
+        closeHiddenToolsPanel();
+      }
     });
 
     const gridC = document.getElementById('gridCamara');
     const gridA = document.getElementById('gridAr');
-    const gridO = document.getElementById('gridOutros');
 
     ferramentas.forEach((f, idx) => {
+      if (f.category === 'hidden') return;
       const card = document.createElement('div');
       card.className = 'bento-card';
       card.dataset.id = f.slug;
@@ -895,8 +993,21 @@
 
       if(f.category === 'camara') gridC.appendChild(card);
       else if(f.category === 'ar') gridA.appendChild(card);
-      else gridO.appendChild(card);
     });
+
+    const secretLogo = document.getElementById('dufrioLogo');
+    let secretLogoClicks = [];
+    if (secretLogo) {
+      secretLogo.addEventListener('click', () => {
+        const now = Date.now();
+        secretLogoClicks = secretLogoClicks.filter(time => now - time <= 2000);
+        secretLogoClicks.push(now);
+        if (secretLogoClicks.length >= 3) {
+          secretLogoClicks = [];
+          openHiddenToolsPanel();
+        }
+      });
+    }
 
     // Painel de "Última atualização" agora fica permanentemente visível
     // (sem toggle / hover). loadLastUpdate() popula no DOMContentLoaded.
@@ -915,6 +1026,12 @@
     // Dados de atualizações embutidos (Fallback)
     const updatesData = {
       "updates": [
+        {
+          "date": "11/05/2026",
+          "time": "17:55",
+          "title": "Hub reorganizado por fluxo de uso",
+          "description": "A tela principal agora foca em Câmara Fria e Ar Condicionado, com Laboratório de Scrapers em painel central e Ferramentas Ocultas acessíveis por clique secreto na logo."
+        },
         {
           "date": "08/05/2026",
           "time": "17:57",
