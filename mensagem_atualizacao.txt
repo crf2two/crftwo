@@ -1,1 +1,1 @@
-Corrige largura do popup da extensão
+Mostra filtros da Busca Ar antes da planilha

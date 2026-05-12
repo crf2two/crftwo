@@ -935,13 +935,17 @@
     };
     
     const TIPOS_PADRAO = ["Hiwall", "Piso Teto", "Cassete"];
-    const BTUS_PADRAO = ["9000", "12000", "18000", "24000", "30000", "36000", "48000", "60000"];
-    const CICLOS_PADRAO = ["Frio", "Quente/Frio"];
+    const BTUS_PADRAO_POR_TIPO = {
+      "Hiwall": ["9000", "12000", "18000", "22000 a 24000", "27000 a 34000", "36000"],
+      "Piso Teto": ["24000 a 30000", "34000 a 36000", "42000 a 48000", "52000 a 60000", "70000 a 80000"],
+      "Cassete": ["9000", "12000", "18000", "22000 a 24000", "28000 a 34000", "36000", "42000 a 52000", "55000 a 60000"]
+    };
+    const CICLOS_PADRAO = ["Só Frio", "Quente/Frio"];
     let sheetLoadPromise = null;
 
     async function loadData() {
-      // 1. Renderiza os botões imediatamente para o usuário não esperar
-      renderTipos();
+      // 1. Renderiza o caminho completo imediatamente para o usuário não esperar a planilha.
+      refreshChoiceOptions();
       
       const syncStatus = document.getElementById("sync-status");
       const syncText = document.getElementById("sync-text");
@@ -972,6 +976,8 @@
           
           syncStatus.onmouseenter = () => { syncStatus.style.opacity = "1"; syncStatus.style.transform = "scale(1)"; };
           syncStatus.onmouseleave = () => { syncStatus.style.opacity = "0.5"; syncStatus.style.transform = "scale(0.95)"; };
+          reconcileSelectionsWithOptions();
+          refreshChoiceOptions();
           
         } catch(e) {
           console.error("Erro ao carregar planilha", e);
@@ -981,10 +987,82 @@
       })();
     }
 
+    function uniqueValues(items) {
+      return [...new Set(items.filter(Boolean))];
+    }
+
+    function sortBTUs(a, b) {
+      const getVal = (s) => parseInt(String(s).replace(/[.,]/g, "").match(/\d+/) || [0], 10);
+      return getVal(a) - getVal(b);
+    }
+
+    function normalizeCicloValue(c) {
+      return String(c || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/^so\s+/, "");
+    }
+
+    function getFallbackBTUs(tipo = selection.tipo) {
+      if (tipo && BTUS_PADRAO_POR_TIPO[tipo]) return BTUS_PADRAO_POR_TIPO[tipo];
+      return uniqueValues(TIPOS_PADRAO.flatMap(t => BTUS_PADRAO_POR_TIPO[t] || [])).sort(sortBTUs);
+    }
+
+    function getTipoOptions() {
+      const tipos = sheetData && sheetData.length > 0 ? uniqueValues(sheetData.map(i => i.Tipo)) : TIPOS_PADRAO;
+      return TIPOS_PADRAO.filter(t => tipos.includes(t)).concat(tipos.filter(t => !TIPOS_PADRAO.includes(t)).sort());
+    }
+
+    function getBTUOptions(tipo = selection.tipo) {
+      if (!sheetData || sheetData.length === 0) return getFallbackBTUs(tipo);
+      const source = tipo ? sheetData.filter(i => i.Tipo === tipo) : sheetData;
+      const btus = uniqueValues(source.map(i => i.BTUs)).sort(sortBTUs);
+      return btus.length ? btus : getFallbackBTUs(tipo);
+    }
+
+    function getCicloOptions(tipo = selection.tipo, btu = selection.btu) {
+      if (!sheetData || sheetData.length === 0 || !tipo || !btu) return CICLOS_PADRAO;
+      const ciclos = uniqueValues(sheetData
+        .filter(i => i.Tipo === tipo && i.BTUs === btu)
+        .map(i => i.Ciclo)
+      );
+      return ciclos.length ? ciclos : CICLOS_PADRAO;
+    }
+
+    function reconcileSelectionsWithOptions() {
+      const tipos = getTipoOptions();
+      if (selection.tipo && !tipos.includes(selection.tipo)) {
+        selection = {tipo:"",btu:"",ciclo:""};
+        return;
+      }
+
+      const btus = getBTUOptions();
+      if (selection.btu && !btus.includes(selection.btu)) {
+        selection.btu = "";
+        selection.ciclo = "";
+        return;
+      }
+
+      const ciclos = getCicloOptions();
+      if (selection.ciclo && !ciclos.some(ciclo => normalizeCicloValue(ciclo) === normalizeCicloValue(selection.ciclo))) {
+        selection.ciclo = "";
+      }
+    }
+
+    function refreshChoiceOptions() {
+      document.getElementById("step-btus").classList.add("active");
+      document.getElementById("step-ciclo").classList.add("active");
+      renderTipos();
+      renderOptions("btu-options", getBTUOptions(), selectBTU, selection.btu, formatBTU);
+      renderOptions("ciclo-options", getCicloOptions(), selectCiclo, selection.ciclo, formatCiclo);
+    }
+
     function renderTipos() {
       const c = document.getElementById("tipo-options"); c.innerHTML = "";
       c.classList.toggle("locked", !!selection.tipo);
-      const tipos = sheetData && sheetData.length > 0 ? [...new Set(sheetData.map(i=>i.Tipo))] : ["Hiwall", "Piso Teto", "Cassete"];
+      const tipos = getTipoOptions();
       tipos.forEach(t => {
         const b = document.createElement("button");
         b.className = "option-btn tipo-btn" + (selection.tipo === t ? " selected" : "");
@@ -1035,37 +1113,21 @@
         selection.tipo = "";
         selection.btu = "";
         selection.ciclo = "";
-        unlockGrid("tipo-options");
-        document.getElementById("step-btus").classList.remove("active");
-        document.getElementById("step-ciclo").classList.remove("active");
+        refreshChoiceOptions();
         document.getElementById("step-resultados").classList.remove("active");
         document.getElementById("loading-results").style.display = "none";
         return;
       }
 
       selection.tipo = t;
-      selection.btu = "";
-      selection.ciclo = "";
-
-      lockGrid("tipo-options", t, b => b.dataset.value);
+      reconcileSelectionsWithOptions();
+      refreshChoiceOptions();
       bounceSelected("tipo-options");
 
-      document.getElementById("step-ciclo").classList.remove("active");
       document.getElementById("step-resultados").classList.remove("active");
       document.getElementById("loading-results").style.display = "none";
 
-      if (sheetLoadPromise) {
-          await sheetLoadPromise;
-      }
-
-      const sortBTUs = (a, b) => {
-        const getVal = (s) => parseInt(String(s).replace(/[.,]/g, "").match(/\d+/) || [0], 10);
-        return getVal(a) - getVal(b);
-      };
-
-      const btus = [...new Set(sheetData.filter(i=>i.Tipo===t).map(i=>i.BTUs))].sort(sortBTUs);
-      renderOptions("btu-options", btus, selectBTU, selection.btu, formatBTU);
-      document.getElementById("step-btus").classList.add("active");
+      maybeStartScrapingFromSelection();
 
       setTimeout(() => document.getElementById("step-btus").scrollIntoView({behavior: 'smooth', block: 'center'}), 280);
     }
@@ -1075,25 +1137,21 @@
       if (selection.btu === b) {
         selection.btu = "";
         selection.ciclo = "";
-        unlockGrid("btu-options");
-        document.getElementById("step-ciclo").classList.remove("active");
+        refreshChoiceOptions();
         document.getElementById("step-resultados").classList.remove("active");
         document.getElementById("loading-results").style.display = "none";
         return;
       }
 
       selection.btu = b;
-      selection.ciclo = "";
-
-      lockGrid("btu-options", b, btn => btn.dataset.value);
+      reconcileSelectionsWithOptions();
+      refreshChoiceOptions();
       bounceSelected("btu-options");
 
       document.getElementById("step-resultados").classList.remove("active");
       document.getElementById("loading-results").style.display = "none";
 
-      const ciclos = [...new Set(sheetData.filter(i=>i.Tipo===selection.tipo&&i.BTUs===selection.btu).map(i=>i.Ciclo))];
-      renderOptions("ciclo-options", ciclos, selectCiclo, selection.ciclo, formatCiclo);
-      document.getElementById("step-ciclo").classList.add("active");
+      maybeStartScrapingFromSelection();
 
       setTimeout(() => document.getElementById("step-ciclo").scrollIntoView({behavior: 'smooth', block: 'center'}), 280);
     }
@@ -1102,7 +1160,7 @@
       // Tocar no selecionado reabre as opcoes (cancela busca/resultados)
       if (selection.ciclo === c) {
         selection.ciclo = "";
-        unlockGrid("ciclo-options");
+        refreshChoiceOptions();
         document.getElementById("step-resultados").classList.remove("active");
         document.getElementById("loading-results").style.display = "none";
         document.getElementById("results-grid").innerHTML = "";
@@ -1112,8 +1170,14 @@
       }
 
       selection.ciclo = c;
-      lockGrid("ciclo-options", c, btn => btn.dataset.value);
+      refreshChoiceOptions();
       bounceSelected("ciclo-options");
+
+      maybeStartScrapingFromSelection();
+    }
+
+    function maybeStartScrapingFromSelection() {
+      if (!selection.tipo || !selection.btu || !selection.ciclo) return;
 
       document.getElementById("loading-results").style.display = "flex";
       document.getElementById("step-resultados").classList.add("active");

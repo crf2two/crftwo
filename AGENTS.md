@@ -410,6 +410,7 @@ seguir o `AGENTS.md`, aplicar a melhor solução e entregar com commit.
 - Preservar os cálculos das ferramentas.
 - Preservar o botão "Voltar ao Hub" nas páginas internas.
 - Preservar a área de "Última atualização" e o rodapé, salvo pedido explícito.
+- Na Busca Ar da extensão e no Scraper Oficial, os seletores de Tipo, BTUs e Ciclo devem aparecer imediatamente com opções padrão enquanto a planilha sincroniza em segundo plano. Não voltar para tela vazia de carregamento antes desses botões.
 
 ---
 
