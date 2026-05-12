@@ -277,6 +277,55 @@ Em ferramentas MCP/GitHub:
 - Criar PR com `mcp__github__create_pull_request`.
 - Fazer merge com `mcp__github__merge_pull_request` e `merge_method=squash`.
 
+### Fluxo prático que funcionou no Codex
+
+Quando o agente não conseguir publicar direto no `main`, usar este fluxo exatamente:
+
+1. Garantir base atualizada:
+   ```bash
+   git fetch origin --prune
+   git switch main
+   git pull --ff-only
+   git status -sb
+   ```
+2. Criar branch de trabalho:
+   ```bash
+   git switch -c codex/nome-curto-da-tarefa
+   ```
+3. Stagear somente os arquivos do escopo:
+   ```bash
+   git add caminho/do/arquivo outro/arquivo
+   ```
+4. Commitar:
+   ```bash
+   git commit -m "Mensagem clara da alteração"
+   ```
+5. Enviar a branch:
+   ```bash
+   git push -u origin codex/nome-curto-da-tarefa
+   ```
+6. Abrir Pull Request para `main` usando a ferramenta GitHub disponível.
+7. Fazer merge do PR com `merge_method=squash`.
+8. Voltar o local para `main` e atualizar:
+   ```bash
+   git fetch origin --prune
+   git switch main
+   git pull --ff-only
+   git status -sb
+   ```
+
+No Codex, o caminho que funcionou foi:
+
+- criar branch local `codex/mini-hub-extensao`;
+- `git add` apenas dos arquivos alterados;
+- `git commit -m "Integra extensão ao Hub com Mini Hub e Busca Ar"`;
+- `git push -u origin codex/mini-hub-extensao`;
+- criar PR com a ferramenta GitHub `create_pull_request`;
+- mergear com a ferramenta GitHub `merge_pull_request`, usando `merge_method: "squash"`;
+- depois rodar `git switch main` e `git pull --ff-only`.
+
+Se o GitHub CLI (`gh`) não estiver instalado, não insistir nele. Usar o conector/ferramenta GitHub disponível para criar e mergear o PR. Nunca tentar resolver branch protection com `--force`, token improvisado, reset, checkout destrutivo ou push direto no `main`.
+
 ### Exemplos de mensagens de commit
 
 - Ajusta responsividade mobile do Hub principal
