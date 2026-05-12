@@ -1,1 +1,1 @@
-const LATEST_LOG = { message: 'Corrige largura do popup da extensão', dateIso: '2026-05-12T15:26:05-03:00' };
+const LATEST_LOG = { message: 'Mostra filtros da Busca Ar antes da planilha', dateIso: '2026-05-12T16:13:20-03:00' };

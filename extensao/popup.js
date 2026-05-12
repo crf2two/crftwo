@@ -1,6 +1,12 @@
 const HUB_BASE_URL = "https://crftwoo.github.io/thiago.luz.dufrio/";
 const SHEET_URL = "https://opensheet.elk.sh/1ml7XpwZfzM4ElRJb4G62b93VMqUw3jeprTtgxdigiD8/Sheet1";
 const TIPO_ORDER = ["Hiwall", "Piso Teto", "Cassete"];
+const BTUS_BY_TIPO = {
+    "Hiwall": ["9000", "12000", "18000", "22000 a 24000", "27000 a 34000", "36000"],
+    "Piso Teto": ["24000 a 30000", "34000 a 36000", "42000 a 48000", "52000 a 60000", "70000 a 80000"],
+    "Cassete": ["9000", "12000", "18000", "22000 a 24000", "28000 a 34000", "36000", "42000 a 52000", "55000 a 60000"]
+};
+const CICLO_ORDER = ["Só Frio", "Quente/Frio"];
 
 const ICONS = {
     grid: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
@@ -102,9 +108,7 @@ function renderMiniHub() {
 function renderBuscaAr() {
     setApp(`
         ${viewHeader("Busca Ar", "", true)}
-        <div id="results">
-            <p class="info-msg">Carregando opções de ar-condicionado...</p>
-        </div>
+        <div id="results"></div>
     `);
     initBuscaAr();
 }
@@ -153,7 +157,313 @@ async function initBuscaAr() {
     const resultsDiv = document.getElementById("results");
     if (!resultsDiv) return;
 
-    resultsDiv.innerHTML = '<p class="info-msg">Carregando opções de ar-condicionado...</p>';
+    let mapByTipo = {};
+    let tipos = [...TIPO_ORDER];
+    let selectedTipo = null;
+    let selectedBtus = null;
+    let selectedCiclo = null;
+    let isLoading = true;
+
+    resultsDiv.innerHTML = "";
+    const container = document.createElement("div");
+    container.className = "filters-container";
+
+    const loadingP = document.createElement("p");
+    loadingP.className = "loading-note";
+    loadingP.textContent = "Sincronizando planilha...";
+
+    const errorsP = document.createElement("p");
+    errorsP.className = "error-msg";
+    errorsP.style.display = "none";
+
+    const tipoGroup = document.createElement("div");
+    tipoGroup.className = "filter-group";
+    const tipoLabel = document.createElement("div");
+    tipoLabel.className = "filter-label";
+    const labelText = document.createElement("span");
+    labelText.textContent = "Tipo";
+    const resetBtn = document.createElement("button");
+    resetBtn.type = "button";
+    resetBtn.textContent = "Limpar filtros";
+    resetBtn.className = "reset-link hidden";
+    const tipoRow = document.createElement("div");
+    tipoRow.className = "chip-row chip-row-type";
+
+    const btusGroup = document.createElement("div");
+    btusGroup.className = "filter-group";
+    const btusLabel = document.createElement("div");
+    btusLabel.className = "filter-label";
+    btusLabel.textContent = "BTUs";
+    const btusRow = document.createElement("div");
+    btusRow.className = "chip-row";
+
+    const cicloGroup = document.createElement("div");
+    cicloGroup.className = "filter-group";
+    const cicloLabel = document.createElement("div");
+    cicloLabel.className = "filter-label";
+    cicloLabel.textContent = "Ciclo";
+    const cicloRow = document.createElement("div");
+    cicloRow.className = "chip-row";
+
+    const summaryDiv = document.createElement("div");
+    summaryDiv.className = "summary-text hidden";
+    const storesGroup = document.createElement("div");
+    storesGroup.className = "stores-group hidden";
+
+    function unique(items) {
+        return [...new Set(items.filter(Boolean))];
+    }
+
+    function normalizeCycle(value) {
+        return String(value || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/^so\s+/, "")
+            .trim();
+    }
+
+    function sortBtus(a, b) {
+        const getVal = (value) => parseInt(String(value).replace(/[.,]/g, "").match(/\d+/) || [0], 10);
+        return getVal(a) - getVal(b);
+    }
+
+    function fallbackBtus(tipo = selectedTipo) {
+        if (tipo && BTUS_BY_TIPO[tipo]) return BTUS_BY_TIPO[tipo];
+        return unique(TIPO_ORDER.flatMap(t => BTUS_BY_TIPO[t] || [])).sort(sortBtus);
+    }
+
+    function renderInlineNote(row, text) {
+        row.innerHTML = `<div class="inline-loading">${text}</div>`;
+    }
+
+    function renderSummary() {
+        if (!selectedTipo || !selectedBtus || !selectedCiclo) {
+            summaryDiv.classList.add("hidden");
+            summaryDiv.textContent = "";
+            return;
+        }
+        const btusLabelText = formatBtusLabel(selectedBtus);
+        const cicloLower = selectedCiclo.toLowerCase();
+        const emojiCycle = (
+            cicloLower.includes("quente/frio") ||
+            cicloLower.includes("quente e frio") ||
+            cicloLower.includes("quente frio") ||
+            cicloLower.includes("q/f")
+        ) ? "🔥❄️" : "❄️";
+        summaryDiv.textContent = `${emojiCycle} ${selectedTipo} · ${btusLabelText} · ${selectedCiclo}`;
+        summaryDiv.classList.remove("hidden");
+    }
+
+    function renderTipoChips() {
+        tipoRow.innerHTML = "";
+        tipoRow.classList.toggle("is-single", Boolean(selectedTipo));
+        resetBtn.classList.toggle("hidden", !selectedTipo && !selectedBtus && !selectedCiclo);
+
+        if (selectedTipo) {
+            const chip = createChip(selectedTipo, selectedTipo, selectedTipo, () => {});
+            chip.disabled = true;
+            tipoRow.appendChild(chip);
+            return;
+        }
+
+        tipos.forEach(tipo => {
+            tipoRow.appendChild(createChip(tipo, tipo, selectedTipo, (newTipo) => {
+                if (selectedTipo === newTipo) return;
+                selectedTipo = newTipo;
+                clearUnavailableSelections();
+                errorsP.style.display = "none";
+                renderAll();
+                btusGroup.scrollIntoView({ behavior: "smooth", block: "center" });
+            }));
+        });
+    }
+
+    function getBtusOptions() {
+        if (isLoading || !sheetDataReady()) return fallbackBtus();
+        if (!selectedTipo) {
+            return unique(Object.values(mapByTipo).flatMap(mapBtus => Object.keys(mapBtus))).sort(sortBtus);
+        }
+        const mapBtus = mapByTipo[selectedTipo] || {};
+        const btus = Object.keys(mapBtus).sort(sortBtus);
+        return btus.length ? btus : fallbackBtus(selectedTipo);
+    }
+
+    function sheetDataReady() {
+        return !isLoading && Object.keys(mapByTipo).length > 0;
+    }
+
+    function renderBtusChips() {
+        btusRow.innerHTML = "";
+        const btusOptions = getBtusOptions();
+        if (btusOptions.length === 0) {
+            renderInlineNote(btusRow, "Nenhum BTU encontrado para esse tipo.");
+            return;
+        }
+        if (!btusOptions.includes(selectedBtus)) selectedBtus = null;
+        if (selectedBtus) {
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "chip selected";
+            chip.textContent = formatBtusLabel(selectedBtus);
+            chip.disabled = true;
+            btusRow.appendChild(chip);
+            return;
+        }
+
+        btusOptions.forEach(btus => {
+            btusRow.appendChild(createChip(formatBtusLabel(btus), btus, selectedBtus, (newBtus) => {
+                if (selectedBtus === newBtus) return;
+                selectedBtus = newBtus;
+                clearUnavailableSelections();
+                errorsP.style.display = "none";
+                renderAll();
+                cicloGroup.scrollIntoView({ behavior: "smooth", block: "center" });
+            }));
+        });
+    }
+
+    function getCicloOptions() {
+        if (isLoading || !sheetDataReady() || !selectedTipo || !selectedBtus) return CICLO_ORDER;
+        const mapBtus = mapByTipo[selectedTipo] || {};
+        const mapCiclo = mapBtus[selectedBtus] || {};
+        const ciclos = Object.keys(mapCiclo).sort();
+        return ciclos.length ? ciclos : CICLO_ORDER;
+    }
+
+    function renderCicloChips() {
+        cicloRow.innerHTML = "";
+        const ciclos = getCicloOptions();
+        if (ciclos.length === 0) {
+            renderInlineNote(cicloRow, "Nenhum ciclo encontrado para esse BTU.");
+            return;
+        }
+        if (selectedCiclo && !ciclos.some(ciclo => normalizeCycle(ciclo) === normalizeCycle(selectedCiclo))) selectedCiclo = null;
+        if (selectedCiclo) {
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "chip selected";
+            chip.textContent = selectedCiclo;
+            chip.disabled = true;
+            cicloRow.appendChild(chip);
+            renderSummary();
+            return;
+        }
+
+        ciclos.forEach(ciclo => {
+            cicloRow.appendChild(createChip(ciclo, ciclo, selectedCiclo, (newCiclo) => {
+                selectedCiclo = newCiclo;
+                errorsP.style.display = "none";
+                renderAll();
+                storesGroup.scrollIntoView({ behavior: "smooth", block: "center" });
+            }));
+        });
+    }
+
+    function renderStoreButtons() {
+        storesGroup.innerHTML = "";
+        if (!selectedTipo || !selectedBtus || !selectedCiclo) {
+            storesGroup.classList.add("hidden");
+            return;
+        }
+
+        storesGroup.classList.remove("hidden");
+        if (isLoading) {
+            renderInlineNote(storesGroup, "Aguardando a planilha para liberar as lojas...");
+            return;
+        }
+
+        const mapBtus = mapByTipo[selectedTipo] || {};
+        const mapCiclo = mapBtus[selectedBtus] || {};
+        const cicloKey = Object.keys(mapCiclo).find(ciclo => normalizeCycle(ciclo) === normalizeCycle(selectedCiclo)) || selectedCiclo;
+        const storeLinks = mapCiclo[cicloKey] || {};
+        const availableStores = Object.keys(storeLinks);
+
+        if (availableStores.length === 0) {
+            errorsP.textContent = "Nenhum site configurado para essa combinação.";
+            errorsP.style.display = "block";
+            return;
+        }
+
+        availableStores.forEach(siteName => {
+            const searchBtn = document.createElement("button");
+            searchBtn.type = "button";
+            searchBtn.className = "primary-btn";
+            searchBtn.textContent = "Abrir no " + siteName.toUpperCase();
+
+            searchBtn.addEventListener("click", () => {
+                errorsP.style.display = "none";
+                const link = storeLinks[siteName];
+                if (!link) {
+                    errorsP.textContent = `Link ausente para ${siteName}.`;
+                    errorsP.style.display = "block";
+                    return;
+                }
+                openUrlInBackground(link);
+            });
+
+            storesGroup.appendChild(searchBtn);
+        });
+    }
+
+    function renderAll() {
+        renderTipoChips();
+        renderBtusChips();
+        renderCicloChips();
+        renderSummary();
+        renderStoreButtons();
+    }
+
+    function clearUnavailableSelections() {
+        if (selectedTipo && !tipos.includes(selectedTipo)) {
+            selectedTipo = null;
+            selectedBtus = null;
+            selectedCiclo = null;
+            return;
+        }
+
+        const btusOptions = getBtusOptions();
+        if (selectedBtus && !btusOptions.includes(selectedBtus)) {
+            selectedBtus = null;
+            selectedCiclo = null;
+            return;
+        }
+
+        const ciclos = getCicloOptions();
+        if (selectedCiclo && !ciclos.some(ciclo => normalizeCycle(ciclo) === normalizeCycle(selectedCiclo))) {
+            selectedCiclo = null;
+        }
+    }
+
+    resetBtn.onclick = () => {
+        selectedTipo = null;
+        selectedBtus = null;
+        selectedCiclo = null;
+        resetBtn.classList.add("hidden");
+        storesGroup.classList.add("hidden");
+        errorsP.style.display = "none";
+        renderAll();
+    };
+
+    tipoLabel.appendChild(labelText);
+    tipoLabel.appendChild(resetBtn);
+    tipoGroup.appendChild(tipoLabel);
+    tipoGroup.appendChild(tipoRow);
+    btusGroup.appendChild(btusLabel);
+    btusGroup.appendChild(btusRow);
+    cicloGroup.appendChild(cicloLabel);
+    cicloGroup.appendChild(cicloRow);
+
+    container.appendChild(tipoGroup);
+    container.appendChild(loadingP);
+    container.appendChild(btusGroup);
+    container.appendChild(cicloGroup);
+    container.appendChild(summaryDiv);
+    container.appendChild(errorsP);
+    container.appendChild(storesGroup);
+    resultsDiv.appendChild(container);
+
+    renderAll();
 
     try {
         const response = await fetch(SHEET_URL);
@@ -168,11 +478,10 @@ async function initBuscaAr() {
         );
 
         if (validRows.length === 0) {
-            resultsDiv.innerHTML = '<p class="error-msg">Nenhum link configurado na planilha (colunas Site e Link).</p>';
-            return;
+            throw new Error("Nenhum link configurado na planilha.");
         }
 
-        const mapByTipo = {};
+        const nextMapByTipo = {};
         validRows.forEach(row => {
             const tipo = (row.Tipo || "").trim();
             const btus = (row.BTUs || "").trim();
@@ -181,254 +490,32 @@ async function initBuscaAr() {
             const link = row.Link.trim();
             if (!tipo || !btus || !ciclo || !site || !link) return;
 
-            if (!mapByTipo[tipo]) mapByTipo[tipo] = {};
-            if (!mapByTipo[tipo][btus]) mapByTipo[tipo][btus] = {};
-            if (!mapByTipo[tipo][btus][ciclo]) mapByTipo[tipo][btus][ciclo] = {};
-            if (!mapByTipo[tipo][btus][ciclo][site]) mapByTipo[tipo][btus][ciclo][site] = link;
+            if (!nextMapByTipo[tipo]) nextMapByTipo[tipo] = {};
+            if (!nextMapByTipo[tipo][btus]) nextMapByTipo[tipo][btus] = {};
+            if (!nextMapByTipo[tipo][btus][ciclo]) nextMapByTipo[tipo][btus][ciclo] = {};
+            if (!nextMapByTipo[tipo][btus][ciclo][site]) nextMapByTipo[tipo][btus][ciclo][site] = link;
         });
 
-        const tipos = TIPO_ORDER.filter(t => mapByTipo[t]).concat(
+        mapByTipo = nextMapByTipo;
+        tipos = TIPO_ORDER.filter(t => mapByTipo[t]).concat(
             Object.keys(mapByTipo).filter(t => !TIPO_ORDER.includes(t)).sort()
         );
 
         if (tipos.length === 0) {
-            resultsDiv.innerHTML = '<p class="error-msg">Não foi possível organizar os dados de busca.</p>';
-            return;
+            throw new Error("Não foi possível organizar os dados de busca.");
         }
 
-        let selectedTipo = null;
-        let selectedBtus = null;
-        let selectedCiclo = null;
-
-        resultsDiv.innerHTML = "";
-        const container = document.createElement("div");
-        container.className = "filters-container";
-
-        const errorsP = document.createElement("p");
-        errorsP.className = "error-msg";
-        errorsP.style.display = "none";
-
-        const tipoGroup = document.createElement("div");
-        tipoGroup.className = "filter-group";
-        const tipoLabel = document.createElement("div");
-        tipoLabel.className = "filter-label";
-        const labelText = document.createElement("span");
-        labelText.textContent = "Tipo";
-        const resetBtn = document.createElement("button");
-        resetBtn.type = "button";
-        resetBtn.textContent = "Limpar filtros";
-        resetBtn.className = "reset-link hidden";
-        const tipoRow = document.createElement("div");
-        tipoRow.className = "chip-row";
-
-        const btusGroup = document.createElement("div");
-        btusGroup.className = "filter-group hidden";
-        const btusLabel = document.createElement("div");
-        btusLabel.className = "filter-label";
-        btusLabel.textContent = "BTUs";
-        const btusRow = document.createElement("div");
-        btusRow.className = "chip-row";
-
-        const cicloGroup = document.createElement("div");
-        cicloGroup.className = "filter-group hidden";
-        const cicloLabel = document.createElement("div");
-        cicloLabel.className = "filter-label";
-        cicloLabel.textContent = "Ciclo";
-        const cicloRow = document.createElement("div");
-        cicloRow.className = "chip-row";
-
-        const summaryDiv = document.createElement("div");
-        summaryDiv.className = "summary-text hidden";
-        const storesGroup = document.createElement("div");
-        storesGroup.className = "stores-group hidden";
-
-        function renderSummary() {
-            if (!selectedTipo || !selectedBtus || !selectedCiclo) {
-                summaryDiv.classList.add("hidden");
-                summaryDiv.textContent = "";
-                return;
-            }
-            const btusLabelText = formatBtusLabel(selectedBtus);
-            const cicloLower = selectedCiclo.toLowerCase();
-            const emojiCycle = (
-                cicloLower.includes("quente/frio") ||
-                cicloLower.includes("quente e frio") ||
-                cicloLower.includes("quente frio") ||
-                cicloLower.includes("q/f")
-            ) ? "🔥❄️" : "❄️";
-            summaryDiv.textContent = `${emojiCycle} ${selectedTipo} · ${btusLabelText} · ${selectedCiclo}`;
-            summaryDiv.classList.remove("hidden");
-        }
-
-        function renderTipoChips() {
-            tipoRow.innerHTML = "";
-            if (selectedTipo) {
-                resetBtn.classList.remove("hidden");
-                const chip = createChip(selectedTipo, selectedTipo, selectedTipo, () => {});
-                chip.disabled = true;
-                tipoRow.appendChild(chip);
-                return;
-            }
-
-            tipos.forEach(tipo => {
-                tipoRow.appendChild(createChip(tipo, tipo, selectedTipo, (newTipo) => {
-                    if (selectedTipo === newTipo) return;
-                    selectedTipo = newTipo;
-                    selectedBtus = null;
-                    selectedCiclo = null;
-                    errorsP.style.display = "none";
-                    renderTipoChips();
-                    renderBtusChips();
-                    renderCicloChips();
-                    btusGroup.classList.remove("hidden");
-                    cicloGroup.classList.add("hidden");
-                    storesGroup.classList.add("hidden");
-                    btusGroup.scrollIntoView({ behavior: "smooth", block: "center" });
-                }));
-            });
-        }
-
-        function getBtusOptions() {
-            if (!selectedTipo) return [];
-            const mapBtus = mapByTipo[selectedTipo] || {};
-            return Object.keys(mapBtus).sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
-        }
-
-        function renderBtusChips() {
-            btusRow.innerHTML = "";
-            const btusOptions = getBtusOptions();
-            if (selectedBtus) {
-                const chip = document.createElement("button");
-                chip.type = "button";
-                chip.className = "chip selected";
-                chip.textContent = formatBtusLabel(selectedBtus);
-                chip.disabled = true;
-                btusRow.appendChild(chip);
-                return;
-            }
-
-            if (!btusOptions.includes(selectedBtus)) selectedBtus = null;
-            btusOptions.forEach(btus => {
-                btusRow.appendChild(createChip(formatBtusLabel(btus), btus, selectedBtus, (newBtus) => {
-                    if (selectedBtus === newBtus) return;
-                    selectedBtus = newBtus;
-                    selectedCiclo = null;
-                    errorsP.style.display = "none";
-                    renderBtusChips();
-                    renderCicloChips();
-                    cicloGroup.classList.remove("hidden");
-                    storesGroup.classList.add("hidden");
-                    cicloGroup.scrollIntoView({ behavior: "smooth", block: "center" });
-                }));
-            });
-        }
-
-        function getCicloOptions() {
-            if (!selectedTipo || !selectedBtus) return [];
-            const mapBtus = mapByTipo[selectedTipo] || {};
-            const mapCiclo = mapBtus[selectedBtus] || {};
-            return Object.keys(mapCiclo).sort();
-        }
-
-        function renderCicloChips() {
-            cicloRow.innerHTML = "";
-            const ciclos = getCicloOptions();
-            if (selectedCiclo) {
-                const chip = document.createElement("button");
-                chip.type = "button";
-                chip.className = "chip selected";
-                chip.textContent = selectedCiclo;
-                chip.disabled = true;
-                cicloRow.appendChild(chip);
-                renderSummary();
-                return;
-            }
-
-            if (!ciclos.includes(selectedCiclo)) selectedCiclo = null;
-            ciclos.forEach(ciclo => {
-                cicloRow.appendChild(createChip(ciclo, ciclo, selectedCiclo, (newCiclo) => {
-                    selectedCiclo = newCiclo;
-                    errorsP.style.display = "none";
-                    renderCicloChips();
-                    renderSummary();
-                    renderStoreButtons();
-                    storesGroup.classList.remove("hidden");
-                    storesGroup.scrollIntoView({ behavior: "smooth", block: "center" });
-                }));
-            });
-        }
-
-        function renderStoreButtons() {
-            storesGroup.innerHTML = "";
-            if (!selectedTipo || !selectedBtus || !selectedCiclo) return;
-
-            const mapBtus = mapByTipo[selectedTipo] || {};
-            const mapCiclo = mapBtus[selectedBtus] || {};
-            const storeLinks = mapCiclo[selectedCiclo] || {};
-            const availableStores = Object.keys(storeLinks);
-
-            if (availableStores.length === 0) {
-                errorsP.textContent = "Nenhum site configurado para essa combinação.";
-                errorsP.style.display = "block";
-                return;
-            }
-
-            availableStores.forEach(siteName => {
-                const searchBtn = document.createElement("button");
-                searchBtn.type = "button";
-                searchBtn.className = "primary-btn";
-                searchBtn.textContent = "Abrir no " + siteName.toUpperCase();
-
-                searchBtn.addEventListener("click", () => {
-                    errorsP.style.display = "none";
-                    const link = storeLinks[siteName];
-                    if (!link) {
-                        errorsP.textContent = `Link ausente para ${siteName}.`;
-                        errorsP.style.display = "block";
-                        return;
-                    }
-                    openUrlInBackground(link);
-                });
-
-                storesGroup.appendChild(searchBtn);
-            });
-        }
-
-        resetBtn.onclick = () => {
-            selectedTipo = null;
-            selectedBtus = null;
-            selectedCiclo = null;
-            resetBtn.classList.add("hidden");
-            btusGroup.classList.add("hidden");
-            cicloGroup.classList.add("hidden");
-            storesGroup.classList.add("hidden");
-            errorsP.style.display = "none";
-            renderSummary();
-            renderTipoChips();
-        };
-
-        tipoLabel.appendChild(labelText);
-        tipoLabel.appendChild(resetBtn);
-        tipoGroup.appendChild(tipoLabel);
-        tipoGroup.appendChild(tipoRow);
-        btusGroup.appendChild(btusLabel);
-        btusGroup.appendChild(btusRow);
-        cicloGroup.appendChild(cicloLabel);
-        cicloGroup.appendChild(cicloRow);
-
-        container.appendChild(tipoGroup);
-        container.appendChild(btusGroup);
-        container.appendChild(cicloGroup);
-        container.appendChild(summaryDiv);
-        container.appendChild(errorsP);
-        container.appendChild(storesGroup);
-        resultsDiv.appendChild(container);
-
-        renderTipoChips();
+        isLoading = false;
+        loadingP.classList.add("hidden");
+        clearUnavailableSelections();
+        renderAll();
     } catch (error) {
         console.error("Erro ao carregar planilha da Dufrio:", error);
         const message = error && error.message ? error.message : "Erro desconhecido.";
-        resultsDiv.innerHTML = `<p class="error-msg">Erro ao carregar os dados da planilha.<br>${message}</p>`;
+        isLoading = false;
+        loadingP.className = "error-msg";
+        loadingP.textContent = `Erro ao carregar os dados da planilha. ${message}`;
+        renderAll();
     }
 }
 
