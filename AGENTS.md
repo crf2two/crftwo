@@ -109,6 +109,40 @@ Se aparecer commit remoto novo, branch nova relevante ou conflito entre trabalho
 
 ---
 
+## 🚨 Regra principal obrigatória — Ler e manter o AGENTS.md com critério
+
+**Toda IA precisa ler este `AGENTS.md` no início de cada acesso, sessão ou nova tarefa antes de mexer no projeto.**
+
+O `AGENTS.md` é a memória operacional do repositório. Ele deve refletir apenas regras do Thiago, cuidados técnicos e aprendizados permanentes que evitem retrabalho ou perda de alterações.
+
+### Passos obrigatórios em toda sessão
+
+1. Ler o `AGENTS.md` antes de planejar ou editar.
+2. Sincronizar com o GitHub seguindo a regra anterior.
+3. Se a sincronização trouxer uma versão nova do `AGENTS.md`, reler o arquivo atualizado antes de continuar.
+4. Usar este arquivo como fonte principal de regras do projeto.
+
+### Quando atualizar este arquivo
+
+Toda IA que trabalhar neste repositório deve atualizar o `AGENTS.md` **somente** quando descobrir algo pertinente, permanente e útil para futuras alterações, por exemplo:
+
+- preferência clara do usuário;
+- regra nova de operação;
+- cuidado recorrente para não quebrar ferramenta;
+- arquivo que não pode ser removido;
+- fluxo correto de commit, deploy ou conferência;
+- dependência entre arquivos;
+- comportamento importante de scraper, extensão, Hub ou GitHub Pages;
+- decisão técnica que futuras IAs precisam respeitar.
+
+### O que não colocar aqui
+
+Não atualizar o `AGENTS.md` por qualquer tarefa comum. Não transformar este arquivo em diário de execução. Não registrar detalhes temporários, hipóteses descartadas, logs longos, prints, testes pontuais ou observações que não ajudam futuras alterações.
+
+**Regra prática:** se a informação ajuda outra IA a trabalhar do jeito que o Thiago quer daqui a semanas ou meses, ela deve entrar aqui. Se só explica o que foi feito agora, não entra.
+
+---
+
 ## Projeto
 
 - **Repositório:** https://github.com/crftwoo/thiago.luz.dufrio

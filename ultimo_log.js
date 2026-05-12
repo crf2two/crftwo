@@ -1,1 +1,1 @@
-const LATEST_LOG = { message: 'Scraper Oficial: centralização dos botões selecionados de tipo, BTU e ciclo no mobile.', dateIso: '2026-05-12T10:55:00-03:00' };
+const LATEST_LOG = { message: 'AGENTS.md: leitura obrigatória em todo acesso e atualização apenas com regras pertinentes.', dateIso: '2026-05-12T11:02:00-03:00' };

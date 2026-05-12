@@ -1,1 +1,1 @@
-Scraper Oficial: centralização dos botões selecionados de tipo, BTU e ciclo no mobile.
+AGENTS.md: leitura obrigatória em todo acesso e atualização apenas com regras pertinentes.
