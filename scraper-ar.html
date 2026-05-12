@@ -234,9 +234,15 @@
     #filters-section { width: 100%; display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; background: rgba(18,18,28,0.5); padding: 24px; border-radius: 12px; border: 1px solid var(--card-border); }
     .filter-group h3 { font-size: 11px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; text-align: left; }
     .filter-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .filter-quality-row { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .filter-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; font-family: "Outfit", sans-serif; }
     .filter-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
     .filter-btn.active { background: rgba(79,172,254,0.2); border-color: rgba(79,172,254,0.5); color: var(--blue); box-shadow: 0 0 10px rgba(79,172,254,0.2); }
+    .filter-quality-btn { color: #e5e7eb; background: rgba(255,255,255,0.045); }
+    .filter-quality-btn.quality-premium.active { background: rgba(176,141,87,0.22); border-color: rgba(176,141,87,0.65); color: #f6d795; box-shadow: 0 0 12px rgba(176,141,87,0.22); }
+    .filter-quality-btn.quality-boa.active { background: rgba(0,176,80,0.2); border-color: rgba(0,176,80,0.6); color: #22c55e; box-shadow: 0 0 12px rgba(0,176,80,0.18); }
+    .filter-quality-btn.quality-inter.active { background: rgba(255,192,0,0.18); border-color: rgba(255,192,0,0.58); color: #facc15; box-shadow: 0 0 12px rgba(255,192,0,0.18); }
+    .filter-quality-btn.quality-basica.active { background: rgba(255,0,0,0.16); border-color: rgba(255,0,0,0.48); color: #f87171; box-shadow: 0 0 12px rgba(255,0,0,0.14); }
     .filter-btn.store-frigelar.active { background: rgba(0,230,118,0.2); border-color: rgba(0,230,118,0.5); color: var(--green); box-shadow: 0 0 10px rgba(0,230,118,0.2); }
     .filter-btn.store-leveros.active { background: rgba(255,107,0,0.2); border-color: rgba(255,107,0,0.5); color: #ff6b00; box-shadow: 0 0 10px rgba(255,107,0,0.2); }
     .filter-btn.store-centralar.active { background: rgba(236,72,153,0.2); border-color: rgba(236,72,153,0.5); color: #ec4899; box-shadow: 0 0 10px rgba(236,72,153,0.2); }
@@ -887,6 +893,7 @@
         </div>
         <div class="filter-group">
           <h3>Marcas Encontradas</h3>
+          <div class="filter-row filter-quality-row" id="filter-marca-grupos"></div>
           <div class="filter-row" id="filter-marcas"></div>
         </div>
         <div class="filter-group">
@@ -912,6 +919,12 @@
     let allFetchedProducts = [];
     let activeFilters = { lojas: [], marcas: [], btus: [], ciclos: [] };
     const LISTA_MARCAS = ["Agratto", "Aiwa", "Aufit", "Britânia", "Carrier", "Comfee", "Consul", "Daikin", "Electrolux", "Elgin", "EOS", "Fujitsu", "Gree", "Hisense", "Hitachi", "HQ", "Komeco", "LG", "Midea", "Philco", "Samsung", "Springer Midea", "TCL", "Trane", "Vix", "York"];
+    const QUALITY_BRANDS = {
+      premium: { label: "Premium", brands: ["daikin", "fujitsu", "hitachi", "trane"] },
+      boa: { label: "Boa", brands: ["lg", "samsung", "gree", "carrier", "midea", "hisense"] },
+      inter: { label: "Intermediária", brands: ["springer", "springer midea", "elgin", "tcl", "agratto", "electrolux"] },
+      basica: { label: "Básica", brands: [] }
+    };
     
     const TIPOS_PADRAO = ["Hiwall", "Piso Teto", "Cassete"];
     const BTUS_PADRAO = ["9000", "12000", "18000", "24000", "30000", "36000", "48000", "60000"];
@@ -1117,7 +1130,7 @@
     }
 
     // --- FORMATO DE COPIA (igual extensao) ---
-    const HYPER_BRANDS = ["daikin","fujitsu","hitachi","trane","lg","samsung","gree","carrier","midea","hisense"];
+    const HYPER_BRANDS = [...QUALITY_BRANDS.premium.brands, ...QUALITY_BRANDS.boa.brands];
     function boldBrand(title) {
       for (const b of HYPER_BRANDS) {
         const rx = b==="lg" ? new RegExp("\\b("+b+")\\b","i") : new RegExp("("+b+")","i");
@@ -2675,6 +2688,7 @@
       const ciclos = [...new Set(allFetchedProducts.map(p=>p.ciclo))].sort();
       renderFilterRow("filter-lojas", lojas, "lojas");
       renderFilterRow("filter-marcas", marcas, "marcas");
+      renderBrandQualityFilters(marcas);
       renderFilterRow("filter-btus", btus, "btus");
       renderFilterRow("filter-ciclos", ciclos, "ciclos");
       document.getElementById("filters-section").style.display = (allFetchedProducts.length > 0) ? "flex" : "none";
@@ -2705,6 +2719,75 @@
       document.getElementById("stat-products-label").innerText = isFiltered ? productsLabel + " (filtrados)" : productsLabel;
     }
 
+    function normalizeBrand(value) {
+      return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    }
+
+    function getBrandQualityMatches(availableBrands) {
+      const normalizedToOriginal = new Map();
+      availableBrands.forEach(brand => normalizedToOriginal.set(normalizeBrand(brand), brand));
+
+      const assigned = new Set();
+      const groups = [];
+      ["premium", "boa", "inter"].forEach(key => {
+        const config = QUALITY_BRANDS[key];
+        const matches = [];
+        config.brands.forEach(brandKey => {
+          const normalized = normalizeBrand(brandKey);
+          if (normalizedToOriginal.has(normalized)) {
+            matches.push(normalizedToOriginal.get(normalized));
+            assigned.add(normalized);
+          }
+        });
+        if (matches.length) groups.push({ key, label: config.label, brands: matches });
+      });
+
+      const basicBrands = availableBrands.filter(brand => !assigned.has(normalizeBrand(brand)));
+      if (basicBrands.length) {
+        groups.push({ key: "basica", label: QUALITY_BRANDS.basica.label, brands: basicBrands });
+      }
+      return groups;
+    }
+
+    function renderBrandQualityFilters(availableBrands) {
+      const c = document.getElementById("filter-marca-grupos");
+      if (!c) return;
+      c.innerHTML = "";
+
+      const groups = getBrandQualityMatches(availableBrands);
+      c.style.display = groups.length ? "flex" : "none";
+
+      groups.forEach(group => {
+        const btn = document.createElement("button");
+        btn.className = `filter-btn filter-quality-btn quality-${group.key}`;
+        btn.dataset.brands = group.brands.join("|");
+        btn.innerText = `${group.label} (${group.brands.length})`;
+        btn.title = group.brands.join(", ");
+        btn.onclick = () => toggleBrandQualityGroup(group.brands);
+        c.appendChild(btn);
+      });
+      syncBrandFilterVisuals();
+    }
+
+    function toggleBrandQualityGroup(brands) {
+      const alreadyOnlyThisGroup = activeFilters.marcas.length === brands.length && brands.every(brand => activeFilters.marcas.includes(brand));
+      activeFilters.marcas = alreadyOnlyThisGroup ? [] : [...brands];
+      syncBrandFilterVisuals();
+      applyFilters();
+    }
+
+    function syncBrandFilterVisuals() {
+      document.querySelectorAll("#filter-marcas .filter-btn").forEach(btn => {
+        btn.classList.toggle("active", activeFilters.marcas.includes(btn.dataset.value));
+      });
+
+      document.querySelectorAll("#filter-marca-grupos .filter-quality-btn").forEach(btn => {
+        const brands = (btn.dataset.brands || "").split("|").filter(Boolean);
+        const active = brands.length > 0 && activeFilters.marcas.length === brands.length && brands.every(brand => activeFilters.marcas.includes(brand));
+        btn.classList.toggle("active", active);
+      });
+    }
+
     function renderFilterRow(id, items, type) {
       const c = document.getElementById(id); c.innerHTML = "";
       if (items.length <= 1 && type !== "marcas" && type !== "lojas") {
@@ -2725,7 +2808,9 @@
             if (storeKey === "climario") btn.classList.add("store-climario");
             if (storeKey === "polo ar") btn.classList.add("store-poloar");
         }
+        btn.dataset.value = item;
         btn.innerText = item;
+        if (activeFilters[type].includes(item)) btn.classList.add("active");
         btn.onclick = () => toggleFilter(btn, type, item);
         c.appendChild(btn);
       });
@@ -2735,6 +2820,7 @@
       const idx = activeFilters[type].indexOf(value);
       if (idx > -1) { activeFilters[type].splice(idx, 1); btn.classList.remove("active"); }
       else { activeFilters[type].push(value); btn.classList.add("active"); }
+      if (type === "marcas") syncBrandFilterVisuals();
       applyFilters();
     }
 

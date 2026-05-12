@@ -1,1 +1,1 @@
-Ajusta mobile do Scraper Oficial sem alterar lógica
+Scraper Oficial: filtros rápidos por qualidade de marca adicionados em Marcas Encontradas.
