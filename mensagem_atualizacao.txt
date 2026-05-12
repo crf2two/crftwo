@@ -1,1 +1,1 @@
-Ajusta mobile do Checklist sem alterar lógica
+Ajusta mobile do Scraper Oficial sem alterar lógica
