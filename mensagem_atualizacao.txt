@@ -1,1 +1,1 @@
-Integra extensão ao Hub com Mini Hub e Busca Ar
+Documenta fluxo de publicação por PR no AGENTS.md
