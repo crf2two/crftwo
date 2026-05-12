@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800;900&family=Inter:wght@500;600;800;900&display=swap');
 
         :root {
             --green: #4facfe;
@@ -24,6 +24,11 @@
 
         * { box-sizing: border-box; }
 
+        html {
+            background: #050505;
+            overflow-x: hidden;
+        }
+
         body {
             margin: 0;
             padding: 40px 20px;
@@ -31,10 +36,35 @@
             background: #050505 !important;
             color: var(--text-main);
             padding-bottom: 600px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-feature-settings: "cv01", "cv02";
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(150px);
+            z-index: 0;
+            opacity: 0.15;
+            background: #10b981;
+            top: 40%;
+            left: 40%;
+            animation: auroraAnim 25s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        .aurora {
+            z-index: 0 !important;
+            pointer-events: none;
         }
 
         .container { position: relative; z-index: 10; 
             max-width: 1000px;
+            width: 100%;
             margin: 0 auto;
             position: relative;
         }
@@ -43,11 +73,13 @@
             font-size: 32px;
             font-weight: 900;
             margin-bottom: 8px;
-            letter-spacing: -1px;
+            letter-spacing: 0;
             text-transform: uppercase;
             font-style: italic;
             color: var(--dufrio-azul);
             text-align: center;
+            line-height: 1.08;
+            overflow-wrap: anywhere;
         }
         
         .sub-head {
@@ -60,6 +92,10 @@
             border-bottom: 1px solid var(--border);
             padding-bottom: 24px;
             text-align: center;
+            line-height: 1.5;
+            max-width: 760px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .pergunta-container {
@@ -71,6 +107,8 @@
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             border: 1px solid var(--border);
             transition: all 0.3s ease;
+            max-width: 100%;
+            min-width: 0;
         }
         
         .oculta {
@@ -90,10 +128,12 @@
             font-weight: 900;
             margin: 0 0 12px 0;
             text-transform: uppercase;
-            letter-spacing: -0.5px;
+            letter-spacing: 0;
             font-size: 16px;
             color: var(--text-main);
             display: block;
+            line-height: 1.35;
+            overflow-wrap: anywhere;
         }
 
         h3 { color: var(--text-main); 
@@ -116,6 +156,12 @@
             font-family: 'Outfit', 'Inter', sans-serif;
             font-weight: 600;
             transition: all 0.2s;
+            min-height: 48px;
+            min-width: 0;
+        }
+
+        select {
+            text-overflow: ellipsis;
         }
 
         /* Estilos do Auxiliar de Capacidade (Etapa 15) */
@@ -287,6 +333,8 @@
             background-color: var(--bg-color);
             border-left: 4px solid var(--dufrio-azul-claro);
             border-radius: 8px;
+            max-width: 100%;
+            min-width: 0;
         }
 
         .dica {
@@ -307,6 +355,9 @@
             color: var(--text-main);
             line-height: 1.6;
             overflow-x: auto;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            -webkit-overflow-scrolling: touch;
         }
 
         .info-box strong { color: var(--dufrio-azul); font-weight: 800; }
@@ -326,6 +377,8 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             font-family: 'Outfit', 'Inter', sans-serif;
             margin-top: 24px;
+            min-height: 48px;
+            touch-action: manipulation;
         }
 
         button:hover {
@@ -389,6 +442,8 @@
             border: 1px solid var(--border);
             margin-top: 15px;
             align-items: stretch;
+            max-width: 100%;
+            min-width: 0;
         }
         .controles-3d {
             display: flex;
@@ -396,6 +451,7 @@
             gap: 15px;
             width: 350px; 
             justify-content: center;
+            min-width: 0;
         }
         .controle-grupo {
             display: flex;
@@ -406,13 +462,14 @@
             border-radius: 12px;
             border: 1px solid var(--border);
             gap: 10px;
+            min-width: 0;
         }
         .controle-grupo label {
             font-size: 11px;
             color: var(--text-main);
             margin: 0;
         }
-        .inputs-linha { display: flex; align-items: center; gap: 15px; }
+        .inputs-linha { display: flex; align-items: center; gap: 15px; min-width: 0; }
         .input-numero {
             width: 70px;
             padding: 8px;
@@ -425,7 +482,18 @@
             font-size: 14px;
             font-weight: 800;
         }
-        input[type=range] { flex: 1; accent-color: var(--dufrio-azul); cursor: pointer; }
+        input.input-numero {
+            width: 74px;
+            max-width: 74px;
+            flex: 0 0 74px;
+        }
+        input[type=range] {
+            flex: 1;
+            min-width: 0;
+            min-height: 32px;
+            accent-color: var(--dufrio-azul);
+            cursor: pointer;
+        }
         
         .btn-resetar {
             width: 100%;
@@ -443,6 +511,7 @@
             border-radius: 12px;
             overflow: hidden; 
             border: 1px solid var(--border);
+            max-width: 100%;
         }
         .label-3d {
             position: absolute;
@@ -479,6 +548,8 @@
             padding: 20px;
             border-radius: 12px;
             transition: 0.3s;
+            max-width: 100%;
+            min-width: 0;
         }
         .porta-titulo {
             display: flex;
@@ -570,8 +641,10 @@
         /* Wrapper para Tabelas Responsivas no Mobile */
         .table-responsive-wrapper {
             width: 100%;
+            max-width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
             padding-bottom: 5px;
         }
 
@@ -613,6 +686,8 @@
             border-radius: 16px;
             padding: 24px;
             margin-top: 20px;
+            max-width: 100%;
+            min-width: 0;
         }
         .card-frame {
             background: var(--card-bg);
@@ -625,6 +700,8 @@
             gap: 12px;
             align-items: flex-end;
             animation: fadeIn 0.3s ease;
+            max-width: 100%;
+            min-width: 0;
         }
         .card-frame label { font-size: 11px; margin-bottom: 4px; color: var(--text-secondary); }
         .btn-remover-frame {
@@ -641,6 +718,386 @@
             justify-content: center;
         }
         .btn-remover-frame:hover { background: #dc2626; transform: none; }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 30px 16px 180px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .pergunta-container {
+                padding: 26px;
+                border-radius: 18px;
+            }
+
+            .simulador-wrapper {
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .controles-3d {
+                width: 320px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 24px 14px 140px;
+            }
+
+            body::before {
+                width: 480px;
+                height: 480px;
+                filter: blur(120px);
+                opacity: 0.14;
+                top: 36%;
+                left: 18%;
+            }
+
+            .aurora {
+                width: 480px !important;
+                height: 480px !important;
+                filter: blur(105px) !important;
+                opacity: 0.22 !important;
+            }
+
+            .container {
+                margin-top: 46px !important;
+            }
+
+            h1 {
+                font-size: 26px;
+                line-height: 1.12;
+                margin-bottom: 10px;
+            }
+
+            .sub-head {
+                font-size: 10px;
+                line-height: 1.55;
+                margin-bottom: 24px;
+                padding-bottom: 18px;
+            }
+
+            .pergunta-container {
+                padding: 20px;
+                margin-bottom: 18px;
+                border-radius: 16px;
+                background-color: rgba(20, 20, 20, 0.72);
+            }
+
+            label, h3 {
+                font-size: 15px;
+            }
+
+            h3 {
+                padding-bottom: 12px;
+                margin-bottom: 14px !important;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            select {
+                width: 100%;
+                max-width: 100%;
+                padding: 13px 14px;
+                font-size: 16px;
+            }
+
+            .sub-pergunta {
+                padding: 16px;
+                margin-top: 16px;
+                border-left-width: 3px;
+            }
+
+            .info-box {
+                padding: 14px;
+                font-size: 11px;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .radio-option {
+                width: 100%;
+                min-height: 48px;
+                padding: 13px 14px;
+                justify-content: flex-start;
+            }
+
+            .btn-prox-etapa,
+            .btn-calc-ajuda,
+            .btn-confirmar-porta,
+            .btn-resetar,
+            .btn-usar-peso {
+                width: 100%;
+                text-align: center;
+                margin-top: 16px;
+                justify-content: center;
+            }
+
+            .simulador-wrapper {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px;
+                border-radius: 14px;
+            }
+
+            .controles-3d {
+                width: 100%;
+                gap: 12px;
+            }
+
+            .controle-grupo {
+                padding: 14px;
+            }
+
+            #etapa-6 .visualizer-auxiliar {
+                min-height: 300px !important;
+                height: 300px !important;
+            }
+
+            #scene-principal {
+                height: 260px !important;
+            }
+
+            #canvas-container {
+                min-height: 300px;
+            }
+
+            .table-responsive-wrapper {
+                border-radius: 10px;
+            }
+
+            .table-responsive-wrapper .tabela-referencia {
+                min-width: 520px;
+            }
+
+            .tabela-referencia th,
+            .tabela-referencia td {
+                padding: 10px;
+            }
+
+            .auxiliar-capacidade {
+                padding: 16px;
+            }
+
+            .auxiliar-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            #painel_auxiliar .auxiliar-header button {
+                width: 100%;
+                min-height: 44px;
+                margin-top: 0;
+            }
+
+            .aux-stats-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .aux-stat-box {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.03);
+            }
+
+            .visualizer-auxiliar {
+                min-height: 280px !important;
+                height: 280px !important;
+            }
+
+            .footer-auxiliar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+            }
+
+            .linha-porta {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .campo-linha {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .porta-titulo {
+                min-width: 0;
+                margin-bottom: 0;
+            }
+
+            .porta-btn-container {
+                width: 100%;
+            }
+
+            .secao-walking-cooler {
+                padding: 16px;
+                border-radius: 14px;
+            }
+
+            .card-frame {
+                grid-template-columns: 1fr !important;
+                padding: 14px;
+                gap: 12px;
+            }
+
+            .btn-remover-frame {
+                width: 100% !important;
+                height: 44px !important;
+                margin-top: 8px !important;
+                text-align: center;
+                justify-content: center;
+            }
+
+            #setup_qtd_portas > div {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            #qtd_portas,
+            #setup_qtd_portas button {
+                width: 100% !important;
+            }
+
+            .btn-voltar-global {
+                min-height: 36px !important;
+                padding: 8px 12px !important;
+                font-size: 10px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 18px 12px 110px;
+            }
+
+            body::before {
+                width: 360px;
+                height: 360px;
+                filter: blur(90px);
+                left: 6%;
+                top: 44%;
+            }
+
+            .aurora {
+                width: 360px !important;
+                height: 360px !important;
+                filter: blur(86px) !important;
+                opacity: 0.2 !important;
+            }
+
+            .container {
+                margin-top: 52px !important;
+            }
+
+            h1 {
+                font-size: 22px;
+                line-height: 1.15;
+            }
+
+            .sub-head {
+                font-size: 10px;
+                padding-bottom: 16px;
+                margin-bottom: 18px;
+                text-transform: none;
+                font-weight: 700;
+                letter-spacing: 0;
+            }
+
+            .pergunta-container {
+                padding: 16px;
+                border-radius: 14px;
+            }
+
+            label, h3 {
+                font-size: 14px;
+            }
+
+            button {
+                width: 100%;
+                padding: 14px 16px;
+                letter-spacing: 0.5px;
+            }
+
+            .inputs-linha {
+                gap: 10px;
+            }
+
+            input.input-numero {
+                width: 72px;
+                max-width: 72px;
+                flex-basis: 72px;
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            #etapa-6 .visualizer-auxiliar {
+                min-height: 260px !important;
+                height: 260px !important;
+                padding: 10px;
+            }
+
+            #scene-principal {
+                height: 224px !important;
+            }
+
+            .visualizer-auxiliar {
+                min-height: 250px !important;
+                height: 250px !important;
+                padding: 10px;
+            }
+
+            .table-responsive-wrapper .tabela-referencia {
+                min-width: 460px;
+            }
+
+            .tabela-referencia {
+                font-size: 12px;
+            }
+
+            .tabela-referencia th,
+            .tabela-referencia td {
+                padding: 9px 8px;
+            }
+
+            #painel_auxiliar .controls-grid > div:last-child {
+                grid-template-columns: 1fr !important;
+            }
+
+            .viz-header h4 {
+                font-size: 14px;
+                line-height: 1.35;
+            }
+
+            .viz-header p,
+            .viz-header span {
+                line-height: 1.4;
+            }
+        }
+
+        @media (hover: none) {
+            button:hover,
+            .radio-option:hover,
+            .btn-voltar-global:hover,
+            .btn-usar-peso:hover {
+                transform: none;
+            }
+        }
+
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
