@@ -1,1 +1,1 @@
-Regenera extensão com Busca Ar em etapas
+Adiciona ordenacao automatica do Dynamics a extensao

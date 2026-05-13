@@ -13,7 +13,8 @@
     "host_permissions": [
         "https://www.dufrio.com.br/*",
         "https://opensheet.elk.sh/*",
-        "https://castaticstorage.blob.core.windows.net/*"
+        "https://castaticstorage.blob.core.windows.net/*",
+        "https://dufrio.operations.dynamics.com/*"
     ],
     "externally_connectable": {
         "matches": [
@@ -76,6 +77,17 @@
             ],
             "run_at": "document_start",
             "all_frames": true
+        },
+        {
+            "matches": [
+                "https://dufrio.operations.dynamics.com/*"
+            ],
+            "js": [
+                "dynamics-auto-sort.js"
+            ],
+            "run_at": "document_idle",
+            "all_frames": false,
+            "world": "MAIN"
         }
     ]
 }
