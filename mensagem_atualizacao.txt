@@ -1,1 +1,1 @@
-Cria pasta Catalogos no repositorio
+Remove pasta Catalogos do repositorio
