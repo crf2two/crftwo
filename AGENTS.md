@@ -146,7 +146,10 @@ Não atualizar o `AGENTS.md` por qualquer tarefa comum. Não transformar este ar
 ## Projeto
 
 - **Repositório:** https://github.com/crftwoo/thiago.luz.dufrio
-- **Ferramenta publicada:** https://crftwoo.github.io/thiago.luz.dufrio/index.html
+- **Ferramenta publicada:** https://crftwoo.github.io/thiago.luz.dufrio/index.html (ou https://crf-two.github.io/thiago.luz.dufrio/)
+- **Links curtos de acesso:**
+  - https://tinyurl.com/dufriohub
+  - https://tinyurl.com/dufrio-hub
 
 Este projeto é o **Hub de Ferramentas Dufrio**, uma aplicação web estática publicada via GitHub Pages, com recursos para vendas, orçamentos, análise de mercado, scrapers, precificação, câmara fria e apoio operacional.
 
@@ -341,7 +344,7 @@ Se o GitHub CLI (`gh`) não estiver instalado, não insistir nele. Usar o conect
 Depois do commit/merge, conferir se a alteração refletiu no GitHub Pages.
 
 **Link principal (sempre enviar):**
-https://crftwoo.github.io/thiago.luz.dufrio/index.html
+https://crftwoo.github.io/thiago.luz.dufrio/index.html (ou o link curto: https://tinyurl.com/dufriohub)
 
 Se a alteração foi em página interna, **enviar também** o link direto. Páginas comuns:
 

@@ -1,1 +1,1 @@
-Atualiza AGENTS com contexto ampliado do projeto
+Adiciona links curtos do Hub ao AGENTS.md
