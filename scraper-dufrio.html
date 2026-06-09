@@ -815,10 +815,117 @@
     .action-link-label { font-size: 11px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; text-align: left; }
     .action-link-url { color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 13px; word-break: break-all; transition: color 0.2s; text-align: left; display: block; }
     .action-link-url:hover { color: #60a5fa; text-decoration: underline; }
-    .btn-copy-list { background: rgba(0, 230, 118, 0.15) !important; border-color: rgba(0, 230, 118, 0.4) !important; color: #00e676 !important; box-shadow: 0 0 12px rgba(0, 230, 118, 0.1) !important; }
-    .btn-copy-list:hover { background: rgba(0, 230, 118, 0.25) !important; border-color: rgba(0, 230, 118, 0.6) !important; box-shadow: 0 0 18px rgba(0, 230, 118, 0.18) !important; }
-    .rendered-list-textarea { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; color: var(--text-main); font-family: monospace; font-size: 12px; width: 100%; height: 120px; resize: vertical; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
-    .rendered-list-textarea:focus { border-color: rgba(0, 123, 255, 0.5); }
+
+    /* FLOATING PANEL */
+    .floating-list-panel {
+      position: fixed;
+      top: 150px;
+      right: 30px;
+      width: 320px;
+      height: 320px;
+      background: rgba(18, 18, 28, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      box-sizing: border-box;
+      transition: opacity 0.3s ease;
+    }
+    .floating-list-header {
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: move;
+      user-select: none;
+    }
+    .floating-list-header span {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+    .floating-copy-btn {
+      background: rgba(0, 230, 118, 0.15);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+      color: #00e676;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 9px;
+      font-weight: 800;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+    .floating-copy-btn:hover {
+      background: rgba(0, 230, 118, 0.25);
+      border-color: rgba(0, 230, 118, 0.5);
+    }
+    .floating-list-body {
+      flex: 1;
+      position: relative;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .floating-list-textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-family: monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      resize: none;
+      outline: none;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+    .floating-copy-toast {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 230, 118, 0.95);
+      color: #000;
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0 0 16px 16px;
+      pointer-events: none;
+      animation: fadeOutToast 0.8s forwards;
+    }
+    @keyframes fadeOutToast {
+      0% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @media (max-width: 768px) {
+      .floating-list-panel {
+        position: fixed;
+        bottom: 20px;
+        right: 10px;
+        left: 10px;
+        top: auto;
+        width: calc(100% - 20px);
+        height: 200px;
+      }
+      .floating-list-header {
+        cursor: default;
+      }
+    }
   </style>
   <script src="analytics.js" defer></script>
 </head>
@@ -858,15 +965,11 @@
         <button class="btn-reset" onclick="resetScraper()">🔄 Refazer Busca</button>
       </div>
 
-      <!-- Barra de Ações Rápidas (Link consultado e Cópia de Lista) -->
-      <div id="quick-action-bar">
+      <!-- Barra de Ações Rápidas (Link consultado) -->
+      <div id="quick-action-bar" style="margin-bottom: 24px;">
         <div style="display: flex; flex-direction: column;">
           <div class="action-link-label">🔗 Link consultado na Dufrio:</div>
           <a id="consulted-link" class="action-link-url" href="#" target="_blank"></a>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button id="btn-copy-list" class="btn-reset btn-copy-list" onclick="copyRenderedList()">📋 Copiar Lista WhatsApp</button>
-          <textarea id="rendered-list-preview" class="rendered-list-textarea" style="display: none;" placeholder="Gerando lista para WhatsApp..."></textarea>
         </div>
       </div>
 
@@ -1189,6 +1292,7 @@
 
     function loadData() {
       refreshChoiceOptions();
+      setupDraggablePanel();
     }
 
     function uniqueValues(items) {
@@ -1734,6 +1838,7 @@
       document.getElementById("step-resultados").classList.remove("active");
       document.getElementById("loading-results").style.display = "none";
       document.getElementById("quick-action-bar").style.display = "none";
+      document.getElementById("floating-list-panel").style.display = "none";
       renderTipos();
       document.getElementById("step-tipo").scrollIntoView({behavior: 'smooth', block: 'start'});
     }
@@ -1996,10 +2101,11 @@
     }
 
     function updateRenderedListPreview(products) {
+      const panel = document.getElementById("floating-list-panel");
       const textarea = document.getElementById("rendered-list-preview");
       if (!products || products.length === 0) {
-        textarea.style.display = "none";
-        textarea.value = "";
+        if (panel) panel.style.display = "none";
+        if (textarea) textarea.value = "";
         return;
       }
       
@@ -2008,8 +2114,8 @@
       const titleText = fullTitle.split('\n').map(l => `*${l}*`).join('\n');
       const textToCopy = `${titleText}\n\n${listText}`;
       
-      textarea.value = textToCopy;
-      textarea.style.display = "block";
+      if (textarea) textarea.value = textToCopy;
+      if (panel) panel.style.display = "flex";
     }
 
     function copyRenderedList() {
@@ -2017,14 +2123,141 @@
       if (!textarea || !textarea.value) return;
       
       navigator.clipboard.writeText(textarea.value).then(() => {
-        const btn = document.getElementById("btn-copy-list");
-        const originalText = btn.innerHTML;
-        btn.innerHTML = "✔️ Lista Copiada!";
-        setTimeout(() => btn.innerHTML = originalText, 2000);
+        const toast = document.getElementById("floating-copy-toast");
+        if (toast) {
+          toast.style.display = "flex";
+          toast.style.animation = 'none';
+          void toast.offsetWidth;
+          toast.style.animation = 'fadeOutToast 0.8s forwards';
+          setTimeout(() => {
+            toast.style.display = "none";
+          }, 800);
+        }
+        
+        const btn = document.querySelector(".floating-copy-btn");
+        if (btn) {
+          const originalText = btn.innerHTML;
+          btn.innerHTML = "Copiado! ✔️";
+          setTimeout(() => btn.innerHTML = originalText, 1500);
+        }
       });
+    }
+
+    // Lógica para arrastar o painel flutuante
+    function setupDraggablePanel() {
+      const panel = document.getElementById("floating-list-panel");
+      const header = document.getElementById("floating-list-header");
+      if (!panel || !header) return;
+
+      let isDragging = false;
+      let startX, startY, initialLeft, initialTop;
+
+      header.addEventListener("mousedown", (e) => {
+        if (e.target.classList.contains("floating-copy-btn")) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        const rect = panel.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        panel.style.right = "auto";
+        panel.style.bottom = "auto";
+        panel.style.left = initialLeft + "px";
+        panel.style.top = initialTop + "px";
+
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+        e.preventDefault();
+      });
+
+      function onMouseMove(e) {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        let newX = initialLeft + dx;
+        let newY = initialTop + dy;
+
+        const maxX = window.innerWidth - panel.offsetWidth;
+        const maxY = window.innerHeight - panel.offsetHeight;
+
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+
+        panel.style.left = newX + "px";
+        panel.style.top = newY + "px";
+      }
+
+      function onMouseUp() {
+        isDragging = false;
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      }
+
+      // Touch drag
+      header.addEventListener("touchstart", (e) => {
+        if (e.target.classList.contains("floating-copy-btn")) return;
+        const touch = e.touches[0];
+        isDragging = true;
+        startX = touch.clientX;
+        startY = touch.clientY;
+
+        const rect = panel.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        panel.style.right = "auto";
+        panel.style.bottom = "auto";
+        panel.style.left = initialLeft + "px";
+        panel.style.top = initialTop + "px";
+
+        document.addEventListener("touchmove", onTouchMove, { passive: false });
+        document.addEventListener("touchend", onTouchEnd);
+      });
+
+      function onTouchMove(e) {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+
+        let newX = initialLeft + dx;
+        let newY = initialTop + dy;
+
+        const maxX = window.innerWidth - panel.offsetWidth;
+        const maxY = window.innerHeight - panel.offsetHeight;
+
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+
+        panel.style.left = newX + "px";
+        panel.style.top = newY + "px";
+        e.preventDefault();
+      }
+
+      // Touch end
+      function onTouchEnd() {
+        isDragging = false;
+        document.removeEventListener("touchmove", onTouchMove);
+        document.removeEventListener("touchend", onTouchEnd);
+      }
     }
 
     window.onload = loadData;
   </script>
+
+  <!-- Painel Flutuante Dragável da Lista WhatsApp -->
+  <div id="floating-list-panel" class="floating-list-panel">
+    <div id="floating-list-header" class="floating-list-header">
+      <span>📋 LISTA WHATSAPP (ARRASTE)</span>
+      <button onclick="copyRenderedList()" class="floating-copy-btn">Copiar</button>
+    </div>
+    <div class="floating-list-body">
+      <textarea id="rendered-list-preview" class="floating-list-textarea" readonly placeholder="Gerando lista..." onclick="copyRenderedList()"></textarea>
+      <div id="floating-copy-toast" class="floating-copy-toast">Copiado!</div>
+    </div>
+  </div>
 </body>
 </html>

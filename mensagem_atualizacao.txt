@@ -1,1 +1,1 @@
-Corrige redeclaração da constante HYPER_BRANDS no Scraper Dufrio
+Adiciona painel flutuante dragável com cópia rápida da lista no Scraper Dufrio
