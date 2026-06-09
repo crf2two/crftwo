@@ -1,1 +1,1 @@
-Adiciona links curtos do Hub ao AGENTS.md
+Atualiza o Scraper Dufrio com recursos avançados do Scraper Oficial
