@@ -1,1 +1,1 @@
-Adiciona exibição de link consultado e cópia de lista formatada para WhatsApp no Scraper Dufrio
+Corrige redeclaração da constante HYPER_BRANDS no Scraper Dufrio
