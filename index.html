@@ -1,13 +1,112 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang='pt-BR'>
 <head>
-  <meta charset="UTF-8">
+  <meta charset='UTF-8'>
   <title>Hub de Ferramentas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <link href='https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap' rel='stylesheet'>
+  <link rel='stylesheet' href='assets/index-redesign.css'>
 </head>
 <body>
-  <h1>Hub de Ferramentas</h1>
-  <p>Novo design aprovado.</p>
-  <p><a href="index-redesign.html">Abrir novo design</a></p>
+  <header class='global-nav'>
+    <div class='nav-inner'>
+      <a class='signature' href='index.html' title='Hub de Ferramentas'><span class='signature-mark'></span><span>THIAGO LUZ</span></a>
+      <nav class='nav-links' aria-label='Navegação principal'>
+        <a href='#camaraTitle'>Câmara fria</a>
+        <a href='#arTitle'>Ar-condicionado</a>
+        <a href='#objetivos'>Objetivos</a>
+      </nav>
+      <div class='nav-actions'><a class='quick-search-btn' href='scraper-dufrio.html'><span>Busca rápida</span></a></div>
+    </div>
+  </header>
+
+  <main>
+    <section class='hero' aria-labelledby='mainTitle'>
+      <div class='container'>
+        <div class='hero-stage'>
+          <div class='hero-content'>
+            <div class='eyebrow'>Central de trabalho</div>
+            <h1 id='mainTitle'>Hub de Ferramentas</h1>
+            <p class='hero-subtitle'>Venda, compare, orce e opere com mais velocidade em uma home limpa, direta e pronta para o dia a dia.</p>
+            <div class='hero-search'>
+              <input id='toolSearchInput' type='search' placeholder='Buscar: scraper, câmara, checklist, preço, cotação...' autocomplete='off'>
+            </div>
+            <div class='hero-actions' aria-label='Ações principais'>
+              <a class='primary-cta' href='#camaraTitle'>Começar pelo orçamento</a>
+              <a class='secondary-cta' href='#arTitle'>Analisar mercado</a>
+              <a class='secondary-cta' href='scraper-ar.html'>Abrir scraper oficial</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id='objetivos' class='objective-strip' aria-labelledby='objetivosTitle'>
+      <div class='container'>
+        <div class='strip-head'>
+          <div><div class='section-kicker'>Escolha pelo objetivo</div><h2 id='objetivosTitle'>O que você quer fazer agora?</h2></div>
+          <p>Atalhos rápidos organizados pela intenção de uso.</p>
+        </div>
+        <div class='objective-grid'>
+          <a class='objective-card' href='simulador-gabinete.html'><span><strong>Orçar câmara fria</strong><span>Simulador, cálculo e base técnica.</span></span><span class='objective-arrow'>→</span></a>
+          <a class='objective-card' href='comparador-ar.html'><span><strong>Comparar preços</strong><span>Ofertas por loja e referência de venda.</span></span><span class='objective-arrow'>→</span></a>
+          <a class='objective-card' href='precificacao-ar.html'><span><strong>Precificar SKU</strong><span>Site x 365 com ajuste proporcional.</span></span><span class='objective-arrow'>→</span></a>
+          <a class='objective-card' href='scraper-ar.html'><span><strong>Buscar mercado</strong><span>Scraper oficial das lojas monitoradas.</span></span><span class='objective-arrow'>→</span></a>
+          <a class='objective-card' href='CheckList.html'><span><strong>Gerar checklist</strong><span>PDF técnico para levantamento.</span></span><span class='objective-arrow'>→</span></a>
+          <a class='objective-card' href='baixar-extensao.html'><span><strong>Baixar extensão</strong><span>Instalação no Chrome ou Edge.</span></span><span class='objective-arrow'>→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class='tools-section' aria-labelledby='camaraTitle'>
+      <div class='container'>
+        <div class='section-head'>
+          <div><div class='section-kicker'>Orçamento técnico</div><h2 id='camaraTitle' class='section-title'>Câmara fria</h2></div>
+          <p class='section-note'>Cálculo, checklist e apoio visual para vender melhor.</p>
+        </div>
+        <div class='bento-grid'>
+          <a class='tool-card featured' data-search='simulador 3d câmara fria orçamento painel gabinete' href='simulador-gabinete.html' style='--card-color:#0071e3'><div class='tool-top'><div class='icon-box'>3D</div></div><div class='tool-body'><div class='tool-category'>Câmara fria</div><div class='tool-title'>Simulador 3D</div><div class='tool-desc'>Visualize o gabinete e gere o cálculo de painéis para orçamento.</div><div class='tool-action'>Abrir ferramenta</div></div></a>
+          <a class='tool-card' data-search='plano de corte câmara fria pir eps desperdício' href='plano-corte.html' style='--card-color:#f97316'><div class='tool-top'><div class='icon-box'>PC</div></div><div class='tool-body'><div class='tool-category'>Câmara fria</div><div class='tool-title'>Plano de corte</div><div class='tool-desc'>Otimize o aproveitamento de painéis PIR/EPS e reduza desperdícios.</div><div class='tool-action'>Abrir ferramenta</div></div></a>
+          <a class='tool-card' data-search='checklist pdf câmara fria levantamento' href='CheckList.html' style='--card-color:#22c55e'><div class='tool-top'><div class='icon-box'>✓</div></div><div class='tool-body'><div class='tool-category'>Câmara fria</div><div class='tool-title'>Checklist em PDF</div><div class='tool-desc'>Padronize o levantamento de dados e gere checklist para orçamento.</div><div class='tool-action'>Abrir ferramenta</div></div></a>
+        </div>
+      </div>
+    </section>
+
+    <section class='tools-section' aria-labelledby='arTitle'>
+      <div class='container'>
+        <div class='section-head'>
+          <div><div class='section-kicker'>Mercado e preço</div><h2 id='arTitle' class='section-title'>Ar-condicionado</h2></div>
+          <p class='section-note'>Scrapers, comparação de ofertas e precificação.</p>
+        </div>
+        <div class='bento-grid'>
+          <a class='tool-card featured' data-search='scraper oficial análise de mercado preço loja' href='scraper-ar.html' style='--card-color:#111111'><div class='tool-top'><div class='icon-box'>AR</div></div><div class='tool-body'><div class='tool-category'>Análise de mercado</div><div class='tool-title'>Scraper Oficial</div><div class='tool-desc'>Busque preços nas lojas monitoradas e organize referências comerciais.</div><div class='tool-action'>Abrir ferramenta</div></div></a>
+          <a class='tool-card' data-search='comparador de preços ar condicionado ofertas loja' href='comparador-ar.html' style='--card-color:#818cf8'><div class='tool-top'><div class='icon-box'>↔</div></div><div class='tool-body'><div class='tool-category'>Ar-condicionado</div><div class='tool-title'>Comparador de preços</div><div class='tool-desc'>Compare ofertas entre lojas e encontre a melhor referência para venda.</div><div class='tool-action'>Abrir ferramenta</div></div></a>
+          <a class='tool-card' data-search='precificação sku site 365' href='precificacao-ar.html' style='--card-color:#0ea5e9'><div class='tool-top'><div class='icon-box'>$</div></div><div class='tool-body'><div class='tool-category'>Site x 365</div><div class='tool-title'>Precificação</div><div class='tool-desc'>Ajuste valores entre site e 365 com cálculo proporcional por SKU.</div><div class='tool-action'>Abrir ferramenta</div></div></a>
+          <a class='tool-card' data-search='laboratório scrapers testes lojas' href='scraper-dufrio.html' style='--card-color:#16a34a'><div class='tool-top'><div class='icon-box'>LAB</div><div class='badge'>Laboratório</div></div><div class='tool-body'><div class='tool-category'>Testes</div><div class='tool-title'>Laboratório de Scrapers</div><div class='tool-desc'>Valide cada loja individualmente antes de usar no Scraper Oficial.</div><div class='tool-action'>Abrir teste</div></div></a>
+        </div>
+        <div id='emptyState' class='empty-state'>Nenhuma ferramenta encontrada para essa busca.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class='meta-footer container'>
+    <div><div class='status-line'><span class='status-dot'></span> Online</div><p class='footer-small'>criado em 16/09/2024 · novo design aplicado ao Hub.</p></div>
+    <div class='update-hover'><div id='update-datetime' tabindex='0' aria-describedby='update-title'>18/06/2026</div><div id='update-title' role='tooltip'>Novo design do index</div></div>
+  </footer>
+
+  <script>
+    const input = document.getElementById('toolSearchInput');
+    const empty = document.getElementById('emptyState');
+    input?.addEventListener('input', () => {
+      const term = input.value.trim().toLowerCase();
+      let visible = 0;
+      document.querySelectorAll('.tool-card').forEach(card => {
+        const ok = !term || card.dataset.search.includes(term);
+        card.classList.toggle('is-hidden', !ok);
+        if (ok) visible++;
+      });
+      empty?.classList.toggle('is-visible', Boolean(term && visible === 0));
+    });
+  </script>
 </body>
 </html>
