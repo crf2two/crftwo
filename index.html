@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Hub de Ferramentas Dufrio</title>
+  <title>Hub de Ferramentas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
 
@@ -95,6 +95,23 @@
       mix-blend-mode: screen;
       flex-shrink: 0;
     }
+    .name-logo {
+      font-size: 24px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #4facfe, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      white-space: nowrap;
+    }
+    .name-logo:hover {
+      transform: scale(1.03);
+      opacity: 0.95;
+    }
 
     @media (max-width: 768px) {
       .header {
@@ -119,6 +136,10 @@
       .logo-container img {
         height: 34px;
       }
+      .name-logo {
+        font-size: 18px;
+        letter-spacing: 1px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -136,6 +157,9 @@
       .logo-container img {
         height: 28px;
       }
+      .name-logo {
+        font-size: 14px;
+      }
     }
 
     /* Telas bem pequenas: header empilha pra não brigar com a logo */
@@ -146,6 +170,7 @@
         gap: 8px;
       }
       .logo-container img { height: 26px; }
+      .name-logo { font-size: 12px; }
     }
 
     /* Títulos de Seção Minimalistas */
@@ -1040,7 +1065,7 @@
     
     <div class="header">
       <div class="header-text">
-        <h1>Hub de Ferramentas Dufrio</h1>
+        <h1>Hub de Ferramentas</h1>
         <p>Ferramentas internas para vendas, orçamentos e análise de mercado.</p>
       </div>
       <div class="logo-container">
@@ -1048,7 +1073,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <span>Busca Rápida</span>
         </button>
-        <img id="dufrioLogo" src="https://www.dufrio.com.br/media/logo/websites/1/Logo_Dufrio_3_1_.webp" alt="Dufrio" crossorigin="anonymous">
+        <span id="dufrioLogo" class="name-logo">Thiago Luz</span>
       </div>
     </div>
 
@@ -1359,6 +1384,12 @@
     // Dados de atualizações embutidos (Fallback)
     const updatesData = {
       "updates": [
+        {
+          "date": "18/06/2026",
+          "time": "11:07",
+          "title": "Personalização e correção de links do Hub",
+          "description": "Substituição da logo da Dufrio pelo nome Thiago Luz com estilização gradiente, remoção de Dufrio do título do Hub e correção de links para o novo repositório."
+        },
         {
           "date": "09/06/2026",
           "time": "19:56",

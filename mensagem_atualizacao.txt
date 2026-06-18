@@ -1,1 +1,3 @@
-Ajuste visual do painel de lista e links no Scraper Dufrio
+Substituição da logo da Dufrio pelo nome Thiago Luz, remoção de Dufrio do título e correção de links do repositório/páginas
+
+

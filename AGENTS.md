@@ -145,8 +145,8 @@ Não atualizar o `AGENTS.md` por qualquer tarefa comum. Não transformar este ar
 
 ## Projeto
 
-- **Repositório:** https://github.com/crftwoo/thiago.luz.dufrio
-- **Ferramenta publicada:** https://crftwoo.github.io/thiago.luz.dufrio/index.html (ou https://crf-two.github.io/thiago.luz.dufrio/)
+- **Repositório:** https://github.com/crf-two/crftwo
+- **Ferramenta publicada:** https://crf-two.github.io/crftwo/index.html
 - **Links curtos de acesso:**
   - https://tinyurl.com/dufriohub
   - https://tinyurl.com/dufrio-hub
@@ -344,19 +344,19 @@ Se o GitHub CLI (`gh`) não estiver instalado, não insistir nele. Usar o conect
 Depois do commit/merge, conferir se a alteração refletiu no GitHub Pages.
 
 **Link principal (sempre enviar):**
-https://crftwoo.github.io/thiago.luz.dufrio/index.html (ou o link curto: https://tinyurl.com/dufriohub)
+https://crf-two.github.io/crftwo/index.html (ou o link curto: https://tinyurl.com/dufriohub)
 
 Se a alteração foi em página interna, **enviar também** o link direto. Páginas comuns:
 
-- https://crftwoo.github.io/thiago.luz.dufrio/scraper-ar.html
-- https://crftwoo.github.io/thiago.luz.dufrio/comparador-ar.html
-- https://crftwoo.github.io/thiago.luz.dufrio/precificacao-ar.html
-- https://crftwoo.github.io/thiago.luz.dufrio/cotacoes.html
-- https://crftwoo.github.io/thiago.luz.dufrio/simulador-gabinete.html
-- https://crftwoo.github.io/thiago.luz.dufrio/plano-corte.html
-- https://crftwoo.github.io/thiago.luz.dufrio/CheckList.html
-- https://crftwoo.github.io/thiago.luz.dufrio/itens-quantidade.html
-- https://crftwoo.github.io/thiago.luz.dufrio/precos-ao-vivo.html
+- https://crf-two.github.io/crftwo/scraper-ar.html
+- https://crf-two.github.io/crftwo/comparador-ar.html
+- https://crf-two.github.io/crftwo/precificacao-ar.html
+- https://crf-two.github.io/crftwo/cotacoes.html
+- https://crf-two.github.io/crftwo/simulador-gabinete.html
+- https://crf-two.github.io/crftwo/plano-corte.html
+- https://crf-two.github.io/crftwo/CheckList.html
+- https://crf-two.github.io/crftwo/itens-quantidade.html
+- https://crf-two.github.io/crftwo/precos-ao-vivo.html
 
 ---
 
@@ -376,7 +376,7 @@ Ao terminar qualquer tarefa, responder neste formato:
 
 **Publicação:**
 - confirmar se a ferramenta publicada foi conferida.
-- enviar o link principal: https://crftwoo.github.io/thiago.luz.dufrio/index.html
+- enviar o link principal: https://crf-two.github.io/crftwo/index.html
 
 **Link direto:**
 - se a alteração foi em página interna, enviar o link direto da página alterada.
