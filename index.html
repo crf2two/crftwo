@@ -702,72 +702,72 @@
     }
 
     .meta-footer {
-      margin-top: 54px;
-      display: grid;
-      grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.1fr);
+      margin-top: 44px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(148, 163, 184, 0.10);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 18px;
-      align-items: stretch;
+      color: rgba(139, 150, 165, 0.78);
     }
 
     .footer-card {
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: rgba(255,255,255,0.035);
-      padding: 20px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      padding: 0;
+      min-width: 0;
+    }
+
+    .footer-card:last-child {
+      text-align: right;
     }
 
     .status-line {
       display: flex;
       align-items: center;
-      gap: 8px;
-      color: var(--text-main);
-      font-size: 14px;
+      gap: 7px;
+      color: rgba(198, 206, 216, 0.72);
+      font-size: 12px;
       font-weight: 800;
     }
 
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 12px rgba(34, 197, 94, 0.55);
+      background: rgba(34, 197, 94, 0.75);
+      box-shadow: none;
     }
 
     .footer-small {
-      margin-top: 8px;
-      color: var(--text-muted);
-      font-size: 12px;
+      margin-top: 4px;
+      color: rgba(139, 150, 165, 0.62);
+      font-size: 11px;
       font-weight: 600;
-      line-height: 1.45;
+      line-height: 1.35;
     }
 
     .update-label {
-      color: var(--text-muted);
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 1.3px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
+      display: none;
     }
 
     #update-title {
-      color: var(--blue);
-      font-size: 13px;
-      font-weight: 900;
-      margin-bottom: 6px;
+      color: rgba(198, 206, 216, 0.72);
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 3px;
     }
 
     #update-desc {
-      color: var(--text-soft);
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.45;
+      display: none;
     }
 
     #update-datetime {
-      margin-top: 10px;
-      color: var(--text-muted);
-      font-size: 11px;
+      margin-top: 4px;
+      color: rgba(139, 150, 165, 0.58);
+      font-size: 10px;
       font-weight: 700;
       text-align: right;
     }
@@ -842,6 +842,20 @@
       .labs-title { font-size: 22px; }
       .labs-grid { grid-template-columns: 1fr; }
       .quick-search-modal-content { height: calc(100dvh - 20px); border-radius: 20px; }
+
+      .meta-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .footer-card:last-child {
+        text-align: left;
+      }
+
+      #update-datetime {
+        text-align: left;
+      }
     }
 
     @media (max-width: 420px) {
@@ -938,14 +952,14 @@
 
     <footer class="meta-footer">
       <div class="footer-card">
-        <div class="status-line"><span class="status-dot"></span> Sistemas operacionais e online</div>
-        <p class="footer-small">Criado e mantido por Thiago Luz desde 16/09/2024.</p>
+        <div class="status-line"><span class="status-dot"></span> Online</div>
+        <p class="footer-small">Mantido por Thiago Luz desde 16/09/2024.</p>
       </div>
       <div class="footer-card">
         <div class="update-label">Última atualização</div>
-        <div id="update-title">Grid dos cards reorganizado</div>
-        <div id="update-desc">Os cards da página inicial foram reposicionados para destacar as ferramentas mais usadas e eliminar espaços vazios no layout.</div>
-        <div id="update-datetime">18/06/2026 às 15:31</div>
+        <div id="update-title">Rodapé mais discreto</div>
+        <div id="update-desc">O rodapé da página inicial foi reduzido para uma faixa mais leve e menos chamativa.</div>
+        <div id="update-datetime">18/06/2026 às 15:36</div>
       </div>
     </footer>
   </div>
