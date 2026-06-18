@@ -1,4 +1,5 @@
-const HUB_BASE_URL = "https://crftwoo.github.io/thiago.luz.dufrio/";
+const HUB_BASE_URL = "https://crf-two.github.io/crftwo/";
+
 const SHEET_URL = "https://opensheet.elk.sh/1ml7XpwZfzM4ElRJb4G62b93VMqUw3jeprTtgxdigiD8/Sheet1";
 const TIPO_ORDER = ["Hiwall", "Piso Teto", "Cassete"];
 const BTUS_BY_TIPO = {

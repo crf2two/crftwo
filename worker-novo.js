@@ -23,7 +23,8 @@ addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request));
 });
 
-// CORS aberto pra qualquer origem, incluindo crftwoo.github.io e file://
+// CORS aberto pra qualquer origem, incluindo crf-two.github.io e file://
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
