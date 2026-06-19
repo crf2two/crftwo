@@ -1,1 +1,1 @@
-Simplifica layout operacional do Hub
+Ajusta layout dos cards
