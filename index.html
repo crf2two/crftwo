@@ -195,15 +195,16 @@
     .lab-grid {
       width: min(100%, 848px);
       grid-template-columns: repeat(4, minmax(0, 200px));
-      grid-auto-rows: 170px;
+      grid-auto-rows: 200px;
       gap: 12px;
     }
-    .lab-card { padding: 16px; border-radius: 16px; }
-    .lab-card .tool-name { font-size: 16px; letter-spacing: -.25px; }
-    .lab-card .tool-short { font-size: 11.5px; }
+    .lab-card { min-height: 200px; padding: 16px; border-radius: 16px; }
+    .lab-card .tool-name { font-size: 16px; line-height: 1.06; letter-spacing: -.25px; }
+    .lab-card .tool-short { font-size: 11.5px; line-height: 1.35; max-height: 3.1em; }
+    .lab-card .tool-action { margin-top: 2px; }
     .lab-card .icon-box { width: 34px; height: 34px; border-radius: 10px; }
     .lab-card .icon-box svg { width: 18px; height: 18px; }
-    .lab-card .detail-pop { font-size: 11.5px; }
+    .lab-card .detail-pop { font-size: 11.5px; max-height: 0; }
 
     .overlay, .quick-search-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(3,6,10,.78); backdrop-filter: blur(16px); }
     .overlay.is-open, .quick-search-modal.active { display: flex; }
@@ -230,7 +231,7 @@
     @media (max-width: 980px) {
       .tool-grid { width: min(100%, 536px); grid-template-columns: repeat(2, minmax(0, 260px)); grid-auto-rows: 250px; }
       .tool-card.featured { grid-column: span 2; grid-row: span 1; }
-      .lab-grid { width: min(100%, 536px); grid-template-columns: repeat(2, minmax(0, 260px)); grid-auto-rows: 170px; }
+      .lab-grid { width: min(100%, 536px); grid-template-columns: repeat(2, minmax(0, 260px)); grid-auto-rows: 200px; }
       .section-head { width: min(100%, 536px); }
       .topbar { align-items: flex-start; }
       .brand { flex-direction: column; align-items: flex-start; gap: 6px; }
@@ -258,7 +259,7 @@
     }
   </style>
   <script src="analytics.js" defer></script>
-  <script src="ultimo_log.js?v=202606191816"></script>
+  <script src="ultimo_log.js?v=202606191821"></script>
 </head>
 <body>
   <div class="container">
@@ -317,8 +318,8 @@
         <p class="footer-small">criado em 16/09/2024.</p>
       </div>
       <div class="update-hover">
-        <div id="update-datetime" tabindex="0" aria-describedby="update-title">19/06/2026 às 18:16</div>
-        <div id="update-title" role="tooltip">Botão de busca rápida ajustado</div>
+        <div id="update-datetime" tabindex="0" aria-describedby="update-title">19/06/2026 às 18:21</div>
+        <div id="update-title" role="tooltip">Cards do laboratório corrigidos</div>
       </div>
     </footer>
   </div>
@@ -345,9 +346,9 @@
       updates: [
         {
           date: '19/06/2026',
-          time: '18:16',
-          title: 'Botão de busca rápida ajustado',
-          description: 'Botão superior passa a exibir apenas Busca rápida, mantendo abertura do Scraper Dufrio.'
+          time: '18:21',
+          title: 'Cards do laboratório corrigidos',
+          description: 'Cards pequenos ganharam altura e limite de texto para manter o botão Abrir sempre dentro do card.'
         }
       ]
     };
