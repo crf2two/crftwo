@@ -1,1 +1,1 @@
-Corrige hover e nome do Scraper Ar
+Botão de busca rápida ajustado
