@@ -1,0 +1,3173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Scraper Oficial</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #050505; --card-bg: rgba(18,18,28,0.85); --card-border: rgba(255,255,255,0.08); --green: #00e676; --blue: #4facfe; --text: #ffffff; --muted: #7a7a9a; --radius: 16px; }
+    body { font-family: "Outfit", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    .aurora { position: fixed; border-radius: 50%; filter: blur(130px); z-index: 0; pointer-events: none; opacity: 0.22; animation: auroraAnim 18s infinite alternate ease-in-out; }
+    .a1 { width: 700px; height: 700px; background: #3b82f6; top: -15%; left: -15%; }
+    .a2 { width: 600px; height: 600px; background: #7c3aed; bottom: -15%; right: -10%; animation-duration: 24s; }
+    @keyframes auroraAnim { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.4) translate(60px,-60px); } }
+
+    .btn-back { position: fixed; top: 16px; left: 16px; z-index: 999; background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 6px 14px; border-radius: 30px; text-decoration: none; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+    .btn-back:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
+    .btn-back svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2.5; fill: none; }
+
+    .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 70px 24px 100px; text-align: center; }
+    .page-header { margin-bottom: 48px; }
+    .page-header h1 { font-size: 34px; font-weight: 900; letter-spacing: -1.5px; text-transform: uppercase; font-style: italic; background: linear-gradient(135deg, #4facfe, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .page-header p { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid var(--card-border); padding-bottom: 28px; }
+
+    .step-section { display: none; flex-direction: column; align-items: center; gap: 20px; animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1) forwards; margin-top: 8px; }
+    .step-section.active { display: flex; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    h2 { font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; margin-top: 20px; }
+
+    .options-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; width: 100%; }
+    .option-btn { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--card-border); padding: 14px 28px; border-radius: 12px; cursor: pointer; transition: opacity 0.3s, transform 0.25s, max-width 0.35s cubic-bezier(0.4,0,0.2,1), max-height 0.35s, padding 0.3s, margin 0.3s, border-width 0.3s, flex-basis 0.3s, flex-grow 0.3s, background 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s; color: var(--text); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-family: "Outfit", sans-serif; }
+    .option-btn:hover { border-color: #4facfe55; background: rgba(79,172,254,0.08); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,172,254,0.1); }
+    .option-btn:active { transform: scale(0.96); }
+    .tipo-btn { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 24px 20px; width: 190px; }
+    .tipo-btn img { width: 150px; transition: transform 0.3s; filter: drop-shadow(0 0 14px rgba(79,172,254,0.35)); mix-blend-mode: screen; }
+    .tipo-btn:hover img { transform: scale(1.06); filter: drop-shadow(0 0 20px rgba(79,172,254,0.6)); }
+
+    .option-btn.selected { background: rgba(79,172,254,0.15); border-color: rgba(79,172,254,0.6); box-shadow: 0 0 20px rgba(79,172,254,0.25); color: #fff; }
+    .tipo-btn.selected img { transform: scale(1.06); filter: drop-shadow(0 0 25px rgba(79,172,254,0.7)); }
+
+    /* Locked state: only selected stays visible, others fade and collapse */
+    .options-grid.locked { gap: 0; justify-content: center; }
+    .options-grid.locked .option-btn:not(.selected) { opacity: 0; transform: translateY(-10px) scale(0.85); max-width: 0 !important; max-height: 0 !important; flex: 0 0 0 !important; margin: 0 !important; padding: 0 !important; border-width: 0 !important; pointer-events: none; overflow: hidden; }
+    .options-grid.locked .option-btn.selected { cursor: pointer; margin-inline: auto; }
+    #tipo-options.locked,
+    #btu-options.locked,
+    #ciclo-options.locked { gap: 0; justify-content: center; }
+    #tipo-options.locked { display: flex; grid-template-columns: none; }
+    #tipo-options.locked .tipo-btn.selected { flex: 0 0 auto; width: min(190px, 100%); }
+    #btu-options.locked .option-btn.selected,
+    #ciclo-options.locked .option-btn.selected { flex: 0 0 auto; min-width: 120px; }
+
+    /* Confirmation bounce when an option is picked */
+    @keyframes confirm-bounce { 0% { transform: scale(1); } 35% { transform: scale(1.08); } 70% { transform: scale(0.97); } 100% { transform: scale(1); } }
+    .option-btn.bounce { animation: confirm-bounce 0.45s ease-out; }
+
+    #loading-results { display: none; flex-direction: column; align-items: center; gap: 14px; padding: 50px; margin-top: 20px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(79,172,254,0.15); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading-msg { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--blue); }
+    @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+    .loading-sheet { color: var(--blue); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; animation: pulse 1.5s infinite; text-align: center; width: 100%; padding: 40px 0; }
+
+    /* GRID DE PRODUTOS */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; margin-top: 28px; width: 100%; }
+
+    /* CARD */
+    .product-card { background: linear-gradient(180deg, rgba(18,18,28,0.95), rgba(12,12,20,0.98)); border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden; backdrop-filter: blur(16px); display: flex; flex-direction: column; transition: all 0.25s; position: relative; box-shadow: 0 14px 36px rgba(0,0,0,0.28); }
+    .product-card:hover { border-color: rgba(79,172,254,0.3); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(79,172,254,0.1); }
+
+    /* LOJA BADGE */
+    .store-badge { position: absolute; top: 12px; left: 12px; z-index: 3; background: rgba(18,18,28,0.9); border: 1px solid rgba(255,255,255,0.1); padding: 3px 10px; border-radius: 20px; font-size: 9px; font-weight: 900; color: white; letter-spacing: 1.5px; text-transform: uppercase; backdrop-filter: blur(8px); }
+    .store-badge.store-frigelar { background: linear-gradient(135deg, rgba(0,89,36,0.95), rgba(0,230,118,0.2)); border-color: rgba(0,230,118,0.3); }
+    .store-badge.store-leveros { background: linear-gradient(135deg, #ff6b00, #ff9e00); border-color: #ff9e00; }
+    .store-badge.store-centralar { background: linear-gradient(135deg, rgba(160,30,100,0.95), rgba(236,72,153,0.25)); border-color: rgba(236,72,153,0.4); }
+    .store-badge.store-dufrio { background: linear-gradient(135deg, #004a99, #007bff); border-color: #007bff; }
+    .store-badge.store-dufrio { background: linear-gradient(135deg, #004a99, #007bff); border-color: #007bff; }
+    .store-badge.store-friopecas { background: linear-gradient(135deg, #005ca8, #2563eb); border-color: rgba(37,99,235,0.55); }
+    .store-badge.store-webcontinental { background: linear-gradient(135deg, #0f766e, #14b8a6); border-color: rgba(20,184,166,0.55); }
+    .store-badge.store-climario { background: linear-gradient(135deg, #b45309, #f59e0b); border-color: rgba(245,158,11,0.55); }
+    .store-badge.store-poloar { background: linear-gradient(135deg, #004f9f, #ef3b2d); border-color: rgba(239,59,45,0.55); }
+
+    /* FOTO */
+    .product-img-wrap { width: 100%; aspect-ratio: 1.08/1; background: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .product-img-wrap img { width: 90%; height: 90%; object-fit: contain; transition: transform 0.3s; }
+    .product-img-wrap:hover img { transform: scale(1.045); }
+    .img-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.2s; }
+    .img-overlay span { font-size: 10px; font-weight: 900; letter-spacing: 2px; color: white; text-transform: uppercase; background: rgba(79,172,254,0.3); border: 1px solid rgba(79,172,254,0.5); padding: 8px 16px; border-radius: 8px; }
+    .product-img-wrap:hover .img-overlay { opacity: 1; }
+    .img-overlay.copied span { background: rgba(0,230,118,0.3); border-color: rgba(0,230,118,0.5); color: var(--green); }
+
+    /* INFO AREA */
+    .product-info { padding: 20px 14px 10px; cursor: pointer; position: relative; flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 178px; }
+    .product-info:hover { background: rgba(255,255,255,0.02); }
+    .copy-hint { position: absolute; top: 10px; right: 10px; font-size: 8px; font-weight: 900; color: rgba(79,172,254,0.6); letter-spacing: 1px; text-transform: uppercase; opacity: 0; transition: 0.2s; z-index: 5; }
+    .product-info:hover .copy-hint { opacity: 1; }
+    .product-info.copied .copy-hint { opacity: 1; color: var(--green); content: "COPIADO!"; }
+
+    .product-title { font-size: 15px; font-weight: 850; color: #ffffff; line-height: 1.32; margin-bottom: 16px; text-align: center; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; width: 100%; min-height: 79px; overflow: hidden; overflow-wrap: break-word; word-break: break-word; }
+    .prices-wrap { display: flex; flex-direction: column; gap: 6px; align-items: center; width: 100%; text-align: center; background: rgba(3,3,10,0.62); padding: 14px 10px; border-radius: 13px; border: 1px solid rgba(255,255,255,0.06); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); margin-top: auto; }
+    
+    .price-vista { font-size: 21px; font-weight: 900; color: #00e676; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; text-shadow: 0 0 14px rgba(0,230,118,0.2); letter-spacing: 0; }
+    .discount-badge { font-size: 10px; font-weight: 800; color: #00e676; background: rgba(0,230,118,0.12); border: 1px solid rgba(0,230,118,0.3); padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; white-space: nowrap; }
+    
+    .price-install { font-size: 12px; color: #b7b7c8; font-weight: 700; text-align: center; line-height: 1.35; }
+
+    /* BOTAO LINK */
+    .card-footer { margin-top: auto; padding: 8px 14px 12px; border-top: 1px solid rgba(255,255,255,0.04); background: rgba(255,255,255,0.015); }
+    .btn-link { display: block; width: 100%; padding: 8px; border-radius: 9px; background: rgba(79,172,254,0.08); border: 1px solid rgba(79,172,254,0.22); color: #79bdff; font-size: 9px; font-weight: 900; letter-spacing: 1.7px; text-transform: uppercase; text-align: center; cursor: pointer; transition: all 0.2s; font-family: "Outfit", sans-serif; }
+    .btn-link:hover { background: linear-gradient(135deg, rgba(79,172,254,0.25), rgba(167,139,250,0.25)); border-color: rgba(79,172,254,0.5); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,172,254,0.15); }
+
+    @media (max-width: 768px) {
+      .container { padding: 50px 16px 60px; }
+
+      .btn-back { top: 12px; left: 12px; padding: 5px 10px; font-size: 8px; }
+      .btn-back svg { width: 10px; height: 10px; }
+
+      .page-header { margin-bottom: 30px; }
+      .page-header h1 { font-size: 24px; letter-spacing: -1px; margin-bottom: 6px; }
+      .page-header p { font-size: 9px; padding-bottom: 16px; }
+
+      h2 { font-size: 13px; margin-top: 16px; margin-bottom: 10px; }
+
+      .options-grid { gap: 10px; }
+      .option-btn { padding: 10px 16px; font-size: 10px; }
+      #tipo-options { flex-wrap: nowrap; max-width: 480px; margin: 0 auto; gap: 10px; }
+      .tipo-btn { flex: 1 1 0; width: auto; min-width: 0; flex-direction: column; padding: 16px 8px; gap: 10px; min-height: 150px; justify-content: center; }
+      .tipo-btn img { width: 88%; max-width: 96px; }
+      .tipo-btn span { font-size: 11px; line-height: 1.2; text-align: center; }
+
+      .products-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; margin-top: 22px; }
+      .product-card { border-radius: 16px; max-width: 640px; width: 100%; margin: 0 auto; }
+      .product-img-wrap { aspect-ratio: 4/3; }
+      .product-img-wrap img { width: 88%; height: 88%; }
+      .product-info { padding: 22px 20px 12px; min-height: 178px; }
+      .product-title { font-size: 18px; line-height: 1.22; margin-bottom: 18px; min-height: auto; -webkit-line-clamp: 3; }
+      .prices-wrap { padding: 16px 14px; gap: 7px; border-radius: 14px; }
+      .price-vista { font-size: 25px; }
+      .discount-badge { font-size: 9px; padding: 3px 9px; }
+      .price-install { font-size: 13px; }
+      .card-footer { padding: 8px 18px 14px; }
+      .btn-link { padding: 9px; font-size: 9px; letter-spacing: 1.8px; opacity: 0.82; }
+
+      .store-badge { font-size: 8px; padding: 2px 8px; }
+
+      #selection-summary { padding: 12px 16px; flex-direction: column; gap: 10px; }
+      .summary-text { font-size: 11px; }
+      .summary-text span { padding: 4px 10px; font-size: 10px; }
+      .btn-reset { padding: 8px 16px; font-size: 10px; }
+
+      #filters-section { padding: 16px; gap: 12px; }
+      .filter-group h3 { font-size: 10px; margin-bottom: 8px; }
+      .filter-row { gap: 6px; }
+      .filter-btn { padding: 6px 12px; font-size: 9px; border-radius: 16px; }
+
+      .sync-status { bottom: 16px; right: 16px; padding: 8px 14px; font-size: 9px; }
+      .sync-dot { width: 6px; height: 6px; }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 40px 12px 50px; }
+
+      .btn-back { top: 10px; left: 10px; padding: 4px 8px; font-size: 7px; }
+      .btn-back svg { width: 9px; height: 9px; }
+
+      .page-header { margin-bottom: 24px; }
+      .page-header h1 { font-size: 18px; letter-spacing: 0px; margin-bottom: 4px; }
+      .page-header p { font-size: 8px; padding-bottom: 12px; letter-spacing: 0.5px; }
+
+      h2 { font-size: 11px; margin-top: 14px; margin-bottom: 8px; letter-spacing: 0px; }
+
+      .options-grid { gap: 8px; }
+      .option-btn { padding: 8px 12px; font-size: 9px; }
+      #tipo-options { gap: 8px; }
+      .tipo-btn { padding: 14px 6px; gap: 8px; min-height: 130px; }
+      .tipo-btn img { width: 88%; max-width: 80px; }
+      .tipo-btn span { font-size: 10px; }
+
+      .products-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .product-card { border-radius: 16px; }
+      .product-info { padding: 20px 16px 12px; min-height: 168px; }
+      .product-title { font-size: 16px; line-height: 1.25; margin-bottom: 14px; -webkit-line-clamp: 3; }
+      .product-img-wrap { aspect-ratio: 4/3; }
+      .product-img-wrap img { width: 88%; height: 88%; }
+      .img-overlay span { font-size: 9px; padding: 6px 12px; }
+
+      .prices-wrap { padding: 14px 12px; gap: 5px; border-radius: 12px; }
+      .price-vista { font-size: 23px; gap: 3px; }
+      .discount-badge { font-size: 8px; padding: 2px 7px; }
+      .price-install { font-size: 12px; line-height: 1.35; }
+
+      .card-footer { padding: 7px 14px 12px; }
+      .btn-link { padding: 8px; font-size: 8px; border-radius: 8px; opacity: 0.76; }
+
+      .store-badge { font-size: 7px; padding: 2px 6px; top: 8px; left: 8px; }
+      .copy-hint { font-size: 7px; top: 6px; right: 6px; }
+
+      #selection-summary { padding: 10px 12px; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+      .summary-text { font-size: 10px; }
+      .summary-text span { padding: 3px 8px; font-size: 9px; }
+      .btn-reset { padding: 6px 12px; font-size: 9px; }
+
+      #filters-section { padding: 12px; gap: 10px; margin-bottom: 20px; }
+      .filter-group h3 { font-size: 9px; margin-bottom: 6px; }
+      .filter-row { gap: 5px; }
+      .filter-btn { padding: 5px 10px; font-size: 8px; border-radius: 14px; }
+
+      .sync-status { bottom: 12px; right: 12px; padding: 6px 10px; font-size: 8px; }
+      .sync-dot { width: 5px; height: 5px; }
+
+      #loading-results { padding: 30px; }
+      .spinner { width: 28px; height: 28px; border-width: 2px; }
+      #loading-msg { font-size: 10px; }
+    }
+
+    /* SUMMARY BAR */
+    #selection-summary { width: 100%; background: var(--card-bg); border: 1px solid var(--card-border); padding: 16px 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; backdrop-filter: blur(12px); flex-wrap: wrap; gap: 14px; }
+    .summary-text { font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 1px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .summary-text span { background: rgba(79,172,254,0.15); padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(79,172,254,0.3); color: var(--blue); }
+    .btn-reset { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 8px; color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; font-family: "Outfit", sans-serif; }
+    .btn-reset:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); border-color: rgba(255,255,255,0.3); }
+
+    /* RESULTS STATS */
+    #results-stats { width: 100%; display: none; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+    .stat-card { flex: 1 1 220px; display: flex; align-items: center; gap: 14px; background: rgba(18,18,28,0.6); border: 1px solid var(--card-border); padding: 16px 20px; border-radius: 12px; backdrop-filter: blur(12px); transition: 0.2s; }
+    .stat-card:hover { border-color: rgba(79,172,254,0.4); transform: translateY(-2px); }
+    .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stat-icon svg { width: 22px; height: 22px; }
+    .stat-card.sites .stat-icon { background: rgba(79,172,254,0.15); border: 1px solid rgba(79,172,254,0.3); color: var(--blue); }
+    .stat-card.products .stat-icon { background: rgba(0,230,118,0.15); border: 1px solid rgba(0,230,118,0.3); color: var(--green); }
+    .stat-info { display: flex; flex-direction: column; gap: 2px; }
+    .stat-value { font-size: 22px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -0.5px; }
+    .stat-value .stat-current { color: var(--blue); }
+    .stat-card.products .stat-value .stat-current { color: var(--green); }
+    .stat-value .stat-sep { color: var(--muted); margin: 0 4px; font-weight: 700; }
+    .stat-value .stat-total { color: #a1a1aa; }
+    .stat-label { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; }
+
+    /* FILTERS */
+    #filters-section { width: 100%; display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; background: rgba(18,18,28,0.5); padding: 24px; border-radius: 12px; border: 1px solid var(--card-border); }
+    .filter-group h3 { font-size: 11px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; text-align: left; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .filter-quality-row { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .filter-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; font-family: "Outfit", sans-serif; }
+    .filter-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .filter-btn.active { background: rgba(79,172,254,0.2); border-color: rgba(79,172,254,0.5); color: var(--blue); box-shadow: 0 0 10px rgba(79,172,254,0.2); }
+    .filter-quality-btn { color: #e5e7eb; background: rgba(255,255,255,0.045); }
+    .filter-quality-btn.quality-premium.active { background: rgba(176,141,87,0.22); border-color: rgba(176,141,87,0.65); color: #f6d795; box-shadow: 0 0 12px rgba(176,141,87,0.22); }
+    .filter-quality-btn.quality-boa.active { background: rgba(0,176,80,0.2); border-color: rgba(0,176,80,0.6); color: #22c55e; box-shadow: 0 0 12px rgba(0,176,80,0.18); }
+    .filter-quality-btn.quality-inter.active { background: rgba(255,192,0,0.18); border-color: rgba(255,192,0,0.58); color: #facc15; box-shadow: 0 0 12px rgba(255,192,0,0.18); }
+    .filter-quality-btn.quality-basica.active { background: rgba(255,0,0,0.16); border-color: rgba(255,0,0,0.48); color: #f87171; box-shadow: 0 0 12px rgba(255,0,0,0.14); }
+    .filter-btn.store-frigelar.active { background: rgba(0,230,118,0.2); border-color: rgba(0,230,118,0.5); color: var(--green); box-shadow: 0 0 10px rgba(0,230,118,0.2); }
+    .filter-btn.store-leveros.active { background: rgba(255,107,0,0.2); border-color: rgba(255,107,0,0.5); color: #ff6b00; box-shadow: 0 0 10px rgba(255,107,0,0.2); }
+    .filter-btn.store-centralar.active { background: rgba(236,72,153,0.2); border-color: rgba(236,72,153,0.5); color: #ec4899; box-shadow: 0 0 10px rgba(236,72,153,0.2); }
+    .filter-btn.store-friopecas.active { background: rgba(37,99,235,0.2); border-color: rgba(37,99,235,0.5); color: #60a5fa; box-shadow: 0 0 10px rgba(37,99,235,0.2); }
+    .filter-btn.store-webcontinental.active { background: rgba(20,184,166,0.2); border-color: rgba(20,184,166,0.5); color: #2dd4bf; box-shadow: 0 0 10px rgba(20,184,166,0.2); }
+    .filter-btn.store-climario.active { background: rgba(245,158,11,0.2); border-color: rgba(245,158,11,0.5); color: #fbbf24; box-shadow: 0 0 10px rgba(245,158,11,0.2); }
+    .filter-btn.store-poloar.active { background: rgba(239,59,45,0.2); border-color: rgba(239,59,45,0.5); color: #ef4444; box-shadow: 0 0 10px rgba(239,59,45,0.2); }
+
+    /* SYNC STATUS */
+    .sync-status { position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: rgba(18,18,28,0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); padding: 10px 18px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: all 0.4s ease; cursor: default; }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .sync-status.loading .sync-dot { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; animation: pulse-dot 1s infinite alternate; }
+    .sync-status.success .sync-dot { background: #00e676; box-shadow: 0 0 10px #00e676; }
+    .sync-status.error .sync-dot { background: #ff5252; box-shadow: 0 0 10px #ff5252; }
+    @keyframes pulse-dot { from { opacity: 0.4; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
+
+    /* Mobile polish: visual only, preserving scraper behavior and selectors. */
+    html {
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      width: 620px;
+      height: 620px;
+      border-radius: 50%;
+      filter: blur(150px);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.13;
+      background: #10b981;
+      top: 36%;
+      left: 38%;
+      animation: auroraAnim 25s infinite alternate ease-in-out;
+    }
+
+    .container,
+    .step-section,
+    .options-grid,
+    #selection-summary,
+    #results-stats,
+    #filters-section,
+    .products-grid,
+    .product-card,
+    .product-info,
+    .prices-wrap,
+    .filter-row {
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .page-header h1,
+    .page-header p,
+    h2,
+    .summary-text,
+    .summary-text span,
+    .filter-btn,
+    .product-title,
+    .price-install,
+    .btn-link,
+    .loading-sheet,
+    #loading-msg {
+      overflow-wrap: anywhere;
+    }
+
+    button,
+    .option-btn,
+    .filter-btn,
+    .btn-reset,
+    .btn-link,
+    .product-img-wrap,
+    .product-info {
+      touch-action: manipulation;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow-x: hidden;
+      }
+
+      .container {
+        padding: 64px 18px 88px;
+      }
+
+      .page-header {
+        margin-bottom: 36px;
+      }
+
+      .page-header h1 {
+        font-size: 30px;
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      .page-header p {
+        max-width: 720px;
+        margin: 0 auto;
+        line-height: 1.55;
+      }
+
+      .options-grid {
+        gap: 12px;
+      }
+
+      .option-btn {
+        min-height: 44px;
+        padding: 12px 18px;
+        white-space: normal;
+      }
+
+      #tipo-options {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        max-width: 620px;
+      }
+
+      .tipo-btn {
+        width: 100%;
+        min-height: 150px;
+        padding: 18px 10px;
+        justify-content: center;
+      }
+
+      .tipo-btn img {
+        width: min(86%, 118px);
+        max-width: 118px;
+      }
+
+      #selection-summary {
+        align-items: stretch;
+      }
+
+      .summary-text {
+        flex: 1 1 100%;
+        justify-content: center;
+      }
+
+      .btn-reset {
+        min-height: 44px;
+      }
+
+      #results-stats {
+        display: none;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stat-card {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+
+      #filters-section {
+        border-radius: 14px;
+      }
+
+      .filter-row {
+        gap: 8px;
+      }
+
+      .filter-btn {
+        min-height: 40px;
+        padding: 9px 14px;
+        text-align: center;
+        line-height: 1.2;
+      }
+
+      .products-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .product-card {
+        width: 100%;
+      }
+
+      .btn-link {
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body::before {
+        width: 470px;
+        height: 470px;
+        filter: blur(118px);
+        opacity: 0.13;
+        top: 42%;
+        left: 18%;
+      }
+
+      .aurora {
+        width: 480px !important;
+        height: 480px !important;
+        filter: blur(110px);
+        opacity: 0.2;
+      }
+
+      .container {
+        padding: 58px 14px 86px;
+      }
+
+      .btn-back {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        min-height: 36px;
+        padding: 8px 12px;
+        font-size: 9px;
+        letter-spacing: 0.6px;
+      }
+
+      .page-header {
+        margin-bottom: 28px;
+      }
+
+      .page-header h1 {
+        font-size: 26px;
+        line-height: 1.1;
+        margin-bottom: 8px;
+      }
+
+      .page-header p {
+        font-size: 9px;
+        line-height: 1.55;
+        letter-spacing: 0.8px;
+        padding-bottom: 18px;
+      }
+
+      .step-section {
+        gap: 16px;
+        margin-top: 0;
+      }
+
+      h2 {
+        font-size: 13px;
+        line-height: 1.25;
+        margin-top: 10px;
+      }
+
+      #tipo-options {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .tipo-btn {
+        min-height: 142px;
+        padding: 16px 8px;
+        border-radius: 14px;
+      }
+
+      .tipo-btn img {
+        width: min(88%, 100px);
+        max-width: 100px;
+      }
+
+      .tipo-btn span {
+        font-size: 11px;
+        line-height: 1.2;
+      }
+
+      #btu-options,
+      #ciclo-options {
+        justify-content: stretch;
+      }
+
+      #btu-options .option-btn,
+      #ciclo-options .option-btn {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 128px;
+      }
+
+      #selection-summary {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px;
+        gap: 12px;
+        border-radius: 14px;
+      }
+
+      .summary-text {
+        justify-content: flex-start;
+        gap: 8px;
+        line-height: 1.35;
+      }
+
+      .summary-text span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        max-width: 100%;
+      }
+
+      .btn-reset {
+        width: 100%;
+        padding: 12px 16px;
+      }
+
+      #results-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      #results-stats[style*="flex"] {
+        display: grid !important;
+      }
+
+      .stat-card {
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+      }
+
+      .stat-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .stat-value {
+        font-size: 20px;
+      }
+
+      #filters-section {
+        padding: 16px;
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+
+      .filter-group h3 {
+        font-size: 10px;
+        line-height: 1.25;
+        margin-bottom: 8px;
+      }
+
+      .filter-btn {
+        flex: 1 1 auto;
+        min-width: min(138px, 100%);
+        font-size: 10px;
+      }
+
+      .products-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+        margin-top: 22px;
+      }
+
+      .product-card {
+        max-width: 620px;
+        margin: 0 auto;
+        border-radius: 16px;
+      }
+
+      .product-img-wrap {
+        aspect-ratio: 4 / 3;
+      }
+
+      .product-img-wrap img {
+        width: 88%;
+        height: 88%;
+      }
+
+      .product-info {
+        padding: 20px 16px 12px;
+        min-height: 0;
+      }
+
+      .copy-hint {
+        opacity: 0;
+      }
+
+      .product-title {
+        font-size: 17px;
+        line-height: 1.25;
+        min-height: 0;
+        margin-bottom: 14px;
+        -webkit-line-clamp: 3;
+      }
+
+      .prices-wrap {
+        padding: 14px 12px;
+        border-radius: 14px;
+      }
+
+      .price-vista {
+        font-size: 24px;
+      }
+
+      .price-install {
+        font-size: 13px;
+      }
+
+      .card-footer {
+        padding: 10px 16px 14px;
+      }
+
+      .btn-link {
+        font-size: 9px;
+        letter-spacing: 1.2px;
+        opacity: 1;
+      }
+
+      #loading-results {
+        padding: 34px 14px;
+        margin-top: 8px;
+      }
+
+      #loading-msg,
+      .loading-sheet {
+        line-height: 1.4;
+        letter-spacing: 1px;
+      }
+
+      .sync-status {
+        right: 10px;
+        bottom: max(10px, env(safe-area-inset-bottom));
+        max-width: calc(100vw - 20px);
+        padding: 7px 11px;
+        font-size: 8px;
+        gap: 7px;
+        opacity: 0.82;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body::before {
+        width: 360px;
+        height: 360px;
+        filter: blur(92px);
+        opacity: 0.12;
+        top: 48%;
+        left: 8%;
+      }
+
+      .aurora {
+        width: 360px !important;
+        height: 360px !important;
+        filter: blur(86px);
+        opacity: 0.18;
+      }
+
+      .container {
+        padding: 56px 12px 78px;
+      }
+
+      .page-header {
+        margin-bottom: 24px;
+      }
+
+      .page-header h1 {
+        font-size: 23px;
+      }
+
+      .page-header p {
+        font-size: 9px;
+        text-transform: none;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .options-grid {
+        gap: 9px;
+      }
+
+      .option-btn {
+        min-height: 44px;
+        padding: 10px 12px;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        border-radius: 12px;
+      }
+
+      #tipo-options {
+        gap: 8px;
+      }
+
+      .tipo-btn {
+        min-height: 134px;
+        padding: 13px 6px;
+        gap: 9px;
+      }
+
+      .tipo-btn img {
+        width: min(88%, 84px);
+        max-width: 84px;
+      }
+
+      .tipo-btn span {
+        font-size: 10px;
+      }
+
+      #btu-options .option-btn,
+      #ciclo-options .option-btn {
+        flex-basis: calc(50% - 6px);
+        min-width: 0;
+      }
+
+      #selection-summary {
+        padding: 12px;
+        margin-bottom: 16px;
+      }
+
+      .summary-text {
+        font-size: 10px;
+      }
+
+      .summary-text span {
+        padding: 5px 9px;
+        font-size: 9px;
+      }
+
+      #filters-section {
+        padding: 12px;
+      }
+
+      .filter-row {
+        gap: 7px;
+      }
+
+      .filter-btn {
+        min-height: 38px;
+        min-width: 0;
+        padding: 8px 10px;
+        font-size: 9px;
+        letter-spacing: 0.4px;
+      }
+
+      .product-info {
+        padding: 18px 14px 12px;
+      }
+
+      .product-title {
+        font-size: 16px;
+      }
+
+      .price-vista {
+        font-size: 22px;
+      }
+
+      .discount-badge {
+        white-space: normal;
+        line-height: 1.2;
+      }
+
+      .btn-link {
+        min-height: 44px;
+        padding: 10px;
+        font-size: 8px;
+      }
+
+      .store-badge {
+        max-width: calc(100% - 18px);
+        white-space: normal;
+        line-height: 1.2;
+      }
+    }
+
+    @media (hover: none) {
+      .btn-back:hover,
+      .option-btn:hover,
+      .tipo-btn:hover img,
+      .product-card:hover,
+      .product-img-wrap:hover img,
+      .product-info:hover,
+      .btn-link:hover,
+      .btn-reset:hover,
+      .filter-btn:hover,
+      .stat-card:hover {
+        transform: none;
+      }
+
+      .product-img-wrap:hover .img-overlay,
+      .product-info:hover .copy-hint {
+        opacity: 0;
+      }
+    }
+  </style>
+	<script src="analytics.js" defer></script>
+</head>
+<body>
+  <div id="sync-status" class="sync-status loading">
+    <div class="sync-dot"></div>
+    <span id="sync-text">Conectando</span>
+  </div>
+  <div style="position:fixed;inset:0;background:#050505;z-index:-2;pointer-events:none;"></div>
+  <div class="aurora a1"></div>
+  <div class="aurora a2"></div>
+  <a href="index.html" class="btn-back">
+    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    Voltar ao Hub
+  </a>
+  <div class="container">
+    <div class="page-header">
+      <h1>Scraper Oficial</h1>
+      <p>Scraper principal para buscar preços dos concorrentes, organizar ofertas de ar-condicionado e apoiar decisões comerciais.</p>
+    </div>
+    <div id="step-tipo" class="step-section active">
+      <h2>Selecione o Tipo</h2>
+      <div class="options-grid" id="tipo-options"></div>
+    </div>
+    <div id="step-btus" class="step-section">
+      <h2>Selecione os BTUs</h2>
+      <div class="options-grid" id="btu-options"></div>
+    </div>
+    <div id="step-ciclo" class="step-section">
+      <h2>Selecione o Ciclo</h2>
+      <div class="options-grid" id="ciclo-options"></div>
+    </div>
+    <div id="loading-results">
+      <div class="spinner"></div>
+      <p id="loading-msg">Consultando Lojas...</p>
+    </div>
+    <div id="step-resultados" class="step-section" style="width:100%;">
+      <div id="selection-summary" style="display:none;">
+        <div class="summary-text" id="summary-text"></div>
+        <button class="btn-reset" onclick="resetScraper()">🔄 Refazer Busca</button>
+      </div>
+      
+      <div id="results-stats">
+        <div class="stat-card sites">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.6 9h16.8M3.6 15h16.8M11.5 3a17 17 0 000 18M12.5 3a17 17 0 010 18"/><circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value"><span class="stat-current" id="stat-sites-current">0</span><span class="stat-sep" id="stat-sites-sep" style="display:none;">de</span><span class="stat-total" id="stat-sites-total" style="display:none;">0</span></div>
+            <div class="stat-label" id="stat-sites-label">Sites encontrados</div>
+          </div>
+        </div>
+        <div class="stat-card products">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16v4H4zM4 13h16v6a1 1 0 01-1 1H5a1 1 0 01-1-1zM9 16h6"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/></svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value"><span class="stat-current" id="stat-products-current">0</span><span class="stat-sep" id="stat-products-sep" style="display:none;">de</span><span class="stat-total" id="stat-products-total" style="display:none;">0</span></div>
+            <div class="stat-label" id="stat-products-label">Ar-condicionados captados</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="filters-section" style="display:none;">
+        <div class="filter-group">
+          <h3>Lojas Encontradas</h3>
+          <div class="filter-row" id="filter-lojas"></div>
+        </div>
+        <div class="filter-group">
+          <h3>Marcas Encontradas</h3>
+          <div class="filter-row filter-quality-row" id="filter-marca-grupos"></div>
+          <div class="filter-row" id="filter-marcas"></div>
+        </div>
+        <div class="filter-group">
+          <h3>BTUs</h3>
+          <div class="filter-row" id="filter-btus"></div>
+        </div>
+        <div class="filter-group">
+          <h3>Ciclo</h3>
+          <div class="filter-row" id="filter-ciclos"></div>
+        </div>
+      </div>
+
+      <div class="products-grid" id="results-grid"></div>
+    </div>
+  </div>
+  
+  <script src="ultimo_log.js" onerror="window.LATEST_LOG = null;"></script>
+  <script>
+    const IMAGES = {"Hiwall":"img/hi_wall.png","Hi Wall":"img/hi_wall.png","Piso Teto":"img/piso_teto.png","Cassete":"img/cassete.png"};
+    let sheetData = [], selection = {tipo:"",btu:"",ciclo:""};
+    const CACHE_KEY = "scraper_sheet_data_v1";
+
+    let allFetchedProducts = [];
+    let activeFilters = { lojas: [], marcas: [], btus: [], ciclos: [] };
+    const LISTA_MARCAS = ["Agratto", "Aiwa", "Aufit", "Britânia", "Carrier", "Comfee", "Consul", "Daikin", "Electrolux", "Elgin", "EOS", "Fujitsu", "Gree", "Hisense", "Hitachi", "HQ", "Komeco", "LG", "Midea", "Philco", "Samsung", "Springer Midea", "TCL", "Trane", "Vix", "York"];
+    const QUALITY_BRANDS = {
+      premium: { label: "Premium", brands: ["daikin", "fujitsu", "hitachi", "trane"] },
+      boa: { label: "Boa", brands: ["lg", "samsung", "gree", "carrier", "midea", "hisense"] },
+      inter: { label: "Intermediária", brands: ["springer", "springer midea", "elgin", "tcl", "agratto", "electrolux"] },
+      basica: { label: "Básica", brands: [] }
+    };
+    
+    const TIPOS_PADRAO = ["Hiwall", "Piso Teto", "Cassete"];
+    const BTUS_PADRAO_POR_TIPO = {
+      "Hiwall": ["9000", "12000", "18000", "22000 a 24000", "27000 a 34000", "36000"],
+      "Piso Teto": ["24000 a 30000", "34000 a 36000", "42000 a 48000", "52000 a 60000", "70000 a 80000"],
+      "Cassete": ["9000", "12000", "18000", "22000 a 24000", "28000 a 34000", "36000", "42000 a 52000", "55000 a 60000"]
+    };
+    const CICLOS_PADRAO = ["Só Frio", "Quente/Frio"];
+    let sheetLoadPromise = null;
+
+    async function loadData() {
+      // 1. Renderiza o caminho completo imediatamente para o usuário não esperar a planilha.
+      refreshChoiceOptions();
+      
+      const syncStatus = document.getElementById("sync-status");
+      const syncText = document.getElementById("sync-text");
+
+      // 2. Carrega a planilha em segundo plano
+
+      sheetLoadPromise = (async () => {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          try { sheetData = JSON.parse(cached); } catch(e) {}
+        }
+
+        try {
+          const r = await fetch("https://opensheet.elk.sh/1ml7XpwZfzM4ElRJb4G62b93VMqUw3jeprTtgxdigiD8/Sheet1");
+          const freshData = await r.json();
+          if (JSON.stringify(sheetData) !== JSON.stringify(freshData)) {
+            sheetData = freshData;
+            localStorage.setItem(CACHE_KEY, JSON.stringify(sheetData));
+          }
+          
+          syncStatus.className = "sync-status success";
+          syncText.innerText = "Conectado";
+          
+          setTimeout(() => {
+            syncStatus.style.opacity = "0.5";
+            syncStatus.style.transform = "scale(0.95)";
+          }, 3000);
+          
+          syncStatus.onmouseenter = () => { syncStatus.style.opacity = "1"; syncStatus.style.transform = "scale(1)"; };
+          syncStatus.onmouseleave = () => { syncStatus.style.opacity = "0.5"; syncStatus.style.transform = "scale(0.95)"; };
+          reconcileSelectionsWithOptions();
+          refreshChoiceOptions();
+          
+        } catch(e) {
+          console.error("Erro ao carregar planilha", e);
+          syncStatus.className = "sync-status error";
+          syncText.innerText = "Falha ao Conectar";
+        }
+      })();
+    }
+
+    function uniqueValues(items) {
+      return [...new Set(items.filter(Boolean))];
+    }
+
+    function sortBTUs(a, b) {
+      const getVal = (s) => parseInt(String(s).replace(/[.,]/g, "").match(/\d+/) || [0], 10);
+      return getVal(a) - getVal(b);
+    }
+
+    function normalizeCicloValue(c) {
+      return String(c || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/^so\s+/, "");
+    }
+
+    function getFallbackBTUs(tipo = selection.tipo) {
+      if (tipo && BTUS_PADRAO_POR_TIPO[tipo]) return BTUS_PADRAO_POR_TIPO[tipo];
+      return uniqueValues(TIPOS_PADRAO.flatMap(t => BTUS_PADRAO_POR_TIPO[t] || [])).sort(sortBTUs);
+    }
+
+    function getTipoOptions() {
+      const tipos = sheetData && sheetData.length > 0 ? uniqueValues(sheetData.map(i => i.Tipo)) : TIPOS_PADRAO;
+      return TIPOS_PADRAO.filter(t => tipos.includes(t)).concat(tipos.filter(t => !TIPOS_PADRAO.includes(t)).sort());
+    }
+
+    function getBTUOptions(tipo = selection.tipo) {
+      if (!sheetData || sheetData.length === 0) return getFallbackBTUs(tipo);
+      const source = tipo ? sheetData.filter(i => i.Tipo === tipo) : sheetData;
+      const btus = uniqueValues(source.map(i => i.BTUs)).sort(sortBTUs);
+      return btus.length ? btus : getFallbackBTUs(tipo);
+    }
+
+    function getCicloOptions(tipo = selection.tipo, btu = selection.btu) {
+      if (!sheetData || sheetData.length === 0 || !tipo || !btu) return CICLOS_PADRAO;
+      const ciclos = uniqueValues(sheetData
+        .filter(i => i.Tipo === tipo && i.BTUs === btu)
+        .map(i => i.Ciclo)
+      );
+      return ciclos.length ? ciclos : CICLOS_PADRAO;
+    }
+
+    function reconcileSelectionsWithOptions() {
+      const tipos = getTipoOptions();
+      if (selection.tipo && !tipos.includes(selection.tipo)) {
+        selection = {tipo:"",btu:"",ciclo:""};
+        return;
+      }
+
+      const btus = getBTUOptions();
+      if (selection.btu && !btus.includes(selection.btu)) {
+        selection.btu = "";
+        selection.ciclo = "";
+        return;
+      }
+
+      const ciclos = getCicloOptions();
+      if (selection.ciclo && !ciclos.some(ciclo => normalizeCicloValue(ciclo) === normalizeCicloValue(selection.ciclo))) {
+        selection.ciclo = "";
+      }
+    }
+
+    function refreshChoiceOptions() {
+      const showBtus = !!selection.tipo;
+      const showCiclo = !!selection.tipo && !!selection.btu;
+      document.getElementById("step-btus").classList.toggle("active", showBtus);
+      document.getElementById("step-ciclo").classList.toggle("active", showCiclo);
+      renderTipos();
+      if (showBtus) {
+        renderOptions("btu-options", getBTUOptions(), selectBTU, selection.btu, formatBTU);
+      } else {
+        document.getElementById("btu-options").innerHTML = "";
+      }
+      if (showCiclo) {
+        renderOptions("ciclo-options", getCicloOptions(), selectCiclo, selection.ciclo, formatCiclo);
+      } else {
+        document.getElementById("ciclo-options").innerHTML = "";
+      }
+    }
+
+    function renderTipos() {
+      const c = document.getElementById("tipo-options"); c.innerHTML = "";
+      c.classList.toggle("locked", !!selection.tipo);
+      const tipos = getTipoOptions();
+      tipos.forEach(t => {
+        const b = document.createElement("button");
+        b.className = "option-btn tipo-btn" + (selection.tipo === t ? " selected" : "");
+        b.dataset.value = t;
+
+        let imgName = t;
+        if (t === "Hiwall" || t === "Hi Wall") imgName = "Hi Wall";
+        b.innerHTML = "<img src='"+(IMAGES[imgName]||"img/hi_wall.png")+"' onerror=\"this.src='https://placehold.co/80';\"><span>"+t+"</span>";
+
+        b.onclick = () => selectTipo(t); c.appendChild(b);
+      });
+    }
+
+    function bounceSelected(containerId) {
+      const sel = document.querySelector("#" + containerId + " .option-btn.selected");
+      if (sel) {
+        sel.classList.remove("bounce");
+        void sel.offsetWidth;
+        sel.classList.add("bounce");
+        setTimeout(() => sel.classList.remove("bounce"), 500);
+      }
+    }
+
+    function formatBTU(btu) { 
+      return String(btu).replace(/\b(\d+)\b/g, (match) => {
+        if(match.length >= 4) return match.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return match;
+      }); 
+    }
+    function formatCiclo(ciclo) { return String(ciclo).toLowerCase().trim() === "frio" ? "Só Frio" : ciclo; }
+
+    function lockGrid(containerId, matchValue, getValue) {
+      const c = document.getElementById(containerId);
+      const buttons = Array.from(c.querySelectorAll(".option-btn"));
+      buttons.forEach(b => b.classList.toggle("selected", getValue(b) === matchValue));
+      c.classList.add("locked");
+    }
+
+    function unlockGrid(containerId) {
+      const c = document.getElementById(containerId);
+      c.classList.remove("locked");
+      Array.from(c.querySelectorAll(".option-btn")).forEach(b => b.classList.remove("selected"));
+    }
+
+    async function selectTipo(t) {
+      // Tocar no selecionado reabre as opcoes
+      if (selection.tipo === t) {
+        selection.tipo = "";
+        selection.btu = "";
+        selection.ciclo = "";
+        refreshChoiceOptions();
+        document.getElementById("step-resultados").classList.remove("active");
+        document.getElementById("loading-results").style.display = "none";
+        return;
+      }
+
+      selection.tipo = t;
+      reconcileSelectionsWithOptions();
+      refreshChoiceOptions();
+      bounceSelected("tipo-options");
+
+      document.getElementById("step-resultados").classList.remove("active");
+      document.getElementById("loading-results").style.display = "none";
+
+      maybeStartScrapingFromSelection();
+
+      setTimeout(() => document.getElementById("step-btus").scrollIntoView({behavior: 'smooth', block: 'center'}), 280);
+    }
+
+    function selectBTU(b) {
+      // Tocar no selecionado reabre as opcoes
+      if (selection.btu === b) {
+        selection.btu = "";
+        selection.ciclo = "";
+        refreshChoiceOptions();
+        document.getElementById("step-resultados").classList.remove("active");
+        document.getElementById("loading-results").style.display = "none";
+        return;
+      }
+
+      selection.btu = b;
+      reconcileSelectionsWithOptions();
+      refreshChoiceOptions();
+      bounceSelected("btu-options");
+
+      document.getElementById("step-resultados").classList.remove("active");
+      document.getElementById("loading-results").style.display = "none";
+
+      maybeStartScrapingFromSelection();
+
+      setTimeout(() => document.getElementById("step-ciclo").scrollIntoView({behavior: 'smooth', block: 'center'}), 280);
+    }
+
+    function selectCiclo(c) {
+      // Tocar no selecionado reabre as opcoes (cancela busca/resultados)
+      if (selection.ciclo === c) {
+        selection.ciclo = "";
+        refreshChoiceOptions();
+        document.getElementById("step-resultados").classList.remove("active");
+        document.getElementById("loading-results").style.display = "none";
+        document.getElementById("results-grid").innerHTML = "";
+        document.getElementById("filters-section").style.display = "none";
+        document.getElementById("results-stats").style.display = "none";
+        return;
+      }
+
+      selection.ciclo = c;
+      refreshChoiceOptions();
+      bounceSelected("ciclo-options");
+
+      maybeStartScrapingFromSelection();
+    }
+
+    function maybeStartScrapingFromSelection() {
+      if (!selection.tipo || !selection.btu || !selection.ciclo) return;
+
+      document.getElementById("loading-results").style.display = "flex";
+      document.getElementById("step-resultados").classList.add("active");
+      document.getElementById("results-grid").innerHTML = "";
+
+      setTimeout(() => document.getElementById("step-resultados").scrollIntoView({behavior: 'smooth', block: 'start'}), 100);
+
+      startScraping();
+    }
+
+    function renderOptions(id, opts, cb, currentSelection, formatter) {
+      const c = document.getElementById(id); c.innerHTML="";
+      c.classList.toggle("locked", !!currentSelection);
+      opts.forEach(o => {
+        const b = document.createElement("button");
+        b.className = "option-btn" + (currentSelection === o ? " selected" : "");
+        b.dataset.value = o;
+        b.innerText = formatter ? formatter(o) : o;
+        b.onclick = () => cb(o);
+        c.appendChild(b);
+      });
+    }
+
+    // --- FORMATO DE COPIA (igual extensao) ---
+    const HYPER_BRANDS = [...QUALITY_BRANDS.premium.brands, ...QUALITY_BRANDS.boa.brands];
+    function boldBrand(title) {
+      for (const b of HYPER_BRANDS) {
+        const rx = b==="lg" ? new RegExp("\\b("+b+")\\b","i") : new RegExp("("+b+")","i");
+        if (rx.test(title)) return title.replace(rx,"*$1*");
+      }
+      return title;
+    }
+    function getCycleEmoji(title) {
+      const t = title.toLowerCase();
+      if (t.includes("quente/frio")||t.includes("quente e frio")||t.includes("quente frio")||t.includes("q/f")) return "🔥❄️";
+      return "❄️";
+    }
+    function formatCopyText(title,spot,install) {
+      return getCycleEmoji(title)+" "+boldBrand(title)+"\n💰 "+spot+"\n💳 "+install;
+    }
+
+    // Scraping da Dufrio foi removido (re-implementação a fazer).
+    // Funções ativas: scrapeFrigelar, scrapeLeveros, scrapeCentralAr.
+
+    async function scrapeFrigelar(url) {
+      try {
+        // Frigelar usa Oracle Commerce Cloud. O HTML inicial não tem os produtos (Client-Side Rendering).
+        // Precisamos interceptar a API interna substituindo /searchresults por /ccstoreui/v1/search
+        let apiUrl = url;
+        if (url.includes('/searchresults')) {
+            apiUrl = url.replace('/searchresults', '/ccstoreui/v1/search');
+            // Limpa parâmetros malformados ("?&&&=undefined") usando a API URL nativa
+            // A regex antiga estava cortando parte do N= - agora usamos URLSearchParams para remover apenas a chave vazia
+            try {
+                const urlObj = new URL(apiUrl);
+                urlObj.searchParams.delete(''); // remove o "=undefined" que tem chave vazia
+                apiUrl = urlObj.toString();
+            } catch(e) {
+                // fallback se URL for inválida por algum motivo
+                apiUrl = apiUrl.replace(/[?&]+=*undefined/gi, '').replace(/&&+/g, '&').replace(/\?&/g, '?');
+            }
+        } else {
+            return []; // Se não for um link de busca padrão, ignora
+        }
+
+        // Usa o nosso Cloudflare Worker dedicado como proxy CORS para a Frigelar
+        // Worker em: https://frigelar-proxy.crftwo.workers.dev/
+        const FRIGELAR_PROXY = "https://frigelar-proxy.crftwo.workers.dev/?url=";
+        
+        // Cache-buster pra forçar resposta fresca a cada busca
+        try {
+          const u = new URL(apiUrl);
+          u.searchParams.set('_', Date.now());
+          apiUrl = u.toString();
+        } catch(_) { apiUrl += (apiUrl.includes('?') ? '&' : '?') + '_=' + Date.now(); }
+
+        let json = null;
+        try {
+          const proxyUrl = FRIGELAR_PROXY + encodeURIComponent(apiUrl);
+          const resp = await fetch(proxyUrl, { cache: 'no-store' });
+          if (resp.ok) {
+            const text = await resp.text();
+            if (text.includes('resultsList')) {
+              json = JSON.parse(text);
+            }
+          }
+        } catch(e) { console.error("Frigelar Worker erro:", e); }
+        
+        if (!json) return [];
+        
+        if (!json.resultsList || !json.resultsList.records) {
+            return [];
+        }
+
+        const items = json.resultsList.records;
+        
+        return items.map(agg => {
+           if (!agg.records || agg.records.length === 0) return null;
+           const attr = agg.records[0].attributes;
+           if (!attr) return null;
+           
+           // Filtra produtos FORA DE ESTOQUE — a Frigelar ainda os retorna na API mas não os mostra no site
+           const availability = attr['sku.availabilityStatus'] ? attr['sku.availabilityStatus'][0] : '';
+           if (availability !== 'INSTOCK') return null;
+           
+           const title = attr['product.displayName'] ? attr['product.displayName'][0] : "";
+           
+           let image = "";
+           if (attr['product.primaryMediumImageURL']) {
+               image = "https://www.frigelar.com.br" + attr['product.primaryMediumImageURL'][0];
+           }
+           
+           const spotPriceNum = attr['sku.activePrice'] ? parseFloat(attr['sku.activePrice'][0]) : 0;
+           const listPriceNum = attr['sku.listPrice'] ? parseFloat(attr['sku.listPrice'][0]) : 0;
+           
+           if (!spotPriceNum) return null;
+           
+           // Calcula desconto PIX (ex: "Com 7% OFF no PIX")
+           // A Frigelar usa: listPrice = preço cheio parcelado, activePrice = preço à vista com desconto
+           let spotLine = "R$ " + spotPriceNum.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+           if (listPriceNum > spotPriceNum) {
+               const descontoPct = Math.round((listPriceNum - spotPriceNum) / listPriceNum * 100);
+               if (descontoPct > 0) spotLine += ` Com ${descontoPct}% OFF no PIX`;
+           }
+           
+           // Frigelar sempre parcelada em 8x sem juros
+           let installLine = "";
+           if (listPriceNum > spotPriceNum) {
+               const totalParcelado = listPriceNum.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+               const valorParcela = (listPriceNum / 8).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+               installLine = `ou R$ ${totalParcelado} em 8x de R$ ${valorParcela} sem juros`;
+           }
+           
+           const linkSlug = attr['product.route'] ? attr['product.route'][0] : "";
+           const finalLink = linkSlug ? "https://www.frigelar.com.br" + linkSlug : "";
+           
+           return { title, image, spot: spotLine, install: installLine, link: finalLink, discount: 0 };
+        }).filter(Boolean);
+      } catch(e) { console.error("Frigelar erro:", e); return []; }
+    }
+
+    async function scrapeLeveros(url) {
+      try {
+        // Cache-buster pra forçar resposta fresca a cada busca
+        let freshUrl = url;
+        try {
+          const u = new URL(url);
+          u.searchParams.set('_', Date.now());
+          freshUrl = u.toString();
+        } catch(_) { freshUrl = url + (url.includes('?') ? '&' : '?') + '_=' + Date.now(); }
+        const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(freshUrl);
+        const resp = await fetch(proxyUrl, { cache: 'no-store' });
+        const html = await resp.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        
+        const items = Array.from(doc.querySelectorAll('.products__item.product-card'));
+        return items.map(card => {
+          const titleEl = card.querySelector('.product-card__bottom__name');
+          if (!titleEl) return null;
+          const title = titleEl.innerText.trim();
+          
+          const imgEl = card.querySelector('.product-card__img-container img');
+          const image = imgEl ? (imgEl.getAttribute('data-src') || imgEl.getAttribute('src') || "") : "";
+          
+          const spotEl = card.querySelector('.prices__price');
+          const spotSupportEl = card.querySelector('.prices__support-text');
+          let spotLine = spotEl ? spotEl.innerText.trim() : "";
+          if (spotSupportEl && spotSupportEl.innerText.includes('à vista')) {
+            spotLine += " à vista";
+          }
+          
+          const installEl = card.querySelector('.installment');
+          let installLine = "";
+          if (installEl) {
+            const rawInstall = installEl.innerText.replace(/\s+/g, ' ').trim();
+            // Tenta capturar o número de parcelas e o valor de cada uma
+            const match = rawInstall.match(/(\d+)x\s+de\s+R\$\s*([\d.,]+)/i);
+            if (match) {
+              const parcelas = parseInt(match[1]);
+              const valorParcelaStr = match[2].replace('.', '').replace(',', '.');
+              const valorParcela = parseFloat(valorParcelaStr);
+              const total = (parcelas * valorParcela).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+              installLine = `ou R$ ${total} em ${parcelas}x de R$ ${match[2]}`;
+            } else {
+              installLine = rawInstall;
+            }
+          }
+          
+          const linkEl = card.querySelector('.product-card__bottom a');
+          let finalLink = linkEl ? linkEl.getAttribute('href') : "";
+          if (finalLink && !finalLink.startsWith('http')) finalLink = "https://www.leveros.com.br" + finalLink;
+          
+          if (!spotLine) return null;
+          return { title, image, spot: spotLine, install: installLine, link: finalLink, discount: 0 };
+        }).filter(Boolean);
+      } catch(e) { console.error("Leveros erro:", e); return []; }
+    }
+
+    async function scrapeCentralAr(url) {
+      // Lógica portada do piloto scraper-centralar.html (foto da listagem ambientada).
+      // Usa corsproxy.io e cai no worker da Frigelar como fallback.
+      const PROXY_DEFAULT = "https://corsproxy.io/?";
+      const PROXY_WORKER  = "https://frigelar-proxy.crftwo.workers.dev/?url=";
+      const CARD_SELECTORS = [
+        '.product-listing-item','.product__item','.product-grid-item','.product-item',
+        '.searchPageProductWrapper > *','.tile-product',
+        'li[class*="product-item"]','div[class*="ProductGridItem"]','article[class*="product"]',
+        '[class*="product-tile"]','[class*="ProductTile"]','[data-product-id]','[data-product-code]',
+        '.pdc_product-item','.card-product'
+      ];
+
+      async function fetchHtml(target) {
+        // Cache-buster pra forçar resposta fresca a cada busca
+        let fresh = target;
+        try {
+          const u = new URL(target);
+          u.searchParams.set('_', Date.now());
+          fresh = u.toString();
+        } catch(_) { fresh = target + (target.includes('?') ? '&' : '?') + '_=' + Date.now(); }
+        const tryProxy = async (base) => {
+          const r = await fetch(base + encodeURIComponent(fresh), { cache: 'no-store' });
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return await r.text();
+        };
+        try { return await tryProxy(PROXY_DEFAULT); }
+        catch(e1) { return await tryProxy(PROXY_WORKER); }
+      }
+
+      try {
+        const html = await fetchHtml(url);
+        const doc = new DOMParser().parseFromString(html, "text/html");
+
+        let cards = [];
+        for (const sel of CARD_SELECTORS) {
+          const found = doc.querySelectorAll(sel);
+          if (found.length > 0) { cards = Array.from(found); break; }
+        }
+        console.log(`📊 Central Ar: ${cards.length} cards brutos`);
+        if (!cards.length) return [];
+
+        const seen = new Set();
+        const result = cards.map(card => {
+          const titleEl = card.querySelector('a.name, .product-name, [class*="title"], h2, h3');
+          if (!titleEl) return null;
+          const title = titleEl.innerText.trim();
+          if (!title || seen.has(title)) return null;
+
+          // Link
+          let link = '';
+          const linkCandidates = [
+            card.querySelector('a.name'),
+            card.querySelector('a.thumb'),
+            card.querySelector('a[href*="/p/"]'),
+            card.querySelector('a[href*="/produto/"]'),
+            (card.tagName === 'A' ? card : null),
+            card.closest('a[href]'),
+            card.querySelector('a[href]:not([href=""]):not([href="#"])')
+          ];
+          for (const el of linkCandidates) {
+            if (el) {
+              const h = el.getAttribute('href') || '';
+              if (h && h !== '#' && !h.startsWith('javascript:')) { link = h; break; }
+            }
+          }
+          if (link && !link.startsWith('http')) {
+            link = 'https://www.centralar.com.br' + (link.startsWith('/') ? '' : '/') + link;
+          }
+
+          // Imagem ambientada — preferir a.thumb img
+          let image = '';
+          const thumbImg = card.querySelector('a.thumb img, .thumb img, picture img');
+          const candidates = thumbImg ? [thumbImg] : Array.from(card.querySelectorAll('img'));
+          imageLoop: for (const imgEl of candidates) {
+            const attrs = ['data-src','data-original','data-lazy-src','srcset','data-srcset','src'];
+            for (const attr of attrs) {
+              let s = imgEl.getAttribute(attr);
+              if (!s || typeof s !== 'string') continue;
+              if (s.startsWith('data:image')) continue;
+              if (attr.includes('srcset') || s.includes(' ')) s = s.split(',')[0].trim().split(' ')[0];
+              if (!s || s.endsWith('.svg') || s.includes('/_ui/')) continue;
+              if (s.startsWith('//')) s = 'https:' + s;
+              if (s.startsWith('/'))  s = 'https://www.centralar.com.br' + s;
+              image = s;
+              break imageLoop;
+            }
+          }
+
+          // Preços via regex no innerText do card
+          const cardText = card.innerText.replace(/\s+/g, ' ').trim();
+          const allPrices = [...cardText.matchAll(/r\$\s*([\d.]+,\d{2})/gi)];
+          if (allPrices.length === 0) return null;
+          const priceCash = parseFloat(allPrices[0][1].replace(/\./g, '').replace(',', '.'));
+          if (!priceCash) return null;
+
+          const spotLine = "R$ " + priceCash.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " à vista";
+
+          let installLine = "";
+          const instMatch = cardText.match(/(?:ou\s+)?r\$\s*[\d.,]+\s*(?:em|até|ate)?\s*\d+\s*x\s*de\s*r\$\s*[\d.,]+/i);
+          if (instMatch) {
+            installLine = instMatch[0]
+              .replace(/sem\s+juros/gi, '')
+              .replace(/\s+/g, ' ')
+              .replace(/^(\s*ou\s+)?/i, 'ou ')
+              .replace(/\s+(em|até|ate)\s+/i, ' até ')
+              .trim();
+          } else {
+            const fb = cardText.match(/\d+\s*x\s*de\s*r\$\s*[\d.,]+/i);
+            if (fb) installLine = fb[0].trim();
+          }
+
+          seen.add(title);
+          return { title, image, spot: spotLine, install: installLine, link, discount: 0 };
+        }).filter(Boolean);
+
+        console.log(`✅ Central Ar: ${result.length} produtos após filtro`);
+        return result;
+      } catch(e) { console.error("Central Ar erro:", e); return []; }
+    }
+
+    async function scrapeDufrio(url) {
+      const PROXY_WORKER = "https://frigelar-proxy.crftwo.workers.dev/?url=";
+      try {
+        let freshUrl = url;
+        try {
+          const u = new URL(url);
+          u.searchParams.set('_', Date.now());
+          freshUrl = u.toString();
+        } catch(_) { freshUrl = url + (url.includes('?') ? '&' : '?') + '_=' + Date.now(); }
+
+        const resp = await fetch(PROXY_WORKER + encodeURIComponent(freshUrl), { cache: 'no-store' });
+        const html = await resp.text();
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        
+        const cards = Array.from(doc.querySelectorAll('.product-item'));
+        return cards.map(card => {
+          const titleEl = card.querySelector('a.product-item-link');
+          if (!titleEl) return null;
+          const title = titleEl.innerText.trim();
+          
+          const imgEl = card.querySelector('img.product-image-photo, img.product-image');
+          let image = "";
+          if (imgEl) {
+             image = imgEl.src || imgEl.getAttribute('data-src') || "";
+             // Se a URL da imagem vier relativa do proxy, ajusta
+             if (image.includes('workers.dev')) {
+                const u = new URL(image);
+                image = u.searchParams.get('url') || image;
+             }
+             if (image && !image.startsWith('http')) image = "https://www.dufrio.com.br" + (image.startsWith('/') ? '' : '/') + image;
+          }
+
+          // Preço à vista (PIX)
+          let spotLine = "";
+          const spotPriceEl = card.querySelector('.spot-price');
+          if (spotPriceEl) {
+            spotLine = spotPriceEl.innerText.replace(/\s+/g, ' ').trim();
+          } else {
+            const cashDownEl = card.querySelector('#cash_down');
+            if (cashDownEl) spotLine = cashDownEl.innerText.replace(/\s+/g, ' ').trim();
+          }
+
+          // Preço parcelado
+          let installLine = "";
+          const ps = card.querySelectorAll('p');
+          ps.forEach(p => {
+            const pText = p.innerText.toLowerCase();
+            if (pText.includes('ou r$') && (pText.includes('em') || pText.includes('x'))) {
+              installLine = p.innerText.replace(/\s+/g, ' ').trim();
+            }
+          });
+
+          let link = titleEl.getAttribute('href') || "";
+          if (link && !link.startsWith('http')) link = "https://www.dufrio.com.br" + (link.startsWith('/') ? '' : '/') + link;
+
+          if (!spotLine || !installLine) return null;
+          return { title, image, spot: spotLine, install: installLine, link, discount: 0 };
+        }).filter(Boolean);
+      } catch(e) { console.error("Dufrio erro:", e); return []; }
+    }
+
+    async function scrapePoloAr(url) {
+      const STORE_URL = "https://www.poloar.com.br";
+      const PROXIES = [
+        "https://frigelar-proxy.crftwo.workers.dev/?url=",
+        "https://api.allorigins.win/get?url=",
+        "https://api.codetabs.com/v1/proxy?quest="
+      ];
+
+      const normalizeText = (value) => String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
+      const formatCurrency = (value) => new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      }).format(value).replace(/\u00a0/g, " ");
+
+      const formatCurrencyPlain = (value) => new Intl.NumberFormat("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(value);
+
+      const formatInstallmentText = (installment) => {
+        const count = Number(installment?.NumberOfInstallments || 1);
+        const total = Number(installment?.TotalValuePlusInterestRate || (Number(installment?.Value || 0) * count));
+        if (count <= 1 || total <= 0) return "";
+        const value = total / count;
+        const suffix = Number(installment?.InterestRate || 0) === 0 ? " s/ juros" : "";
+        return `ou ${formatCurrencyPlain(total)} em ${count}x de ${formatCurrencyPlain(value)}${suffix}`;
+      };
+
+      const getOrderParam = (parsedUrl) => {
+        const sort = String(parsedUrl.searchParams.get("sort") || parsedUrl.searchParams.get("order") || "").toLowerCase();
+        if (sort.includes("desc")) return "OrderByPriceDESC";
+        return "OrderByPriceASC";
+      };
+
+      const capacityToSpecificationSegment = (value) => {
+        const decoded = decodeURIComponent(String(value || ""));
+        const digits = decoded.replace(/[^\d]/g, "");
+        if (!digits) return encodeURIComponent(decoded);
+        const label = `${digits.slice(0, -3)}@dot@${digits.slice(-3)} BTU@slash@H`;
+        return encodeURIComponent(label);
+      };
+
+      const getTargetCycle = (parsedUrl) => {
+        const raw = parsedUrl.searchParams.get("ciclo") || "";
+        const normalized = normalizeText(raw);
+        if (normalized.includes("quente")) return "quente";
+        if (normalized.includes("frio")) return "frio";
+        return "";
+      };
+
+      const productMatchesCycle = (product, targetCycle) => {
+        if (!targetCycle) return true;
+        const haystack = normalizeText([...(product.Ciclo || []), product.productName || ""].join(" "));
+        if (targetCycle === "quente") return haystack.includes("quente");
+        if (targetCycle === "frio") return haystack.includes("frio") && !haystack.includes("quente");
+        return true;
+      };
+
+      const getProductPrice = (product) => {
+        const sku = product?.items?.[0] || {};
+        const offer = sku.sellers?.[0]?.commertialOffer || {};
+        return Number(offer.SpotPrice || offer.Price || offer.ListPrice || Number.MAX_SAFE_INTEGER);
+      };
+
+      const sortCatalogProducts = (products, parsedUrl) => {
+        const sort = String(parsedUrl.searchParams.get("sort") || parsedUrl.searchParams.get("order") || "").toLowerCase();
+        const byText = (a, b) => String(a.productName || "").localeCompare(String(b.productName || ""), "pt-BR");
+        const byPrice = (a, b) => getProductPrice(a) - getProductPrice(b);
+        if (sort.includes("price_desc")) return products.sort((a, b) => byPrice(b, a));
+        if (sort.includes("name_desc")) return products.sort((a, b) => byText(b, a));
+        if (sort.includes("name_asc")) return products.sort(byText);
+        return products.sort(byPrice);
+      };
+
+      const buildProductLink = (product, sku) => {
+        const slug = product?.linkText;
+        const itemId = sku?.itemId;
+        if (slug && itemId) return `${STORE_URL}/${slug}-${itemId}/p`;
+        return product?.link || (slug ? `${STORE_URL}/${slug}/p` : STORE_URL);
+      };
+
+      const buildCatalogApiUrls = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return []; }
+
+        const order = getOrderParam(parsed);
+        const explicitQuery = parsed.searchParams.get("query");
+        if (explicitQuery) {
+          const rawMap = parsed.searchParams.get("map") || "";
+          const catalogMap = rawMap ? rawMap.split(",").map(() => "c").join(",") : "c,c,c";
+          return [`${STORE_URL}/api/catalog_system/pub/products/search${explicitQuery}?map=${catalogMap}&O=${order}`];
+        }
+
+        const basePath = parsed.pathname.replace(/\/+$/, "") || "/ar-condicionado";
+        const baseParts = basePath.split("/").filter(Boolean);
+        const baseMap = baseParts.map(() => "c").join(",");
+        const capacityValues = [
+          ...parsed.searchParams.getAll("capacidade-de-refrigeracao"),
+          ...parsed.searchParams.getAll("capacidade--btu-h-")
+        ].filter(Boolean);
+
+        if (capacityValues.length > 0) {
+          return [...new Set(capacityValues.map(capacityToSpecificationSegment).filter(Boolean))]
+            .map(segment => {
+              const map = [baseMap, "specificationFilter_39"].filter(Boolean).join(",");
+              return `${STORE_URL}/api/catalog_system/pub/products/search${basePath}/${segment}?map=${map}&O=${order}`;
+            });
+        }
+
+        return [`${STORE_URL}/api/catalog_system/pub/products/search${basePath}?map=${baseMap}&O=${order}`];
+      };
+
+      const fetchText = async (targetUrl) => {
+        try {
+          const resp = await fetch(PROXIES[0] + encodeURIComponent(targetUrl), { cache: "no-store" });
+          if (resp.ok) return await resp.text();
+        } catch(e) {}
+        try {
+          const resp = await fetch(PROXIES[1] + encodeURIComponent(targetUrl), { cache: "no-store" });
+          const json = await resp.json();
+          if (json && json.contents) return json.contents;
+        } catch(e) {}
+        const resp = await fetch(PROXIES[2] + encodeURIComponent(targetUrl), { cache: "no-store" });
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        return await resp.text();
+      };
+
+      const fetchCatalogProducts = async (apiUrl) => {
+        const products = [];
+        for (let from = 0; from < 200; from += 50) {
+          const to = from + 49;
+          const sep = apiUrl.includes("?") ? "&" : "?";
+          const raw = await fetchText(`${apiUrl}${sep}_from=${from}&_to=${to}`);
+          let data;
+          try { data = JSON.parse(raw); } catch(e) { break; }
+          if (!Array.isArray(data) || data.length === 0) break;
+          products.push(...data);
+          if (data.length < 50) break;
+        }
+        return products;
+      };
+
+      try {
+        let parsed;
+        try { parsed = new URL(url); } catch(e) { return []; }
+        const apiUrls = buildCatalogApiUrls(url);
+        const targetCycle = getTargetCycle(parsed);
+        const rawProducts = [];
+
+        for (const apiUrl of apiUrls) {
+          try {
+            rawProducts.push(...await fetchCatalogProducts(apiUrl));
+          } catch(e) {
+            console.warn("Polo Ar Catalog API falhou:", apiUrl, e);
+          }
+        }
+
+        const seen = new Set();
+        const filteredProducts = rawProducts
+          .filter(product => product && product.productName && productMatchesCycle(product, targetCycle));
+
+        return sortCatalogProducts(filteredProducts, parsed)
+          .map(product => {
+            const sku = (product.items && product.items[0]) || {};
+            const seller = (sku.sellers && sku.sellers[0]) || {};
+            const offer = seller.commertialOffer || {};
+            if (offer.IsAvailable === false || Number(offer.AvailableQuantity || 0) <= 0) return null;
+
+            const id = product.productId || product.linkText || product.productName;
+            if (seen.has(id)) return null;
+            seen.add(id);
+
+            const cashNum = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+            const spot = cashNum > 0 ? `${formatCurrency(cashNum)} \u00e0 vista` : "Consulte o site";
+
+            let install = "";
+            const installments = Array.isArray(offer.Installments) ? offer.Installments : [];
+            if (installments.length) {
+              const usable = installments.filter(i => Number(i.NumberOfInstallments) > 1);
+              const best = (usable.length ? usable : installments)
+                .reduce((a, b) => Number(a.NumberOfInstallments || 0) > Number(b.NumberOfInstallments || 0) ? a : b);
+              install = formatInstallmentText(best);
+            }
+
+            return {
+              title: product.productName,
+              image: sku.images?.[0]?.imageUrl || "",
+              spot,
+              install,
+              link: buildProductLink(product, sku),
+              discount: 0
+            };
+          })
+          .filter(Boolean);
+      } catch(e) { console.error("Polo Ar erro:", e); return []; }
+    }
+
+    async function scrapeFriopecas(url) {
+      const STORE_URL = "https://www.friopecas.com.br";
+      const PROXIES = [
+        "https://frigelar-proxy.crftwo.workers.dev/?url=",
+        "https://api.codetabs.com/v1/proxy?quest=",
+        "https://api.allorigins.win/get?url="
+      ];
+
+      const normalizeText = (value) => String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
+      const normText = (value) => normalizeText(value).replace(/[\s\-_.]/g, "");
+
+      const formatCurrency = (value) => new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      }).format(value).replace(/\u00a0/g, " ");
+
+      const getOrderParam = (parsedUrl) => {
+        const order = parsedUrl.searchParams.get("order") || parsedUrl.searchParams.get("O") || "";
+        const sort = parsedUrl.searchParams.get("sort") || "";
+        const value = String(order || sort).toLowerCase();
+        if (value.includes("desc")) return "OrderByPriceDESC";
+        return "OrderByPriceASC";
+      };
+
+      const pathParts = (value) => String(value || "")
+        .replace(/^\/+|\/+$/g, "")
+        .split("/")
+        .filter(Boolean);
+
+      const buildCatalogApiUrls = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return []; }
+
+        const queryParts = pathParts(parsed.searchParams.get("query") || parsed.pathname || "/");
+        const initialParts = pathParts(parsed.searchParams.get("initialQuery"));
+        const mapParts = String(parsed.searchParams.get("map") || "").split(",").filter(Boolean);
+        const baseParts = initialParts.length > 0 ? initialParts : queryParts.slice(0, Math.min(2, queryParts.length));
+        const extraParts = queryParts.slice(baseParts.length);
+        const extraMaps = mapParts.slice(baseParts.length);
+        const order = getOrderParam(parsed);
+
+        const groups = [];
+        extraParts.forEach((segment, index) => {
+          const key = extraMaps[index] || `extra-${index}`;
+          let group = groups.find(item => item.key === key);
+          if (!group) {
+            group = { key, values: [] };
+            groups.push(group);
+          }
+          group.values.push(segment);
+        });
+
+        const combinations = groups.length
+          ? groups.reduce((acc, group) => acc.flatMap(combo => group.values.map(value => [...combo, value])), [[]])
+          : [[]];
+
+        return combinations.map(combo => {
+          const finalParts = [...baseParts, ...combo];
+          const path = "/" + finalParts.join("/");
+          const map = finalParts.map(() => "c").join(",");
+          return `${STORE_URL}/api/catalog_system/pub/products/search${path}?map=${map}&O=${order}`;
+        });
+      };
+
+      const getCycleFilterFromUrl = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return ""; }
+
+        const queryParts = pathParts(parsed.searchParams.get("query") || parsed.pathname || "/");
+        const initialParts = pathParts(parsed.searchParams.get("initialQuery"));
+        const mapParts = String(parsed.searchParams.get("map") || "").split(",").filter(Boolean);
+        const baseParts = initialParts.length > 0 ? initialParts : queryParts.slice(0, Math.min(2, queryParts.length));
+        const extraParts = queryParts.slice(baseParts.length);
+        const extraMaps = mapParts.slice(baseParts.length);
+
+        const cycleIndex = extraMaps.findIndex(map => normText(map).includes("ciclo"));
+        if (cycleIndex < 0) return "";
+
+        const cycle = normText(extraParts[cycleIndex]);
+        if (cycle.includes("quente")) return "quente";
+        if (cycle.includes("frio")) return "frio";
+        return "";
+      };
+
+      const productMatchesCycleFilter = (product, cycleFilter) => {
+        if (!cycleFilter) return true;
+
+        const haystack = normText([...(product.Ciclo || []), product.productName || ""].join(" "));
+        if (cycleFilter === "quente") return haystack.includes("quente");
+        if (cycleFilter === "frio") return haystack.includes("frio") && !haystack.includes("quente");
+        return true;
+      };
+
+      const fetchApiText = async (targetUrl) => {
+        let lastError = null;
+        for (const proxy of PROXIES) {
+          try {
+            const resp = await fetch(proxy + encodeURIComponent(targetUrl), { cache: "no-store" });
+            if (!resp.ok && resp.status !== 206) throw new Error("HTTP " + resp.status);
+
+            if (proxy.includes("allorigins")) {
+              const json = await resp.json();
+              if (json && json.contents) return json.contents;
+              throw new Error("Resposta sem contents");
+            }
+
+            return await resp.text();
+          } catch(e) {
+            lastError = e;
+          }
+        }
+        throw lastError || new Error("Falha na API VTEX FrioPecas");
+      };
+
+      const fetchCatalogProducts = async (apiUrl) => {
+        const products = [];
+        for (let from = 0; from < 200; from += 50) {
+          const to = from + 49;
+          const sep = apiUrl.includes("?") ? "&" : "?";
+          const raw = await fetchApiText(`${apiUrl}${sep}_from=${from}&_to=${to}&_=${Date.now()}`);
+          let data;
+          try { data = JSON.parse(raw); } catch(e) { break; }
+          if (!Array.isArray(data) || data.length === 0) break;
+          products.push(...data);
+          if (data.length < 50) break;
+        }
+        return products;
+      };
+
+      const getProductOffer = (product) => {
+        const items = Array.isArray(product.items) ? product.items : [];
+        for (const sku of items) {
+          const sellers = Array.isArray(sku.sellers) ? sku.sellers : [];
+          for (const seller of sellers) {
+            const offer = seller?.commertialOffer || {};
+            const price = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+            const quantity = Number(offer.AvailableQuantity ?? 1);
+            if (price > 0 && offer.IsAvailable !== false && quantity > 0) {
+              return { sku, offer };
+            }
+          }
+        }
+        return null;
+      };
+
+      const getPixPrice = (offer) => {
+        const options = offer?.PaymentOptions?.installmentOptions || [];
+        const pixOption = options.find(option => normText(option?.paymentName).includes("pix"));
+        const pixInstallment = pixOption?.installments?.find(item => Number(item.count || 0) === 1)
+          || pixOption?.installments?.[0];
+        const pixCents = Number(pixInstallment?.total || pixInstallment?.value || 0);
+        return pixCents > 0 ? pixCents / 100 : 0;
+      };
+
+      const formatInstallment = (offer) => {
+        const installments = Array.isArray(offer.Installments) ? offer.Installments : [];
+        if (!installments.length) return "";
+
+        const multi = installments.filter(i => Number(i.NumberOfInstallments) > 1);
+        const noInterest = multi.filter(i => Number(i.InterestRate || 0) === 0);
+        const pool = noInterest.length ? noInterest : multi;
+        if (!pool.length) return "";
+
+        const best = pool.reduce((a, b) =>
+          Number(a.NumberOfInstallments || 0) > Number(b.NumberOfInstallments || 0) ? a : b
+        );
+        const count = Number(best.NumberOfInstallments || 0);
+        const total = Number(best.TotalValuePlusInterestRate || (Number(best.Value || 0) * count));
+        const value = Number(best.Value || (total / count));
+        if (!count || !total || !value) return "";
+
+        return `ou ${formatCurrency(total)} em at\u00e9 ${count}x de ${formatCurrency(value)}`;
+      };
+
+      const buildProductLink = (product, sku) => {
+        if (product.link) return product.link.startsWith("http") ? product.link : STORE_URL + product.link;
+        const slug = product.linkText;
+        const itemId = sku?.itemId;
+        if (slug && itemId && !slug.endsWith(itemId)) return `${STORE_URL}/${slug}-${itemId}/p`;
+        return slug ? `${STORE_URL}/${slug}/p` : STORE_URL;
+      };
+
+      const getSortPrice = (product) => {
+        const item = getProductOffer(product);
+        const offer = item?.offer || {};
+        return Number(getPixPrice(offer) || offer.SpotPrice || offer.Price || offer.ListPrice || Number.MAX_SAFE_INTEGER);
+      };
+
+      const sortCatalogProducts = (products, searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return products; }
+        const desc = getOrderParam(parsed) === "OrderByPriceDESC";
+        return products.sort((a, b) => desc ? getSortPrice(b) - getSortPrice(a) : getSortPrice(a) - getSortPrice(b));
+      };
+
+      try {
+        const apiUrls = buildCatalogApiUrls(url);
+        const cycleFilter = getCycleFilterFromUrl(url);
+        const rawProducts = [];
+
+        for (const apiUrl of apiUrls) {
+          try {
+            rawProducts.push(...await fetchCatalogProducts(apiUrl));
+          } catch(e) {
+            console.warn("FrioPecas Catalog API falhou:", apiUrl, e);
+          }
+        }
+
+        const seen = new Set();
+        const uniqueProducts = rawProducts
+          .filter(product => product && product.productName)
+          .filter(product => {
+            const id = product.productId || product.linkText || product.productName;
+            if (seen.has(id)) return false;
+            seen.add(id);
+            return true;
+          });
+
+        return sortCatalogProducts(uniqueProducts, url)
+          .map(product => {
+            const productOffer = getProductOffer(product);
+            if (!productOffer || !productMatchesCycleFilter(product, cycleFilter)) return null;
+
+            const { sku, offer } = productOffer;
+            const pixPrice = getPixPrice(offer);
+            const basePrice = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+            const spot = pixPrice > 0
+              ? `${formatCurrency(pixPrice)} no Pix`
+              : (basePrice > 0 ? `${formatCurrency(basePrice)} \u00e0 vista` : "Consulte o site");
+
+            return {
+              title: product.productName,
+              image: sku.images?.[0]?.imageUrl || "",
+              spot,
+              install: formatInstallment(offer),
+              link: buildProductLink(product, sku),
+              discount: 0
+            };
+          })
+          .filter(Boolean);
+      } catch(e) { console.error("FrioPecas erro:", e); return []; }
+    }
+
+    async function scrapeWebcontinental(url) {
+      const STORE_URL = "https://www.webcontinental.com.br";
+      const PROXIES = [
+        "https://api.codetabs.com/v1/proxy?quest=",
+        "https://frigelar-proxy.crftwo.workers.dev/?url=",
+        "https://api.allorigins.win/get?url="
+      ];
+      const SPEC_MAP = {
+        capacidadebtus: "specificationFilter_248",
+        tecnologia: "specificationFilter_153"
+      };
+
+      const normalizeText = (value) => String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+      const normText = (value) => normalizeText(value).replace(/[\s\-_.]/g, "");
+      const formatCurrency = (value) => new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      }).format(value).replace(/\u00a0/g, " ");
+      const pathParts = (value) => String(value || "")
+        .replace(/^\/+|\/+$/g, "")
+        .split("/")
+        .map(part => part.trim())
+        .filter(Boolean);
+      const getOrderParam = (parsedUrl) => {
+        const order = parsedUrl.searchParams.get("order") || parsedUrl.searchParams.get("O") || "";
+        return String(order).toLowerCase().includes("desc") ? "OrderByPriceDESC" : "OrderByPriceASC";
+      };
+      const specValueFromSlug = (segment, key) => {
+        const decoded = decodeURIComponent(String(segment || "").replace(/\+/g, " "));
+        if (key === "capacidadebtus") {
+          const digits = decoded.replace(/[^\d]/g, "");
+          return digits ? `${digits} BTUS` : decoded;
+        }
+        if (key === "tecnologia" && normText(decoded).includes("inverter")) return "Inverter";
+        return decoded
+          .split("-")
+          .filter(Boolean)
+          .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+          .join(" ");
+      };
+      const getCycleFilterFromUrl = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return ""; }
+
+        const parts = pathParts(parsed.pathname);
+        const maps = String(parsed.searchParams.get("map") || "").split(",").map(item => item.trim());
+        const cycleIndex = maps.findIndex(map => normText(map) === "ciclodoarcondicionado");
+        const segment = cycleIndex >= 0 ? parts[cycleIndex] : parts.find(part => normText(part).includes("quentefrio"));
+        const value = normText(segment);
+        if (value.includes("quente")) return "quente";
+        if (value.includes("frio")) return "frio";
+        return "";
+      };
+      const buildCatalogApiUrl = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return ""; }
+
+        const parts = pathParts(parsed.pathname);
+        const maps = String(parsed.searchParams.get("map") || "").split(",").map(item => item.trim());
+        const finalParts = [];
+        const finalMaps = [];
+        let categoryCount = 0;
+
+        parts.forEach((segment, index) => {
+          const key = normText(maps[index]);
+          if (!key) return;
+
+          if (key === "c" || key.startsWith("category")) {
+            finalParts.push(segment);
+            finalMaps.push("c");
+            categoryCount += 1;
+            return;
+          }
+
+          if (SPEC_MAP[key]) {
+            finalParts.push(specValueFromSlug(segment, key));
+            finalMaps.push(SPEC_MAP[key]);
+          }
+        });
+
+        if (categoryCount === 1 && normText(finalParts[0]).startsWith("arcondicionado")) {
+          finalParts.unshift("climatizacao", "ar-condicionado");
+          finalMaps.unshift("c", "c");
+        }
+
+        if (!finalParts.length) return "";
+
+        const path = finalParts.map(part => encodeURIComponent(part)).join("/");
+        const map = finalMaps.join(",");
+        return `${STORE_URL}/api/catalog_system/pub/products/search/${path}?map=${map}&O=${getOrderParam(parsed)}`;
+      };
+      const fetchApiText = async (targetUrl) => {
+        let lastError = null;
+        for (const proxy of PROXIES) {
+          try {
+            const resp = await fetch(proxy + encodeURIComponent(targetUrl), { cache: "no-store" });
+            if (!resp.ok && resp.status !== 206) throw new Error("HTTP " + resp.status);
+
+            if (proxy.includes("allorigins")) {
+              const json = await resp.json();
+              if (json && json.contents) return json.contents;
+              throw new Error("Resposta sem contents");
+            }
+
+            return await resp.text();
+          } catch(e) {
+            lastError = e;
+          }
+        }
+        throw lastError || new Error("Falha na API VTEX WebContinental");
+      };
+      const fetchCatalogProducts = async (apiUrl) => {
+        const products = [];
+        for (let from = 0; from < 300; from += 50) {
+          const to = from + 49;
+          const sep = apiUrl.includes("?") ? "&" : "?";
+          const raw = await fetchApiText(`${apiUrl}${sep}_from=${from}&_to=${to}&_=${Date.now()}`);
+          let data;
+          try { data = JSON.parse(raw); } catch(e) { break; }
+          if (!Array.isArray(data) || data.length === 0) break;
+          products.push(...data);
+          if (data.length < 50) break;
+        }
+        return products;
+      };
+      const productMatchesCycleFilter = (product, cycleFilter) => {
+        if (!cycleFilter) return true;
+        const title = normText(product.productName || "");
+        const haystack = normText([
+          product.productName || "",
+          ...(product["Ciclo do Ar Condicionado"] || []),
+          ...(product.Ciclo || [])
+        ].join(" "));
+
+        if (cycleFilter === "quente") return title.includes("quente") || (!title.includes("frio") && haystack.includes("quente"));
+        if (cycleFilter === "frio") return title.includes("frio") && !title.includes("quente");
+        return true;
+      };
+      const getPixPrice = (offer) => {
+        const installments = Array.isArray(offer?.Installments) ? offer.Installments : [];
+        const pix = installments.find(item => normText(`${item.PaymentSystemName || ""} ${item.Name || ""}`).includes("pix") && Number(item.NumberOfInstallments || 1) === 1)
+          || installments.find(item => normText(`${item.PaymentSystemName || ""} ${item.Name || ""}`).includes("pix"));
+        const value = Number(pix?.Value || pix?.TotalValuePlusInterestRate || 0);
+        return value > 0 ? value : 0;
+      };
+      const getProductOffer = (product) => {
+        const candidates = [];
+        const items = Array.isArray(product.items) ? product.items : [];
+        for (const sku of items) {
+          const sellers = Array.isArray(sku.sellers) ? sku.sellers : [];
+          for (const seller of sellers) {
+            const offer = seller?.commertialOffer || {};
+            const price = Number(offer.Price || offer.SpotPrice || offer.ListPrice || 0);
+            const quantity = Number(offer.AvailableQuantity ?? 1);
+            if (price > 0 && offer.IsAvailable !== false && quantity > 0) {
+              candidates.push({ sku, offer, sortPrice: getPixPrice(offer) || price });
+            }
+          }
+        }
+        candidates.sort((a, b) => a.sortPrice - b.sortPrice);
+        return candidates[0] || null;
+      };
+      const formatInstallment = (offer) => {
+        const installments = Array.isArray(offer?.Installments) ? offer.Installments : [];
+        const credit = installments.filter(item =>
+          Number(item.NumberOfInstallments || 0) > 1 &&
+          Number(item.InterestRate || 0) === 0 &&
+          normText(item.PaymentSystemGroupName || "").includes("creditcard")
+        );
+        const pool = credit.length ? credit : installments.filter(item => Number(item.NumberOfInstallments || 0) > 1);
+        if (!pool.length) return "";
+
+        const best = pool.reduce((a, b) =>
+          Number(a.NumberOfInstallments || 0) > Number(b.NumberOfInstallments || 0) ? a : b
+        );
+        const count = Number(best.NumberOfInstallments || 0);
+        const total = Number(best.TotalValuePlusInterestRate || (Number(best.Value || 0) * count));
+        const value = Number(best.Value || (total / count));
+        if (!count || !total || !value) return "";
+
+        return `ou ${formatCurrency(total)} até ${count}x de ${formatCurrency(value)}`;
+      };
+      const buildProductLink = (product, sku) => {
+        const base = product.link || (product.linkText ? `${STORE_URL}/${product.linkText}/p` : STORE_URL);
+        const clean = base.startsWith("http") ? base : STORE_URL + base;
+        const skuId = sku?.itemId || sku?.sku;
+        if (!skuId || clean.includes("skuId=")) return clean;
+        return `${clean}${clean.includes("?") ? "&" : "?"}skuId=${encodeURIComponent(skuId)}`;
+      };
+      const getSortPrice = (product) => {
+        const productOffer = getProductOffer(product);
+        if (!productOffer) return Number.MAX_SAFE_INTEGER;
+        const { offer } = productOffer;
+        return Number(getPixPrice(offer) || offer.Price || offer.SpotPrice || offer.ListPrice || Number.MAX_SAFE_INTEGER);
+      };
+
+      try {
+        const apiUrl = buildCatalogApiUrl(url);
+        if (!apiUrl) return [];
+
+        const cycleFilter = getCycleFilterFromUrl(url);
+        const rawProducts = await fetchCatalogProducts(apiUrl);
+        const seen = new Set();
+
+        return rawProducts
+          .filter(product => product && product.productName && productMatchesCycleFilter(product, cycleFilter))
+          .filter(product => {
+            const id = product.productId || product.linkText || product.productName;
+            if (seen.has(id)) return false;
+            seen.add(id);
+            return true;
+          })
+          .sort((a, b) => getSortPrice(a) - getSortPrice(b))
+          .map(product => {
+            const productOffer = getProductOffer(product);
+            if (!productOffer) return null;
+
+            const { sku, offer } = productOffer;
+            const pixPrice = getPixPrice(offer);
+            const basePrice = Number(offer.Price || offer.SpotPrice || offer.ListPrice || 0);
+            const cash = pixPrice > 0 ? pixPrice : basePrice;
+
+            return {
+              title: product.productName,
+              image: sku.images?.[0]?.imageUrl || "",
+              spot: cash > 0 ? `${formatCurrency(cash)} à vista` : "Consulte o site",
+              install: formatInstallment(offer),
+              link: buildProductLink(product, sku),
+              discount: 0
+            };
+          })
+          .filter(Boolean);
+      } catch(e) { console.error("WebContinental erro:", e); return []; }
+    }
+
+
+    async function scrapeClimario(url) {
+      const STORE_URL = "https://www.climario.com.br";
+      const API_PROXIES = [
+        "https://frigelar-proxy.crftwo.workers.dev/?url=",
+        "https://api.codetabs.com/v1/proxy?quest=",
+        "https://api.allorigins.win/get?url="
+      ];
+
+      const normalizeText = (value) => String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+      const normText = (value) => normalizeText(value).replace(/[\s\-_.]/g, "");
+      const formatCurrency = (value) => new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      }).format(value).replace(/\u00a0/g, " ");
+      const pathParts = (value) => String(value || "")
+        .replace(/^\/+|\/+$/g, "")
+        .split("/")
+        .map(part => part.trim())
+        .filter(Boolean);
+      const getOrderParam = (parsedUrl) => {
+        const order = parsedUrl.searchParams.get("order") || parsedUrl.searchParams.get("O") || "";
+        const value = String(order).toLowerCase();
+        if (value.includes("desc")) return "OrderByPriceDESC";
+        if (value.includes("topsale")) return "OrderByTopSaleDESC";
+        return "OrderByPriceASC";
+      };
+      const getTypeSlug = () => {
+        const type = normText(selection?.tipo || "");
+        if (type.includes("piso")) return "ar-condicionado-piso-teto";
+        if (type.includes("cassete")) return "ar-condicionado-cassete";
+        if (type.includes("hiwall") || type.includes("hi")) return "ar-condicionado-hi-wall-inverter";
+        return "";
+      };
+      const isKnownTypeSlug = (segment) => {
+        const value = normText(segment);
+        return value.includes("arcondicionadohiwall") ||
+               value.includes("arcondicionadopisoteto") ||
+               value.includes("arcondicionadocassete");
+      };
+      const buildCatalogApiUrls = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return []; }
+
+        const queryParts = pathParts(parsed.searchParams.get("query") || parsed.pathname || "/");
+        const initialParts = pathParts(parsed.searchParams.get("initialQuery"));
+        const mapParts = String(parsed.searchParams.get("map") || "")
+          .split(",")
+          .map(part => part.trim())
+          .filter(Boolean);
+
+        let baseParts = initialParts.length
+          ? [...initialParts]
+          : queryParts.slice(0, Math.min(2, queryParts.length));
+        const extraParts = queryParts.slice(baseParts.length);
+        const extraMaps = mapParts.slice(baseParts.length);
+
+        const allParts = [...baseParts, ...extraParts];
+        const hasTypeInUrl = allParts.some(isKnownTypeSlug);
+        const typeSlug = getTypeSlug();
+
+        // Alguns links ClimaRio trazem BTU/ciclo sem explicitar a categoria.
+        // A selecao do usuario completa apenas esse tipo, mantendo os filtros da URL da planilha.
+        if (!hasTypeInUrl && typeSlug && normText(baseParts[0]).includes("arcondicionado")) {
+          baseParts = [baseParts[0], typeSlug, ...baseParts.slice(1)];
+        }
+
+        const groups = [];
+        extraParts.forEach((segment, index) => {
+          const key = normText(extraMaps[index] || `extra-${index}`);
+          const value = normText(segment);
+          if (!segment || key.includes("ciclo") || value.includes("quentefrio")) return;
+          if (isKnownTypeSlug(segment) && baseParts.some(part => normText(part) === value)) return;
+
+          let group = groups.find(item => item.key === key);
+          if (!group) {
+            group = { key, values: [] };
+            groups.push(group);
+          }
+          group.values.push(segment);
+        });
+
+        const combinations = groups.length
+          ? groups.reduce((acc, group) => acc.flatMap(combo => group.values.map(value => [...combo, value])), [[]])
+          : [[]];
+
+        const order = getOrderParam(parsed);
+        const seen = new Set();
+        return combinations
+          .map(combo => [...baseParts, ...combo].filter(Boolean))
+          .filter(parts => parts.length)
+          .map(parts => {
+            const path = parts.map(part => encodeURIComponent(part)).join("/");
+            const map = parts.map(() => "c").join(",");
+            return `${STORE_URL}/api/catalog_system/pub/products/search/${path}?map=${map}&O=${order}`;
+          })
+          .filter(apiUrl => {
+            if (seen.has(apiUrl)) return false;
+            seen.add(apiUrl);
+            return true;
+          });
+      };
+      const getCycleFilterFromUrl = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return ""; }
+
+        const parts = pathParts(parsed.searchParams.get("query") || parsed.pathname || "/");
+        const maps = String(parsed.searchParams.get("map") || "").split(",").map(item => item.trim());
+        const cycleIndex = maps.findIndex(map => normText(map).includes("ciclo"));
+        const segment = cycleIndex >= 0 ? parts[cycleIndex] : parts.find(part => normText(part).includes("quentefrio"));
+        const value = normText(segment);
+        if (value.includes("quente")) return "quente";
+        if (value.includes("frio")) return "frio";
+        return "";
+      };
+      const extractBtuValues = (value) => {
+        const text = normText(value);
+        const values = [];
+        const re = /(\d{1,3})000btu/g;
+        let match;
+        while ((match = re.exec(text)) !== null) values.push(Number(match[1]) * 1000);
+        return values;
+      };
+      const getBtuFiltersFromUrl = (searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return []; }
+
+        const parts = pathParts(parsed.searchParams.get("query") || parsed.pathname || "/");
+        return [...new Set(parts.flatMap(extractBtuValues))];
+      };
+      const productMatchesAirConditioner = (product) => normText(product.productName || "").includes("arcondicionado");
+      const productMatchesBtuFilter = (product, btuFilters) => {
+        if (!btuFilters.length) return true;
+        const haystack = [
+          product.productName || "",
+          ...(product.categories || []),
+          ...(product["Capacidade de Climatização"] || []),
+          ...(product["Capacidade de Climatizacao"] || []),
+          ...(product["Capacidade BTU/h"] || [])
+        ].join(" ");
+        const productBtus = extractBtuValues(haystack);
+        return productBtus.some(value => btuFilters.includes(value));
+      };
+      const productMatchesCycleFilter = (product, cycleFilter) => {
+        if (!cycleFilter) return true;
+        const haystack = normText([
+          product.productName || "",
+          ...(product.Ciclo || []),
+          ...(product["Ciclo do Ar Condicionado"] || [])
+        ].join(" "));
+
+        if (cycleFilter === "quente") return haystack.includes("quente");
+        if (cycleFilter === "frio") return haystack.includes("frio") && !haystack.includes("quente");
+        return true;
+      };
+      const fetchApiText = async (targetUrl) => {
+        let lastError = null;
+        for (const proxy of API_PROXIES) {
+          try {
+            const resp = await fetch(proxy + encodeURIComponent(targetUrl), { cache: "no-store" });
+            if (!resp.ok && resp.status !== 206) throw new Error("HTTP " + resp.status);
+
+            if (proxy.includes("allorigins")) {
+              const json = await resp.json();
+              if (json && json.contents) return json.contents;
+              throw new Error("Resposta sem contents");
+            }
+
+            return await resp.text();
+          } catch(e) {
+            lastError = e;
+          }
+        }
+        throw lastError || new Error("Falha na API VTEX ClimaRio");
+      };
+      const fetchCatalogProducts = async (apiUrl) => {
+        const products = [];
+        for (let from = 0; from < 300; from += 50) {
+          const to = from + 49;
+          const sep = apiUrl.includes("?") ? "&" : "?";
+          const raw = await fetchApiText(`${apiUrl}${sep}_from=${from}&_to=${to}&_=${Date.now()}`);
+          let data;
+          try { data = JSON.parse(raw); } catch(e) { break; }
+          if (!Array.isArray(data) || data.length === 0) break;
+          products.push(...data);
+          if (data.length < 50) break;
+        }
+        return products;
+      };
+      const getPixPrice = (offer) => {
+        const installments = Array.isArray(offer?.Installments) ? offer.Installments : [];
+        const pix = installments.find(item => normText(`${item.PaymentSystemName || ""} ${item.Name || ""}`).includes("pix") && Number(item.NumberOfInstallments || 1) === 1)
+          || installments.find(item => normText(`${item.PaymentSystemName || ""} ${item.Name || ""}`).includes("pix"));
+        const installmentValue = Number(pix?.Value || pix?.TotalValuePlusInterestRate || 0);
+        if (installmentValue > 0) return installmentValue;
+
+        const options = offer?.PaymentOptions?.installmentOptions || [];
+        const pixOption = options.find(option => normText(option?.paymentName).includes("pix"));
+        const pixInstallment = pixOption?.installments?.find(item => Number(item.count || 0) === 1)
+          || pixOption?.installments?.[0];
+        const cents = Number(pixInstallment?.total || pixInstallment?.value || 0);
+        return cents > 0 ? cents / 100 : 0;
+      };
+      const getProductOffer = (product) => {
+        const candidates = [];
+        const items = Array.isArray(product.items) ? product.items : [];
+        for (const sku of items) {
+          const sellers = Array.isArray(sku.sellers) ? sku.sellers : [];
+          for (const seller of sellers) {
+            const offer = seller?.commertialOffer || {};
+            const price = Number(offer.Price || offer.SpotPrice || offer.ListPrice || 0);
+            const quantity = Number(offer.AvailableQuantity ?? 1);
+            if (price > 0 && offer.IsAvailable !== false && quantity > 0) {
+              candidates.push({ sku, offer, sortPrice: getPixPrice(offer) || price });
+            }
+          }
+        }
+        candidates.sort((a, b) => a.sortPrice - b.sortPrice);
+        return candidates[0] || null;
+      };
+      const formatInstallment = (offer) => {
+        const installments = Array.isArray(offer?.Installments) ? offer.Installments : [];
+        const credit = installments.filter(item =>
+          Number(item.NumberOfInstallments || 0) > 1 &&
+          Number(item.InterestRate || 0) === 0 &&
+          normText(item.PaymentSystemGroupName || "").includes("creditcard")
+        );
+        const pool = credit.length ? credit : installments.filter(item => Number(item.NumberOfInstallments || 0) > 1);
+        if (!pool.length) return "";
+
+        const best = pool.reduce((a, b) =>
+          Number(a.NumberOfInstallments || 0) > Number(b.NumberOfInstallments || 0) ? a : b
+        );
+        const count = Number(best.NumberOfInstallments || 0);
+        const value = Number(best.Value || 0);
+        const total = Number((value * count).toFixed(2));
+        if (!count || !total || !value) return "";
+
+        return `ou ${formatCurrency(total)} até ${count}x de ${formatCurrency(value)}`;
+      };
+      const buildProductLink = (product) => {
+        if (product.link) return product.link;
+        return product.linkText ? `${STORE_URL}/${product.linkText}/p` : STORE_URL;
+      };
+      const getSortPrice = (product) => {
+        const productOffer = getProductOffer(product);
+        if (!productOffer) return Number.MAX_SAFE_INTEGER;
+        const { offer } = productOffer;
+        return Number(getPixPrice(offer) || offer.Price || offer.SpotPrice || offer.ListPrice || Number.MAX_SAFE_INTEGER);
+      };
+      const sortCatalogProducts = (products, searchUrl) => {
+        let parsed;
+        try { parsed = new URL(searchUrl); } catch(e) { return products; }
+        const desc = getOrderParam(parsed) === "OrderByPriceDESC";
+        return products.sort((a, b) => desc ? getSortPrice(b) - getSortPrice(a) : getSortPrice(a) - getSortPrice(b));
+      };
+
+      try {
+        const apiUrls = buildCatalogApiUrls(url);
+        const cycleFilter = getCycleFilterFromUrl(url);
+        const btuFilters = getBtuFiltersFromUrl(url);
+        const rawProducts = [];
+
+        for (const apiUrl of apiUrls) {
+          try {
+            rawProducts.push(...await fetchCatalogProducts(apiUrl));
+          } catch(e) {
+            console.warn("ClimaRio Catalog API falhou:", apiUrl, e);
+          }
+        }
+
+        const seen = new Set();
+        const uniqueProducts = rawProducts
+          .filter(product =>
+            product &&
+            product.productName &&
+            productMatchesAirConditioner(product) &&
+            productMatchesBtuFilter(product, btuFilters) &&
+            productMatchesCycleFilter(product, cycleFilter)
+          )
+          .filter(product => {
+            const id = product.productId || product.linkText || product.productName;
+            if (seen.has(id)) return false;
+            seen.add(id);
+            return true;
+          });
+
+        return sortCatalogProducts(uniqueProducts, url)
+          .map(product => {
+            const productOffer = getProductOffer(product);
+            if (!productOffer) return null;
+
+            const { sku, offer } = productOffer;
+            const pixPrice = getPixPrice(offer);
+            const basePrice = Number(offer.SpotPrice || offer.Price || offer.ListPrice || 0);
+            const cash = pixPrice > 0 ? pixPrice : basePrice;
+
+            return {
+              title: product.productName,
+              image: sku.images?.[0]?.imageUrl || "",
+              spot: cash > 0 ? `${formatCurrency(cash)} à vista` : "Consulte o site",
+              install: formatInstallment(offer),
+              link: buildProductLink(product),
+              discount: 0
+            };
+          })
+          .filter(Boolean);
+      } catch(e) { console.error("ClimaRio erro:", e); return []; }
+    }
+
+
+
+
+    async function startScraping() {
+      try {
+        document.getElementById("selection-summary").style.display = "none";
+        document.getElementById("filters-section").style.display = "none";
+        document.getElementById("results-stats").style.display = "none";
+
+        allFetchedProducts = [];
+        activeFilters = { lojas: [], marcas: [], btus: [], ciclos: [] };
+
+        if (sheetLoadPromise) {
+          document.getElementById("loading-msg").innerText = "SINCRONIZANDO PLANILHA...";
+          await sheetLoadPromise;
+        }
+
+        // Normaliza ciclo: remove "só" e lowercase
+        const normalizeCiclo = (c) => {
+          const normalized = String(c || "").toLowerCase().trim().replace(/^só\s+/, "");
+          return normalized;
+        };
+        const cicloNormalizado = normalizeCiclo(selection.ciclo);
+        console.log("🔍 Buscando:", { tipo: selection.tipo, btu: selection.btu, ciclo: selection.ciclo, cicloNorm: cicloNormalizado });
+
+        const links = sheetData.filter(i => {
+          const cicloSheet = normalizeCiclo(i.Ciclo);
+          const match = i.Tipo === selection.tipo &&
+                       i.BTUs === selection.btu &&
+                       cicloSheet === cicloNormalizado;
+          if (match) console.log("✅ Link encontrado:", { Tipo: i.Tipo, BTUs: i.BTUs, Ciclo: i.Ciclo, Site: i.Site });
+          return match;
+        });
+
+        console.log("📋 Links encontrados:", links.length, "— Sites:", links.map(l => l.Site));
+
+        // Matching frouxo: ignora case, acentos, espaços extras, hífens e pontos.
+        const norm = (s) => String(s || '')
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .replace(/[\s\-_.]/g, '');
+        const frigelarLink = links.find(l => l.Site && norm(l.Site).includes("frigelar"));
+        const leverosLink  = links.find(l => l.Site && norm(l.Site).includes("leveros"));
+        const dufrioLink   = links.find(l => l.Site && norm(l.Site).includes("dufrio"));
+        const poloArLink   = links.find(l => l.Site && norm(l.Site).includes("poloar"));
+        const friopecasLink = links.find(l => l.Site && norm(l.Site).includes("friopecas"));
+        const webcontinentalLink = links.find(l => l.Site && norm(l.Site).includes("webcontinental"));
+        const climarioLink = links.find(l => l.Site && norm(l.Site).includes("climario"));
+        console.log("📋 Match das lojas:", {
+          frigelar: frigelarLink ? `✓ "${frigelarLink.Site}"` : "✗ nenhum",
+          leveros:  leverosLink  ? `✓ "${leverosLink.Site}"`  : "✗ nenhum",
+          dufrio:   dufrioLink   ? `✓ "${dufrioLink.Site}"`   : "✗ nenhum",
+          poloAr:   poloArLink   ? `✓ "${poloArLink.Site}"`   : "✗ nenhum",
+          friopecas: friopecasLink ? `✓ "${friopecasLink.Site}"` : "✗ nenhum",
+          webcontinental: webcontinentalLink ? `✓ "${webcontinentalLink.Site}"` : "✗ nenhum",
+          climario: climarioLink ? `✓ "${climarioLink.Site}"` : "✗ nenhum"
+        });
+
+        document.getElementById("loading-msg").innerText = "BUSCANDO LOJAS...";
+
+        const scrapePromises = [];
+
+        if (frigelarLink && frigelarLink.Link) {
+          scrapePromises.push(
+            scrapeFrigelar(frigelarLink.Link).then(products => {
+              return products.map(p => ({...p, storeName: "Frigelar"}));
+            })
+          );
+        }
+
+        if (leverosLink && leverosLink.Link) {
+          scrapePromises.push(
+            scrapeLeveros(leverosLink.Link).then(products => {
+              return products.map(p => ({...p, storeName: "Leveros"}));
+            })
+          );
+        }
+
+        if (dufrioLink && dufrioLink.Link) {
+          scrapePromises.push(
+            scrapeDufrio(dufrioLink.Link).then(products => {
+              return products.map(p => ({...p, storeName: "Dufrio"}));
+            })
+          );
+        }
+
+        if (poloArLink && poloArLink.Link) {
+          scrapePromises.push(
+            scrapePoloAr(poloArLink.Link).then(products => {
+              return products.map(p => ({...p, storeName: "Polo Ar"}));
+            })
+          );
+        }
+
+        if (friopecasLink && friopecasLink.Link) {
+          scrapePromises.push(
+            scrapeFriopecas(friopecasLink.Link).then(products => {
+              return products.map(p => ({...p, storeName: "FrioPeças"}));
+            })
+          );
+        }
+
+        if (webcontinentalLink && webcontinentalLink.Link) {
+          scrapePromises.push(
+            scrapeWebcontinental(webcontinentalLink.Link).then(products => {
+              return products.map(p => ({...p, storeName: "WebContinental"}));
+            })
+          );
+        }
+
+        if (climarioLink && climarioLink.Link) {
+          scrapePromises.push(
+            scrapeClimario(climarioLink.Link).then(products => {
+              return products.map(p => ({...p, storeName: "ClimaRio"}));
+            })
+          );
+        }
+
+        // Central Ar — URL crua da planilha (mesma regra das outras lojas).
+        // Matching frouxo no nome do site: aceita "Central Ar", "centralar",
+        // "central-ar", "Central AR" — espaços/hífens/underscores ignorados.
+        const centralArLink = links.find(l => {
+          if (!l.Site) return false;
+          const s = String(l.Site).toLowerCase().replace(/[\s\-_]/g, '');
+          return s === "centralar";
+        });
+        console.log("🔎 Central Ar — sites na planilha p/ essa busca:", links.map(l => l.Site));
+        if (centralArLink && centralArLink.Link) {
+          console.log("🔎 Central Ar — linha casou:", centralArLink);
+          scrapePromises.push(
+            scrapeCentralAr(centralArLink.Link).then(products => {
+              return products.map(p => ({...p, storeName: "Central Ar"}));
+            })
+          );
+        } else {
+          console.log("⚠️  Central Ar — sem linha 'Central Ar' na planilha pra essa combinação.");
+        }
+
+        const resultsArrays = await Promise.all(scrapePromises);
+        
+        resultsArrays.forEach(products => {
+            products.forEach(p => {
+                allFetchedProducts.push(extractProductInfo(p));
+            });
+        });
+        
+        // Ordenar todos os produtos pelo preço à vista
+        allFetchedProducts.sort((a, b) => {
+            const getPrice = (str) => parseFloat(str.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+            return getPrice(a.spot) - getPrice(b.spot);
+        });
+        
+        document.getElementById("loading-results").style.display = "none";
+        
+        if (allFetchedProducts.length > 0) {
+          generateFilters();
+          applyFilters();
+        } else {
+          document.getElementById("results-grid").innerHTML="<p style=\"grid-column:1/-1;color:var(--muted);font-size:13px;text-transform:uppercase;font-weight:800;text-align:center;padding:40px 0;\">Nenhum produto encontrado para esta combinação.</p>";
+        }
+      } catch (err) {
+        console.error("Erro no scraping:", err);
+        document.getElementById("loading-results").style.display = "none";
+        document.getElementById("results-grid").innerHTML="<p style=\"grid-column:1/-1;color:#ff5252;font-size:13px;text-transform:uppercase;font-weight:800;text-align:center;padding:40px 0;\">Erro ao processar dados. Verifique a planilha.</p>";
+      }
+    }
+
+    function extractProductInfo(p) {
+      let marca = "Outras";
+      for (const m of LISTA_MARCAS) {
+        if (p.title.toLowerCase().includes(m.toLowerCase())) {
+          marca = m; break;
+        }
+      }
+      let btu = "";
+      // Remove pontos para facilitar o match (ex: 9.000 -> 9000)
+      const titleClean = p.title.replace(/\./g, "");
+      const btuMatch = titleClean.match(/\b(\d{4,5})\s*BTU/i) || titleClean.match(/\b(\d{4,5})\b/);
+      if (btuMatch) {
+        let bNum = btuMatch[1];
+        btu = bNum.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " BTUs";
+      } else if (selection && selection.btu) {
+        // Fallback para o que o usuário escolheu
+        btu = selection.btu.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " BTUs";
+      } else {
+        btu = "Outros"; // Apenas caso extremo
+      }
+      
+      let ciclo = "Só Frio";
+      if (p.title.toLowerCase().includes("quente")) ciclo = "Quente/Frio";
+      p.marca = marca; p.btu = btu; p.ciclo = ciclo;
+      return p;
+    }
+
+    function generateFilters() {
+      const lojas = [...new Set(allFetchedProducts.map(p=>p.storeName))].sort();
+      const marcas = [...new Set(allFetchedProducts.map(p=>p.marca))].sort();
+      const btus = [...new Set(allFetchedProducts.map(p=>p.btu))].sort((a,b)=>parseInt(a)-parseInt(b));
+      const ciclos = [...new Set(allFetchedProducts.map(p=>p.ciclo))].sort();
+      renderFilterRow("filter-lojas", lojas, "lojas");
+      renderFilterRow("filter-marcas", marcas, "marcas");
+      renderBrandQualityFilters(marcas);
+      renderFilterRow("filter-btus", btus, "btus");
+      renderFilterRow("filter-ciclos", ciclos, "ciclos");
+      document.getElementById("filters-section").style.display = (allFetchedProducts.length > 0) ? "flex" : "none";
+      document.getElementById("results-stats").style.display = (allFetchedProducts.length > 0) ? "flex" : "none";
+    }
+
+    function updateResultsStats(filteredProducts) {
+      const totalSites = new Set(allFetchedProducts.map(p=>p.storeName)).size;
+      const totalProducts = allFetchedProducts.length;
+      const currentSites = new Set(filteredProducts.map(p=>p.storeName)).size;
+      const currentProducts = filteredProducts.length;
+      const isFiltered = currentSites !== totalSites || currentProducts !== totalProducts;
+
+      document.getElementById("stat-sites-current").innerText = currentSites;
+      document.getElementById("stat-sites-total").innerText = totalSites;
+      document.getElementById("stat-products-current").innerText = currentProducts;
+      document.getElementById("stat-products-total").innerText = totalProducts;
+
+      const sepDisplay = isFiltered ? "inline" : "none";
+      document.getElementById("stat-sites-sep").style.display = sepDisplay;
+      document.getElementById("stat-sites-total").style.display = sepDisplay;
+      document.getElementById("stat-products-sep").style.display = sepDisplay;
+      document.getElementById("stat-products-total").style.display = sepDisplay;
+
+      const sitesLabel = totalSites === 1 ? "Site encontrado" : "Sites encontrados";
+      const productsLabel = totalProducts === 1 ? "Ar-condicionado captado" : "Ar-condicionados captados";
+      document.getElementById("stat-sites-label").innerText = isFiltered ? sitesLabel + " (filtrados)" : sitesLabel;
+      document.getElementById("stat-products-label").innerText = isFiltered ? productsLabel + " (filtrados)" : productsLabel;
+    }
+
+    function normalizeBrand(value) {
+      return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    }
+
+    function getBrandQualityMatches(availableBrands) {
+      const normalizedToOriginal = new Map();
+      availableBrands.forEach(brand => normalizedToOriginal.set(normalizeBrand(brand), brand));
+
+      const assigned = new Set();
+      const groups = [];
+      ["premium", "boa", "inter"].forEach(key => {
+        const config = QUALITY_BRANDS[key];
+        const matches = [];
+        config.brands.forEach(brandKey => {
+          const normalized = normalizeBrand(brandKey);
+          if (normalizedToOriginal.has(normalized)) {
+            matches.push(normalizedToOriginal.get(normalized));
+            assigned.add(normalized);
+          }
+        });
+        if (matches.length) groups.push({ key, label: config.label, brands: matches });
+      });
+
+      const basicBrands = availableBrands.filter(brand => !assigned.has(normalizeBrand(brand)));
+      if (basicBrands.length) {
+        groups.push({ key: "basica", label: QUALITY_BRANDS.basica.label, brands: basicBrands });
+      }
+      return groups;
+    }
+
+    function renderBrandQualityFilters(availableBrands) {
+      const c = document.getElementById("filter-marca-grupos");
+      if (!c) return;
+      c.innerHTML = "";
+
+      const groups = getBrandQualityMatches(availableBrands);
+      c.style.display = groups.length ? "flex" : "none";
+
+      groups.forEach(group => {
+        const btn = document.createElement("button");
+        btn.className = `filter-btn filter-quality-btn quality-${group.key}`;
+        btn.dataset.brands = group.brands.join("|");
+        btn.innerText = `${group.label} (${group.brands.length})`;
+        btn.title = group.brands.join(", ");
+        btn.onclick = () => toggleBrandQualityGroup(group.brands);
+        c.appendChild(btn);
+      });
+      syncBrandFilterVisuals();
+    }
+
+    function toggleBrandQualityGroup(brands) {
+      const alreadyOnlyThisGroup = activeFilters.marcas.length === brands.length && brands.every(brand => activeFilters.marcas.includes(brand));
+      activeFilters.marcas = alreadyOnlyThisGroup ? [] : [...brands];
+      syncBrandFilterVisuals();
+      applyFilters();
+    }
+
+    function syncBrandFilterVisuals() {
+      document.querySelectorAll("#filter-marcas .filter-btn").forEach(btn => {
+        btn.classList.toggle("active", activeFilters.marcas.includes(btn.dataset.value));
+      });
+
+      document.querySelectorAll("#filter-marca-grupos .filter-quality-btn").forEach(btn => {
+        const brands = (btn.dataset.brands || "").split("|").filter(Boolean);
+        const active = brands.length > 0 && activeFilters.marcas.length === brands.length && brands.every(brand => activeFilters.marcas.includes(brand));
+        btn.classList.toggle("active", active);
+      });
+    }
+
+    function renderFilterRow(id, items, type) {
+      const c = document.getElementById(id); c.innerHTML = "";
+      if (items.length <= 1 && type !== "marcas" && type !== "lojas") {
+          c.parentElement.style.display = "none";
+          return;
+      }
+      c.parentElement.style.display = "block";
+      items.forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "filter-btn"; 
+        if (type === "lojas") {
+            const storeKey = item.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            if (storeKey === "frigelar") btn.classList.add("store-frigelar");
+            if (storeKey === "leveros") btn.classList.add("store-leveros");
+            if (storeKey === "central ar") btn.classList.add("store-centralar");
+            if (storeKey === "friopecas") btn.classList.add("store-friopecas");
+            if (storeKey === "webcontinental") btn.classList.add("store-webcontinental");
+            if (storeKey === "climario") btn.classList.add("store-climario");
+            if (storeKey === "polo ar") btn.classList.add("store-poloar");
+        }
+        btn.dataset.value = item;
+        btn.innerText = item;
+        if (activeFilters[type].includes(item)) btn.classList.add("active");
+        btn.onclick = () => toggleFilter(btn, type, item);
+        c.appendChild(btn);
+      });
+    }
+
+    function toggleFilter(btn, type, value) {
+      const idx = activeFilters[type].indexOf(value);
+      if (idx > -1) { activeFilters[type].splice(idx, 1); btn.classList.remove("active"); }
+      else { activeFilters[type].push(value); btn.classList.add("active"); }
+      if (type === "marcas") syncBrandFilterVisuals();
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const grid = document.getElementById("results-grid"); grid.innerHTML = "";
+      const filtered = allFetchedProducts.filter(p => {
+        const l = activeFilters.lojas.length === 0 || activeFilters.lojas.includes(p.storeName);
+        const m = activeFilters.marcas.length === 0 || activeFilters.marcas.includes(p.marca);
+        const b = activeFilters.btus.length === 0 || activeFilters.btus.includes(p.btu);
+        const c = activeFilters.ciclos.length === 0 || activeFilters.ciclos.includes(p.ciclo);
+        return l && m && b && c;
+      });
+      updateResultsStats(filtered);
+      if (filtered.length === 0) grid.innerHTML = "<p style=\"grid-column:1/-1;color:var(--muted);font-size:13px;text-transform:uppercase;font-weight:800;text-align:center;padding:40px 0;\">Nenhum produto atende aos filtros atuais.</p>";
+      else filtered.forEach(p => grid.appendChild(createCard(p, p.storeName)));
+    }
+
+    function resetScraper() {
+      selection = {tipo:"",btu:"",ciclo:""};
+      allFetchedProducts = [];
+      activeFilters = { lojas: [], marcas: [], btus: [], ciclos: [] };
+      document.getElementById("results-grid").innerHTML = "";
+      document.getElementById("filters-section").style.display = "none";
+      document.getElementById("selection-summary").style.display = "none";
+      document.getElementById("results-stats").style.display = "none";
+      document.getElementById("step-btus").classList.remove("active");
+      document.getElementById("step-ciclo").classList.remove("active");
+      document.getElementById("step-resultados").classList.remove("active");
+      document.getElementById("loading-results").style.display = "none";
+      renderTipos();
+      document.getElementById("step-tipo").scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+
+    function normalizeCopyImageUrl(url) {
+      let cleanUrl = String(url || "").trim();
+      if (!cleanUrl) throw new Error("Imagem ausente");
+
+      if (cleanUrl.includes("workers.dev") && cleanUrl.includes("url=")) {
+        try {
+          cleanUrl = new URL(cleanUrl).searchParams.get("url") || cleanUrl;
+        } catch (_) {}
+      }
+
+      if (cleanUrl.startsWith("//")) cleanUrl = "https:" + cleanUrl;
+      return cleanUrl;
+    }
+
+    function imageProxyUrls(url, storeName) {
+      const cleanUrl = normalizeCopyImageUrl(url);
+      const store = String(storeName || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const proxied = [
+        "https://wsrv.nl/?url=" + encodeURIComponent(cleanUrl),
+        "https://images.weserv.nl/?url=" + encodeURIComponent(cleanUrl),
+        "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(cleanUrl)
+      ];
+      const urls = (store === "frigelar" || store === "central ar" || store === "friopecas" || store === "webcontinental" || store === "climario")
+        ? [...proxied, cleanUrl]
+        : [cleanUrl, ...proxied];
+      return [...new Set(urls)];
+    }
+
+    function detectImageMime(buffer, contentType, sourceUrl) {
+      const bytes = new Uint8Array(buffer.slice(0, 12));
+      if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+      if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return "image/png";
+      if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46) return "image/gif";
+      if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45) return "image/webp";
+
+      const headerType = String(contentType || "").split(";")[0].trim().toLowerCase();
+      if (headerType.startsWith("image/")) return headerType;
+
+      const lowerUrl = String(sourceUrl || "").toLowerCase();
+      if (lowerUrl.includes(".png")) return "image/png";
+      if (lowerUrl.includes(".webp")) return "image/webp";
+      return "image/jpeg";
+    }
+
+    async function decodeImageBlob(blob) {
+      if (typeof createImageBitmap === "function") {
+        try {
+          return await createImageBitmap(blob);
+        } catch (_) {}
+      }
+
+      return await new Promise((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(blob);
+        const image = new Image();
+        image.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(image);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("Falha ao decodificar imagem"));
+        };
+        image.src = objectUrl;
+      });
+    }
+
+    async function convertImageToPng(blob) {
+      const decoded = await decodeImageBlob(blob);
+      const width = decoded.width || decoded.naturalWidth;
+      const height = decoded.height || decoded.naturalHeight;
+      if (!width || !height) throw new Error("Imagem sem dimensoes");
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(decoded, 0, 0);
+      if (typeof decoded.close === "function") decoded.close();
+
+      return await new Promise((resolve, reject) => {
+        canvas.toBlob(blobPng => {
+          if (blobPng) resolve(blobPng);
+          else reject(new Error("Falha ao gerar PNG"));
+        }, "image/png");
+      });
+    }
+
+    async function getCopyableImageBlob(imageUrl, storeName) {
+      let lastError = null;
+
+      for (const candidateUrl of imageProxyUrls(imageUrl, storeName)) {
+        try {
+          const response = await fetch(candidateUrl, { cache: "no-store" });
+          if (!response.ok) throw new Error("HTTP " + response.status);
+
+          const buffer = await response.arrayBuffer();
+          if (!buffer.byteLength) throw new Error("Imagem vazia");
+
+          const mimeType = detectImageMime(buffer, response.headers.get("content-type"), candidateUrl);
+          const imageBlob = new Blob([buffer], { type: mimeType });
+          return await convertImageToPng(imageBlob);
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      throw lastError || new Error("Nao foi possivel copiar a imagem");
+    }
+
+    function createCard(p, store) {
+      const card = document.createElement("div"); card.className = "product-card";
+
+      const badge = document.createElement("div"); badge.className = "store-badge";
+      const storeKey = String(store || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      if (storeKey === "frigelar") badge.classList.add("store-frigelar");
+      if (storeKey === "leveros") badge.classList.add("store-leveros");
+      if (storeKey === "central ar") badge.classList.add("store-centralar");
+      if (storeKey === "friopecas") badge.classList.add("store-friopecas");
+      if (storeKey === "webcontinental") badge.classList.add("store-webcontinental");
+      if (storeKey === "climario") badge.classList.add("store-climario");
+      if (storeKey === "polo ar") badge.classList.add("store-poloar");
+      badge.textContent = store;
+
+      const imgWrap = document.createElement("div"); imgWrap.className = "product-img-wrap";
+      const img = document.createElement("img");
+      img.src = p.image; img.alt = p.title;
+      img.onerror = () => img.src = "https://placehold.co/260x260/111/333?text="+store;
+      const overlay = document.createElement("div"); overlay.className = "img-overlay";
+      const overlaySpan = document.createElement("span"); overlaySpan.textContent = "📷 Copiar Foto";
+      overlay.appendChild(overlaySpan);
+      imgWrap.appendChild(img); imgWrap.appendChild(overlay);
+      imgWrap.onclick = async () => {
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || ('ontouchstart' in window);
+        
+        if (isMobile) {
+          // Mobile: busca a imagem pelo proxy (resolve CORS) e compartilha o arquivo real
+          overlaySpan.textContent = "⏳ Aguarde...";
+          try {
+            const blob = await getCopyableImageBlob(p.image, p.storeName);
+            const fileName = (p.title.substring(0, 40).replace(/[^a-zA-Z0-9]/g, '_') || 'produto') + '.png';
+            const file = new File([blob], fileName, { type: "image/png" });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              // Compartilha o arquivo de imagem real (iOS 15+ e Android Chrome)
+              await navigator.share({ files: [file], title: p.title });
+            } else if (navigator.share) {
+              // Fallback: compartilha só a URL se files não for suportado
+              await navigator.share({ title: p.title, url: p.image });
+            } else {
+              window.open(p.image, '_blank');
+            }
+            overlay.classList.add("copied"); overlaySpan.textContent = "✅ Compartilhado!";
+            setTimeout(()=>{overlay.classList.remove("copied");overlaySpan.textContent="📤 Compartilhar";},1800);
+          } catch(e) {
+            if (e.name === 'AbortError') {
+              overlaySpan.textContent = "📤 Compartilhar"; // usuário cancelou
+            } else {
+              // fallback final: abre imagem em nova aba
+              window.open(p.image, '_blank');
+              overlaySpan.textContent = "📤 Compartilhar";
+            }
+          }
+        } else {
+          // Desktop: copia imagem para clipboard
+          overlaySpan.textContent = "⏳...";
+          try {
+            const blob = await getCopyableImageBlob(p.image, p.storeName);
+
+            await navigator.clipboard.write([
+              new ClipboardItem({ "image/png": blob })
+            ]);
+            overlay.classList.add("copied"); overlaySpan.textContent = "✅ Copiado!";
+            setTimeout(()=>{overlay.classList.remove("copied");overlaySpan.textContent="📷 Copiar Foto";},1800);
+          } catch(e) {
+            console.error("Erro ao copiar imagem:", e);
+            overlay.classList.add("copied"); overlaySpan.textContent = "⚠️ Erro ao Copiar";
+            setTimeout(()=>{overlay.classList.remove("copied");overlaySpan.textContent="📷 Copiar Foto";},1800);
+          }
+        }
+      };
+      // Adapta o label do overlay conforme o dispositivo
+      const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || ('ontouchstart' in window);
+      overlaySpan.textContent = isMobileDevice ? "📤 Compartilhar" : "📷 Copiar Foto";
+
+      const info = document.createElement("div"); info.className = "product-info";
+      const hint = document.createElement("div"); hint.className = "copy-hint"; hint.textContent = "COPIAR";
+      
+      const titleDiv = document.createElement("div"); titleDiv.className = "product-title"; 
+      titleDiv.innerHTML = "<span>" + p.title + "</span>";
+      
+      const pricesWrap = document.createElement("div"); pricesWrap.className = "prices-wrap";
+      
+      const priceVista = document.createElement("div"); priceVista.className = "price-vista";
+      // Separa o valor principal do desconto ("5% de Desconto" / "Com 7% OFF no PIX")
+      const spotMatch = p.spot.match(/^(R\$\s*[\d.,]+)(.*)$/);
+      const mainPrice = spotMatch ? spotMatch[1].trim() : p.spot;
+      const discountBit = spotMatch && spotMatch[2] ? spotMatch[2].trim() : "";
+      priceVista.innerHTML = `<span>${mainPrice}</span>`;
+      if (discountBit) {
+        const badge = document.createElement("span");
+        badge.className = "discount-badge";
+        badge.textContent = discountBit;
+        priceVista.appendChild(badge);
+      }
+      
+      const priceInstall = document.createElement("div"); priceInstall.className = "price-install"; 
+      priceInstall.textContent = p.install;
+      
+      pricesWrap.appendChild(priceVista); 
+      pricesWrap.appendChild(priceInstall);
+      
+      info.appendChild(hint); info.appendChild(titleDiv); info.appendChild(pricesWrap);
+      info.onclick = () => {
+        const txt = formatCopyText(p.title, p.spot, p.install);
+        navigator.clipboard.writeText(txt);
+        hint.textContent = "✅ COPIADO!"; info.classList.add("copied");
+        setTimeout(()=>{hint.textContent="COPIAR";info.classList.remove("copied");},1800);
+      };
+
+      const footer = document.createElement("div"); footer.className = "card-footer";
+      const btnLink = document.createElement("button"); btnLink.className = "btn-link"; btnLink.textContent = "🔗 Abrir na Loja";
+      btnLink.onclick = () => window.open(p.link,"_blank");
+      footer.appendChild(btnLink);
+
+      card.appendChild(badge); card.appendChild(imgWrap); card.appendChild(info); card.appendChild(footer);
+      return card;
+    }
+
+    window.onload = loadData;
+  </script>
+</body>
+</html>
