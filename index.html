@@ -2,29 +2,36 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Hub de Ferramentas</title>
+  <title>Hub</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0b0d10;
-      --card: #121820;
-      --card-hover: #151d27;
-      --line: rgba(148,163,184,.16);
-      --line-strong: rgba(148,163,184,.30);
-      --text: #f5f7fa;
-      --soft: #c6ced8;
-      --muted: #8b96a5;
+      --bg: #06080b;
+      --panel: rgba(15, 20, 27, .88);
+      --panel-soft: rgba(255, 255, 255, .035);
+      --card: #10161e;
+      --card-hover: #141c26;
+      --line: rgba(148, 163, 184, .14);
+      --line-strong: rgba(148, 163, 184, .32);
+      --text: #f7fafc;
+      --soft: #cbd5e1;
+      --muted: #8793a3;
       --blue: #38bdf8;
       --green: #22c55e;
+      --orange: #f59e0b;
+      --shadow: 0 24px 80px rgba(0, 0, 0, .36);
     }
     html { scroll-behavior: smooth; }
     body {
       min-height: 100vh;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color: var(--text);
-      background: radial-gradient(circle at top right, rgba(56,189,248,.08), transparent 360px), var(--bg);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(56,189,248,.13), transparent 360px),
+        radial-gradient(circle at 88% 10%, rgba(34,197,94,.08), transparent 320px),
+        linear-gradient(180deg, #06080b 0%, #0a0d12 100%);
       overflow-x: hidden;
     }
     body::before {
@@ -32,204 +39,261 @@
       position: fixed;
       inset: 0;
       z-index: -1;
-      background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-image: linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
       background-size: 44px 44px;
-      mask-image: linear-gradient(to bottom, rgba(0,0,0,.7), transparent 75%);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.86), transparent 78%);
       pointer-events: none;
     }
     a { color: inherit; text-decoration: none; }
-    button, input { font-family: inherit; }
-    .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 52px; }
-    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
-    .signature { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 900; letter-spacing: 2.8px; text-transform: uppercase; cursor: pointer; user-select: none; }
-    .signature-mark { width: 9px; height: 9px; border-radius: 999px; background: var(--blue); box-shadow: 0 0 18px rgba(56,189,248,.35); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .container { width: min(1160px, calc(100% - 40px)); margin: 0 auto; padding: 26px 0 42px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .signature { display: inline-flex; align-items: center; gap: 10px; color: rgba(203,213,225,.78); font-size: 11px; font-weight: 900; letter-spacing: 2.6px; text-transform: uppercase; cursor: pointer; user-select: none; }
+    .signature-mark { width: 8px; height: 8px; border-radius: 999px; background: var(--blue); box-shadow: 0 0 18px rgba(56,189,248,.45); }
+    .brand-divider { width: 1px; height: 18px; background: var(--line); }
+    h1 { font-size: clamp(30px, 5vw, 48px); line-height: .92; font-weight: 900; letter-spacing: -2.2px; }
     .quick-search-btn {
-      min-height: 38px;
+      min-height: 40px;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 9px 14px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(255,255,255,.035);
+      background: rgba(255,255,255,.045);
       color: var(--soft);
-      cursor: pointer;
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 850;
+      white-space: nowrap;
       transition: .18s ease;
     }
-    .quick-search-btn:hover { color: var(--text); border-color: var(--line-strong); background: rgba(255,255,255,.06); transform: translateY(-1px); }
-    .quick-search-btn svg, .search-box svg { width: 15px; height: 15px; stroke: currentColor; }
+    .quick-search-btn:hover { color: var(--text); border-color: rgba(56,189,248,.42); background: rgba(56,189,248,.10); transform: translateY(-1px); }
+    .quick-search-btn svg, .command-search svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
-    .hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr); gap: 16px; margin-bottom: 28px; }
-    .panel { border: 1px solid var(--line); border-radius: 24px; background: linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.024)); box-shadow: 0 18px 54px rgba(0,0,0,.20); }
-    .hero-main { padding: 24px; }
-    .hero-side { padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; }
-    .kicker { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--blue); font-size: 10px; font-weight: 900; letter-spacing: 1.6px; text-transform: uppercase; }
-    .kicker::before { content: ''; width: 20px; height: 1px; background: var(--blue); opacity: .75; }
-    h1 { margin-bottom: 8px; font-size: clamp(34px, 4.2vw, 52px); line-height: .96; font-weight: 900; letter-spacing: -2.4px; }
-    .subtitle { color: var(--soft); font-size: 14px; line-height: 1.45; font-weight: 600; }
-    .search-box { position: relative; margin-top: 18px; }
-    .search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(198,206,216,.65); pointer-events: none; }
-    .search-box input { width: 100%; height: 46px; padding: 0 14px 0 42px; border: 1px solid var(--line); border-radius: 15px; outline: none; background: rgba(255,255,255,.04); color: var(--text); font-size: 13px; font-weight: 700; }
-    .search-box input:focus { border-color: rgba(56,189,248,.45); background: rgba(255,255,255,.06); }
-    .action-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
-    .action-tile, .quick-link { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.035); transition: .18s ease; }
-    .action-tile { min-height: 64px; padding: 12px; border-radius: 16px; }
-    .quick-link { padding: 11px 12px; border-radius: 14px; }
-    .action-tile:hover, .quick-link:hover { transform: translateY(-1px); border-color: var(--line-strong); background: rgba(255,255,255,.055); }
-    .action-tile strong, .quick-link strong { display: block; color: var(--text); font-size: 12px; font-weight: 900; margin-bottom: 2px; }
-    .action-tile span, .quick-link span { color: var(--muted); font-size: 10.5px; font-weight: 700; line-height: 1.25; }
-    .arrow { color: var(--blue); font-size: 16px; font-weight: 900; }
-    .side-title { margin-bottom: 7px; font-size: 20px; font-weight: 900; letter-spacing: -.6px; line-height: 1.08; }
-    .side-desc, .side-note { color: var(--muted); font-size: 12px; line-height: 1.4; font-weight: 650; }
-    .side-note { padding-top: 13px; border-top: 1px solid var(--line); font-size: 11px; }
-    .quick-stack { display: grid; gap: 8px; margin-top: 14px; }
+    .command-panel {
+      position: relative;
+      z-index: 20;
+      margin-bottom: 28px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,.058), rgba(255,255,255,.025));
+      box-shadow: var(--shadow);
+    }
+    .command-search { position: relative; }
+    .command-search svg { position: absolute; left: 17px; top: 50%; transform: translateY(-50%); color: rgba(203,213,225,.62); pointer-events: none; }
+    .command-search input {
+      width: 100%;
+      height: 58px;
+      padding: 0 18px 0 48px;
+      border: 1px solid rgba(148,163,184,.18);
+      border-radius: 18px;
+      outline: none;
+      background: rgba(4,7,12,.68);
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 750;
+    }
+    .command-search input::placeholder { color: rgba(135,147,163,.80); }
+    .command-search input:focus { border-color: rgba(56,189,248,.55); box-shadow: 0 0 0 4px rgba(56,189,248,.10); }
+    .search-dropdown {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: calc(100% - 4px);
+      z-index: 30;
+      display: none;
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,.24);
+      border-radius: 18px;
+      background: rgba(8,12,18,.98);
+      box-shadow: 0 24px 70px rgba(0,0,0,.48);
+    }
+    .search-dropdown.is-open { display: block; }
+    .search-result, .search-empty {
+      width: 100%;
+      display: grid;
+      gap: 4px;
+      padding: 14px 16px;
+      border: 0;
+      border-bottom: 1px solid rgba(148,163,184,.10);
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+    }
+    .search-result:last-child, .search-empty:last-child { border-bottom: 0; }
+    .search-result:hover, .search-result.is-active { background: rgba(56,189,248,.10); }
+    .result-name { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 900; }
+    .result-meta { color: var(--blue); font-size: 10px; font-weight: 900; letter-spacing: 1.1px; text-transform: uppercase; }
+    .result-desc, .search-empty { color: var(--muted); font-size: 12px; font-weight: 650; line-height: 1.35; }
 
-    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin: 34px 0 16px; }
-    .section-title { font-size: 18px; font-weight: 900; letter-spacing: -.3px; }
-    .section-note { color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; }
-    .bento-grid { display: grid; gap: 14px; margin-bottom: 18px; grid-auto-flow: dense; }
-    #gridCamara { grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr); grid-template-rows: repeat(2, minmax(0, 1fr)); }
-    #gridAr { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .bento-card { min-height: 190px; display: flex; flex-direction: column; justify-content: space-between; gap: 22px; padding: 22px; border: 1px solid var(--line); border-radius: 22px; background: var(--card); cursor: pointer; position: relative; overflow: hidden; transition: .18s ease; }
-    .bento-card.is-hidden { display: none; }
-    .bento-card::before { content: ''; position: absolute; inset: 0; border-top: 2px solid var(--card-color); opacity: .75; pointer-events: none; }
-    .bento-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--card-color) 45%, var(--line)); background: var(--card-hover); box-shadow: 0 18px 42px rgba(0,0,0,.22); }
-    #gridCamara [data-id="gabinete"] { grid-column: 1; grid-row: 1 / span 2; min-height: 344px; }
-    #gridCamara [data-id="corte"] { grid-column: 2; grid-row: 1; min-height: 0; }
-    #gridCamara [data-id="checklist"] { grid-column: 2; grid-row: 2; min-height: 0; }
-    #gridCamara [data-id="gabinete"] .card-title { font-size: 30px; letter-spacing: -1px; }
-    #gridCamara [data-id="gabinete"] .card-desc { max-width: 520px; font-size: 15px; }
-    #gridAr [data-id] { grid-column: span 2; }
-    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-    .icon-box { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 15px; color: var(--card-color); background: color-mix(in srgb, var(--card-color) 11%, transparent); border: 1px solid color-mix(in srgb, var(--card-color) 30%, transparent); }
-    .icon-box svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-    .badge, .lab-card-badge { display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); font-weight: 900; text-transform: uppercase; white-space: nowrap; }
-    .badge { min-height: 26px; padding: 6px 10px; color: var(--soft); font-size: 10px; letter-spacing: .8px; }
-    .card-category { margin-bottom: 10px; color: var(--card-color); font-size: 11px; font-weight: 900; letter-spacing: 1.1px; text-transform: uppercase; }
-    .card-title { margin-bottom: 10px; font-size: 20px; font-weight: 850; letter-spacing: -.45px; line-height: 1.12; }
-    .card-desc { color: var(--muted); font-size: 13px; font-weight: 600; line-height: 1.45; }
-    .card-action { display: inline-flex; gap: 7px; margin-top: 18px; color: var(--soft); font-size: 12px; font-weight: 850; }
-    .card-action::after { content: '→'; color: var(--card-color); }
+    .section { margin-top: 30px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+    .section-title { font-size: 18px; font-weight: 900; letter-spacing: -.35px; }
+    .section-count { color: rgba(135,147,163,.72); font-size: 11px; font-weight: 850; }
+    .tool-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+    .tool-card {
+      position: relative;
+      min-height: 162px;
+      grid-column: span 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.022)), var(--card);
+      color: var(--text);
+      overflow: hidden;
+      transition: .18s ease;
+    }
+    .tool-card::before { content: ''; position: absolute; inset: 0; border-top: 2px solid var(--card-color); opacity: .82; pointer-events: none; }
+    .tool-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--card-color) 46%, var(--line)); background: var(--card-hover); box-shadow: 0 18px 44px rgba(0,0,0,.25); }
+    .tool-card.featured { min-height: 220px; grid-column: span 4; background: linear-gradient(145deg, rgba(18,27,38,.98), rgba(12,18,26,.94)); }
+    .tool-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .icon-box { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; color: var(--card-color); background: color-mix(in srgb, var(--card-color) 12%, transparent); border: 1px solid color-mix(in srgb, var(--card-color) 32%, transparent); }
+    .icon-box svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .tool-kind { color: var(--card-color); font-size: 10px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; }
+    .tool-name { margin-top: 9px; font-size: 21px; line-height: 1.05; font-weight: 900; letter-spacing: -.55px; }
+    .tool-card.featured .tool-name { font-size: clamp(28px, 4vw, 42px); letter-spacing: -1.5px; }
+    .tool-short { margin-top: 8px; max-width: 520px; color: var(--muted); font-size: 13px; font-weight: 650; line-height: 1.4; }
+    .tool-action { display: inline-flex; align-items: center; gap: 7px; width: max-content; color: var(--soft); font-size: 12px; font-weight: 900; }
+    .tool-action::after { content: '→'; color: var(--card-color); }
+    .detail-pop {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      z-index: 3;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      padding: 12px;
+      border: 1px solid rgba(148,163,184,.18);
+      border-radius: 14px;
+      background: rgba(5,8,13,.94);
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.4;
+      box-shadow: 0 16px 40px rgba(0,0,0,.35);
+      transition: .16s ease;
+    }
+    .tool-card:hover .detail-pop, .tool-card:focus-within .detail-pop { opacity: 1; transform: translateY(0); }
 
-    .overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(3,6,10,.76); backdrop-filter: blur(14px); }
+    .lab-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .lab-card { min-height: 112px; grid-column: span 1; padding: 15px; border-radius: 18px; }
+    .lab-card .tool-name { font-size: 15px; letter-spacing: -.2px; }
+    .lab-card .tool-short { font-size: 11.5px; }
+    .lab-card .icon-box { width: 34px; height: 34px; border-radius: 12px; }
+    .lab-card .icon-box svg { width: 18px; height: 18px; }
+
+    .overlay, .quick-search-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(3,6,10,.78); backdrop-filter: blur(16px); }
     .overlay.is-open, .quick-search-modal.active { display: flex; }
-    .panel-modal { width: min(980px, 100%); max-height: min(86vh, 780px); overflow: auto; border: 1px solid var(--line-strong); border-radius: 26px; background: #0f141b; box-shadow: 0 32px 110px rgba(0,0,0,.55); padding: 28px; }
-    .modal-head { display: flex; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
-    .modal-title { font-size: 28px; font-weight: 900; letter-spacing: -.8px; }
-    .modal-desc { max-width: 620px; margin-top: 10px; color: var(--muted); font-size: 13px; font-weight: 600; line-height: 1.5; }
-    .close-btn { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.05); color: var(--text); cursor: pointer; font-size: 22px; }
-    .labs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
-    .lab-card { min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.035); transition: .18s ease; }
-    .lab-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--lab-color) 45%, var(--line)); background: rgba(255,255,255,.055); }
-    .lab-card .icon-box { width: 40px; height: 40px; color: var(--lab-color); background: color-mix(in srgb, var(--lab-color) 12%, transparent); border-color: color-mix(in srgb, var(--lab-color) 30%, transparent); }
-    .lab-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-    .lab-card-title { margin-bottom: 7px; font-size: 14px; font-weight: 900; line-height: 1.22; }
-    .lab-card-desc { color: var(--muted); font-size: 12px; font-weight: 600; line-height: 1.45; }
-    .lab-card-meta { color: var(--lab-color); font-size: 10px; font-weight: 900; letter-spacing: 1.1px; text-transform: uppercase; }
-    .lab-card-badge { min-height: 24px; padding: 5px 9px; color: var(--lab-color); font-size: 9px; letter-spacing: .8px; }
-
-    .quick-search-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(3,6,10,.76); backdrop-filter: blur(14px); }
-    .quick-search-content { position: relative; width: min(1180px, 100%); height: min(86vh, 760px); overflow: hidden; border: 1px solid var(--line-strong); border-radius: 26px; background: #0f141b; box-shadow: 0 32px 110px rgba(0,0,0,.55); }
-    .quick-search-close { position: absolute; top: 14px; right: 14px; z-index: 2; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 50%; background: rgba(255,255,255,.08); color: var(--text); cursor: pointer; font-size: 24px; }
+    .panel-modal, .quick-search-content { width: min(980px, 100%); max-height: min(86vh, 780px); overflow: auto; border: 1px solid var(--line-strong); border-radius: 26px; background: #0f141b; box-shadow: 0 32px 110px rgba(0,0,0,.55); }
+    .panel-modal { padding: 26px; }
+    .modal-head { display: flex; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    .modal-title { font-size: 26px; font-weight: 900; letter-spacing: -.8px; }
+    .modal-desc { margin-top: 8px; color: var(--muted); font-size: 13px; font-weight: 650; }
+    .close-btn, .quick-search-close { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.05); color: var(--text); font-size: 22px; flex: 0 0 auto; }
+    .hidden-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+    .quick-search-content { position: relative; height: min(86vh, 760px); overflow: hidden; }
+    .quick-search-close { position: absolute; top: 14px; right: 14px; z-index: 2; border-radius: 50%; background: rgba(255,255,255,.08); }
     .quick-search-content iframe { width: 100%; height: 100%; border: 0; background: #0b0d10; }
 
-    .meta-footer { margin-top: 44px; padding-top: 14px; border-top: 1px solid rgba(148,163,184,.10); display: flex; align-items: center; justify-content: space-between; gap: 18px; color: rgba(139,150,165,.78); }
-    .status-line { display: flex; align-items: center; gap: 7px; color: rgba(198,206,216,.72); font-size: 12px; font-weight: 800; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(34,197,94,.75); }
+    .meta-footer { margin-top: 38px; padding-top: 14px; border-top: 1px solid rgba(148,163,184,.10); display: flex; align-items: center; justify-content: space-between; gap: 18px; color: rgba(139,150,165,.78); }
+    .status-line { display: flex; align-items: center; gap: 7px; color: rgba(203,213,225,.72); font-size: 12px; font-weight: 800; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(34,197,94,.82); box-shadow: 0 0 0 5px rgba(34,197,94,.08); }
     .footer-small { margin-top: 4px; color: rgba(139,150,165,.62); font-size: 11px; font-weight: 600; line-height: 1.35; }
     .update-hover { position: relative; display: inline-flex; flex-direction: column; align-items: flex-end; }
-    #update-title { position: absolute; right: 0; bottom: calc(100% + 6px); opacity: 0; visibility: hidden; transform: translateY(3px); padding: 6px 8px; border: 1px solid rgba(148,163,184,.14); border-radius: 8px; background: rgba(15,20,27,.92); color: rgba(198,206,216,.78); font-size: 10px; font-weight: 700; white-space: nowrap; transition: .14s ease; }
+    #update-title { position: absolute; right: 0; bottom: calc(100% + 6px); opacity: 0; visibility: hidden; transform: translateY(3px); padding: 6px 8px; border: 1px solid rgba(148,163,184,.14); border-radius: 8px; background: rgba(15,20,27,.94); color: rgba(203,213,225,.82); font-size: 10px; font-weight: 700; white-space: nowrap; transition: .14s ease; }
     .update-hover:hover #update-title, .update-hover:focus-within #update-title { opacity: 1; visibility: visible; transform: translateY(0); }
     #update-datetime { margin-top: 4px; color: rgba(139,150,165,.58); font-size: 10px; font-weight: 700; cursor: help; }
 
-    @media (max-width: 960px) {
-      .hero { grid-template-columns: 1fr; }
-      .action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      #gridCamara, #gridAr { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; }
-      #gridCamara [data-id="gabinete"], #gridAr [data-id="scraper"] { grid-column: span 2; grid-row: auto; min-height: 240px; }
-      #gridCamara [data-id="corte"], #gridCamara [data-id="checklist"], #gridAr [data-id] { grid-column: span 1; grid-row: auto; }
+    @media (max-width: 980px) {
+      .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tool-card, .tool-card.featured { grid-column: span 1; min-height: 168px; }
+      .lab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar { align-items: flex-start; }
+      .brand { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .brand-divider { display: none; }
     }
-    @media (max-width: 720px) {
-      .container { width: min(100% - 28px, 1180px); padding: 24px 0 36px; }
-      .topbar, .meta-footer { align-items: flex-start; flex-direction: column; }
-      .action-grid, #gridCamara, #gridAr { grid-template-columns: 1fr; }
-      #gridCamara [data-id], #gridAr [data-id] { grid-column: 1; grid-row: auto; min-height: auto; }
-      .bento-card { min-height: auto; padding: 19px; border-radius: 19px; }
-      #gridCamara [data-id="gabinete"] .card-title { font-size: 22px; }
-      .section-head { align-items: flex-start; flex-direction: column; gap: 6px; }
-      .section-note { text-align: left; }
+    @media (max-width: 680px) {
+      .container { width: min(100% - 28px, 1160px); padding: 22px 0 34px; }
+      .topbar { flex-direction: column; }
+      .quick-search-btn { width: 100%; justify-content: center; }
+      .command-panel { border-radius: 20px; padding: 9px; }
+      .command-search input { height: 54px; font-size: 16px; }
+      .search-dropdown { left: 9px; right: 9px; }
+      .section-head { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .tool-grid, .lab-grid { grid-template-columns: 1fr; }
+      .tool-card, .tool-card.featured, .lab-card { min-height: auto; }
+      .detail-pop { position: static; opacity: 1; transform: none; margin-top: 12px; display: none; }
+      .tool-card:focus-within .detail-pop { display: block; }
       .overlay, .quick-search-modal { padding: 10px; align-items: stretch; }
       .panel-modal { padding: 20px 16px; border-radius: 20px; max-height: calc(100dvh - 20px); }
       .quick-search-content { height: calc(100dvh - 20px); border-radius: 20px; }
+      .meta-footer { align-items: flex-start; flex-direction: column; }
       .update-hover { align-items: flex-start; }
       #update-title { left: 0; right: auto; }
     }
   </style>
   <script src="analytics.js" defer></script>
+  <script src="ultimo_log.js"></script>
 </head>
 <body>
   <div class="container">
     <header class="topbar">
-      <div id="thiagoLogo" class="signature" title="Thiago Luz">
-        <span class="signature-mark"></span>
-        <span>THIAGO LUZ</span>
+      <div class="brand">
+        <div id="thiagoLogo" class="signature" title="Thiago Luz">
+          <span class="signature-mark"></span>
+          <span>THIAGO LUZ</span>
+        </div>
+        <span class="brand-divider"></span>
+        <h1>Hub</h1>
       </div>
-      <button id="quickSearchBtn" class="quick-search-btn" type="button" title="Abrir busca rápida">
-        <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <span>Busca rápida</span>
+      <button id="quickSearchBtn" class="quick-search-btn" type="button" title="Abrir Scraper Dufrio">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span>Busca rápida: Dufrio</span>
       </button>
     </header>
 
-    <section class="hero" aria-labelledby="mainTitle">
-      <div class="panel hero-main">
-        <div class="kicker">Central de trabalho</div>
-        <h1 id="mainTitle">Hub de Ferramentas</h1>
-        <p class="subtitle">Busque uma ferramenta ou comece por uma ação rápida.</p>
-        <div class="search-box">
-          <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input id="toolSearchInput" type="search" placeholder="Buscar: scraper, câmara, checklist, preço, cotação..." autocomplete="off">
-        </div>
-        <div class="action-grid" aria-label="Ações rápidas">
-          <a class="action-tile" href="scraper-ar.html"><span><strong>Buscar preços</strong><span>Scraper oficial</span></span><span class="arrow">→</span></a>
-          <a class="action-tile" href="simulador-gabinete.html"><span><strong>Montar câmara</strong><span>Simulador 3D</span></span><span class="arrow">→</span></a>
-          <a class="action-tile" href="comparador-ar.html"><span><strong>Comparar ar</strong><span>Ofertas por loja</span></span><span class="arrow">→</span></a>
-          <a class="action-tile" href="precificacao-ar.html"><span><strong>Precificar SKU</strong><span>Site x 365</span></span><span class="arrow">→</span></a>
-          <a class="action-tile" href="cotacoes.html"><span><strong>Cotação express</strong><span>Infraestrutura</span></span><span class="arrow">→</span></a>
-          <a class="action-tile" href="CheckList.html"><span><strong>Gerar checklist</strong><span>PDF técnico</span></span><span class="arrow">→</span></a>
-        </div>
+    <section class="command-panel" aria-label="Busca de ferramentas">
+      <div class="command-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input id="toolSearchInput" type="search" placeholder="Buscar ferramenta, loja ou scraper..." autocomplete="off" aria-controls="searchDropdown" aria-expanded="false">
       </div>
-
-      <aside class="panel hero-side" aria-label="Acesso por objetivo">
-        <div>
-          <div class="kicker">Próximo passo</div>
-          <div class="side-title">Use pelo objetivo, não pelo nome.</div>
-          <p class="side-desc">Atalhos para as rotinas mais comuns do dia a dia.</p>
-          <div class="quick-stack">
-            <a class="quick-link" href="#arTitle"><span><strong>Analisar mercado</strong><span>Scraper, comparação e precificação</span></span><span class="arrow">↓</span></a>
-            <a class="quick-link" href="#camaraTitle"><span><strong>Orçar câmara fria</strong><span>Simulador, corte e checklist</span></span><span class="arrow">↓</span></a>
-          </div>
-        </div>
-        <p class="side-note">Dica: use a busca acima para filtrar os cards da página.</p>
-      </aside>
+      <div id="searchDropdown" class="search-dropdown" role="listbox"></div>
     </section>
 
-    <section aria-labelledby="camaraTitle">
-      <div class="section-head">
-        <div><div class="kicker">Orçamento técnico</div><h2 id="camaraTitle" class="section-title">Câmara fria</h2></div>
-        <p class="section-note">Cálculo, checklist e apoio visual para vender melhor.</p>
-      </div>
-      <div class="bento-grid" id="gridCamara"></div>
-    </section>
+    <main>
+      <section class="section" aria-labelledby="arTitle">
+        <div class="section-head">
+          <h2 id="arTitle" class="section-title">Ar-condicionado</h2>
+          <span class="section-count">3 ferramentas</span>
+        </div>
+        <div class="tool-grid" id="gridAr"></div>
+      </section>
 
-    <section aria-labelledby="arTitle">
-      <div class="section-head">
-        <div><div class="kicker">Mercado e preço</div><h2 id="arTitle" class="section-title">Ar-condicionado</h2></div>
-        <p class="section-note">Scrapers, comparação de ofertas e precificação.</p>
-      </div>
-      <div class="bento-grid" id="gridAr"></div>
-    </section>
+      <section class="section" aria-labelledby="camaraTitle">
+        <div class="section-head">
+          <h2 id="camaraTitle" class="section-title">Câmara fria</h2>
+          <span class="section-count">3 ferramentas</span>
+        </div>
+        <div class="tool-grid" id="gridCamara"></div>
+      </section>
+
+      <section class="section" aria-labelledby="labsTitle">
+        <div class="section-head">
+          <h2 id="labsTitle" class="section-title">Laboratório de Scrapers</h2>
+          <span class="section-count">8 lojas</span>
+        </div>
+        <div class="tool-grid lab-grid" id="gridLabs"></div>
+      </section>
+    </main>
 
     <footer class="meta-footer">
       <div>
@@ -237,16 +301,16 @@
         <p class="footer-small">criado em 16/09/2024.</p>
       </div>
       <div class="update-hover">
-        <div id="update-datetime" tabindex="0" aria-describedby="update-title">18/06/2026 às 18:46</div>
-        <div id="update-title" role="tooltip">Busca rápida ajustada</div>
+        <div id="update-datetime" tabindex="0" aria-describedby="update-title">19/06/2026 às 17:46</div>
+        <div id="update-title" role="tooltip">Hub operacional simplificado</div>
       </div>
     </footer>
   </div>
 
-  <div id="quickSearchModal" class="quick-search-modal" role="dialog" aria-modal="true" aria-label="Busca rápida">
+  <div id="quickSearchModal" class="quick-search-modal" role="dialog" aria-modal="true" aria-label="Busca rápida Dufrio">
     <div class="quick-search-content">
       <button class="quick-search-close" id="closeQuickSearchBtn" type="button" aria-label="Fechar busca rápida">&times;</button>
-      <iframe id="quickSearchIframe" src="" title="Busca rápida"></iframe>
+      <iframe id="quickSearchIframe" src="" title="Busca rápida Dufrio"></iframe>
     </div>
   </div>
 
@@ -261,74 +325,147 @@
     const svgBox3D = `<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>`;
     const svgScraper = `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><polyline points="8 11 10 13 14 9"></polyline></svg>`;
 
+    const updatesData = {
+      updates: [
+        {
+          date: '19/06/2026',
+          time: '17:46',
+          title: 'Hub operacional simplificado',
+          description: 'Index redesenhado como painel interno, com busca inteligente, categorias diretas e laboratório de scrapers visível.'
+        }
+      ]
+    };
+
     const SCRAPER_LABS = [
-      { nome: 'Scraper Clima Rio', desc: 'Teste individual da loja Clima Rio.', arquivo: 'scraper-climario.html', color: '#f59e0b' },
-      { nome: 'Scraper Frigelar', desc: 'Teste individual da loja Frigelar.', arquivo: 'scraper-frigelar.html', color: '#22c55e' },
-      { nome: 'Scraper Leveros', desc: 'Teste individual da loja Leveros.', arquivo: 'scraper-leveros.html', color: '#fb923c' },
-      { nome: 'Scraper Central Ar', desc: 'Teste individual da loja Central Ar.', arquivo: 'scraper-centralar.html', color: '#ec4899' },
-      { nome: 'Scraper Dufrio', desc: 'Teste individual da loja Dufrio.', arquivo: 'scraper-dufrio.html', color: '#38bdf8' },
-      { nome: 'Scraper FrioPeças', desc: 'Teste individual da loja FrioPeças.', arquivo: 'scraper-friopecas.html', color: '#60a5fa' },
-      { nome: 'Scraper Polo Ar', desc: 'Teste individual da loja Polo Ar.', arquivo: 'scraper-poloar.html', color: '#ef4444' },
-      { nome: 'Scraper WebContinental', desc: 'Teste individual da loja WebContinental.', arquivo: 'scraper-webcontinental.html', color: '#14b8a6' }
+      { nome: 'Scraper Dufrio', short: 'Busca direta na Dufrio.', detail: 'Abre o scraper individual da Dufrio para consulta rápida de produtos e preços.', arquivo: 'scraper-dufrio.html', color: '#38bdf8', loja: 'Dufrio', aliases: 'dufrio busca rápida oficial' },
+      { nome: 'Scraper Clima Rio', short: 'Busca direta na Clima Rio.', detail: 'Abre o scraper individual da Clima Rio para validar ofertas e links dessa loja.', arquivo: 'scraper-climario.html', color: '#f59e0b', loja: 'Clima Rio', aliases: 'climario clima rio' },
+      { nome: 'Scraper Frigelar', short: 'Busca direta na Frigelar.', detail: 'Abre o scraper individual da Frigelar para consulta e teste da loja.', arquivo: 'scraper-frigelar.html', color: '#22c55e', loja: 'Frigelar', aliases: 'frigelar' },
+      { nome: 'Scraper Leveros', short: 'Busca direta na Leveros.', detail: 'Abre o scraper individual da Leveros para consulta e teste da loja.', arquivo: 'scraper-leveros.html', color: '#fb923c', loja: 'Leveros', aliases: 'leveros' },
+      { nome: 'Scraper Central Ar', short: 'Busca direta na Central Ar.', detail: 'Abre o scraper individual da Central Ar para consulta e teste da loja.', arquivo: 'scraper-centralar.html', color: '#ec4899', loja: 'Central Ar', aliases: 'central ar centralar' },
+      { nome: 'Scraper FrioPeças', short: 'Busca direta na FrioPeças.', detail: 'Abre o scraper individual da FrioPeças para consulta e teste da loja.', arquivo: 'scraper-friopecas.html', color: '#60a5fa', loja: 'FrioPeças', aliases: 'friopecas frio peças friopecas' },
+      { nome: 'Scraper Polo Ar', short: 'Busca direta na Polo Ar.', detail: 'Abre o scraper individual da Polo Ar para consulta e teste da loja.', arquivo: 'scraper-poloar.html', color: '#ef4444', loja: 'Polo Ar', aliases: 'polo ar poloar' },
+      { nome: 'Scraper WebContinental', short: 'Busca direta na WebContinental.', detail: 'Abre o scraper individual da WebContinental para consulta e teste da loja.', arquivo: 'scraper-webcontinental.html', color: '#14b8a6', loja: 'WebContinental', aliases: 'webcontinental web continental' }
     ];
 
     const ferramentas = [
-      { nome: 'Simulador 3D', categoria: 'Câmara fria', desc: 'Visualize o gabinete e gere o cálculo de painéis para orçamento.', arquivo: 'simulador-gabinete.html', icone: svgBox3D, color: '#38bdf8', slug: 'gabinete', category: 'camara' },
-      { nome: 'Plano de corte', categoria: 'Câmara fria', desc: 'Otimize o aproveitamento de painéis PIR/EPS e reduza desperdícios.', arquivo: 'plano-corte.html', icone: svgCorte, color: '#f97316', slug: 'corte', category: 'camara' },
-      { nome: 'Checklist em PDF', categoria: 'Câmara fria', desc: 'Padronize o levantamento de dados e gere checklist para orçamento.', arquivo: 'CheckList.html', icone: svgChecklist, color: '#22c55e', slug: 'checklist', category: 'camara' },
-      { nome: 'Scraper Oficial', categoria: 'Análise de mercado', desc: 'Busque preços nas lojas monitoradas e organize referências comerciais.', arquivo: 'scraper-ar.html', icone: svgScraper, color: '#f59e0b', slug: 'scraper', category: 'ar' },
-      { nome: 'Comparador de preços', categoria: 'Ar-condicionado', desc: 'Compare ofertas entre lojas e encontre a melhor referência para venda.', arquivo: 'comparador-ar.html', icone: svgComparar, color: '#818cf8', slug: 'comparador', category: 'ar' },
-      { nome: 'Precificação', categoria: 'Site x 365', desc: 'Ajuste valores entre site e 365 com cálculo proporcional por SKU.', arquivo: 'precificacao-ar.html', icone: svgPrecificar, color: '#0ea5e9', slug: 'precificacao', category: 'ar' },
-      { nome: 'Laboratório de Scrapers', categoria: 'Testes', badge: 'Laboratório', desc: 'Valide cada loja individualmente antes de usar no Scraper Oficial.', arquivo: '#laboratorios', icone: svgScraper, color: '#22c55e', slug: 'scraper-labs', category: 'ar', isLabGroup: true },
-      { nome: 'Extrator de Códigos', categoria: 'Utilitário', desc: 'Cole uma lista e extraia códigos com quantidade em estoque.', arquivo: 'itens-quantidade.html', icone: svgFiltro, color: '#d946ef', slug: 'extracao', category: 'hidden' },
-      { nome: 'Preços ao Vivo', categoria: 'Extensão', badge: 'Em produção', desc: 'Visualize ofertas capturadas pela extensão nas abas abertas.', arquivo: 'precos-ao-vivo.html', icone: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>', color: '#22c55e', slug: 'precos-vivo', category: 'hidden' },
-      { nome: 'Cotação Express', categoria: 'Infraestrutura', desc: 'Gere orçamentos rápidos de infraestrutura para instalação.', arquivo: 'cotacoes.html', icone: svgCotar, color: '#a78bfa', slug: 'cotacao', category: 'hidden' },
-      { nome: 'Baixar Extensão', categoria: 'Sistema', desc: 'Baixe a extensão do Hub para instalar no Chrome ou Edge.', arquivo: 'baixar-extensao.html', icone: svgDownload, color: '#94a3b8', slug: 'download', category: 'hidden' }
+      { nome: 'Scraper Oficial', categoria: 'Ar-condicionado', short: 'Busca geral de ar-condicionado.', detail: 'Pesquisa preços nas lojas monitoradas e organiza resultados para comparação comercial.', arquivo: 'scraper-ar.html', icone: svgScraper, color: '#f59e0b', slug: 'scraper', category: 'ar', featured: true, aliases: 'ar condicionado split inverter preço busca mercado lojas' },
+      { nome: 'Comparador de preços', categoria: 'Ar-condicionado', short: 'Compara ofertas entre lojas.', detail: 'Mostra referências por loja para ajudar a entender preço, disponibilidade e oportunidade.', arquivo: 'comparador-ar.html', icone: svgComparar, color: '#818cf8', slug: 'comparador', category: 'ar', aliases: 'comparar comparação ofertas lojas ar condicionado' },
+      { nome: 'Precificação', categoria: 'Site x 365', short: 'Calcula Site x 365.', detail: 'Ajusta valores entre site e Dynamics 365 com cálculo proporcional por SKU.', arquivo: 'precificacao-ar.html', icone: svgPrecificar, color: '#0ea5e9', slug: 'precificacao', category: 'ar', aliases: 'preço precificar sku 365 site dynamics' },
+      { nome: 'Simulador 3D', categoria: 'Câmara fria', short: 'Monta câmara fria.', detail: 'Visualiza o gabinete e gera apoio de cálculo de painéis para orçamento.', arquivo: 'simulador-gabinete.html', icone: svgBox3D, color: '#38bdf8', slug: 'gabinete', category: 'camara', aliases: 'camara fria gabinete simulador 3d painel' },
+      { nome: 'Plano de corte', categoria: 'Câmara fria', short: 'Otimiza painéis.', detail: 'Organiza o aproveitamento de painéis PIR/EPS para reduzir sobra no orçamento.', arquivo: 'plano-corte.html', icone: svgCorte, color: '#f97316', slug: 'corte', category: 'camara', aliases: 'corte painel pir eps camara fria' },
+      { nome: 'Checklist em PDF', categoria: 'Câmara fria', short: 'Gera PDF técnico.', detail: 'Padroniza levantamento de dados e gera checklist técnico para orçamento de câmara fria.', arquivo: 'CheckList.html', icone: svgChecklist, color: '#22c55e', slug: 'checklist', category: 'camara', aliases: 'check list pdf técnico orçamento câmara fria' },
+      { nome: 'Extrator de Códigos', categoria: 'Utilitário', short: 'Extrai códigos e estoque.', detail: 'Cole uma lista e extraia códigos com quantidade em estoque.', arquivo: 'itens-quantidade.html', icone: svgFiltro, color: '#d946ef', slug: 'extracao', category: 'hidden' },
+      { nome: 'Preços ao Vivo', categoria: 'Extensão', short: 'Ofertas capturadas.', detail: 'Visualize ofertas capturadas pela extensão nas abas abertas.', arquivo: 'precos-ao-vivo.html', icone: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>', color: '#22c55e', slug: 'precos-vivo', category: 'hidden' },
+      { nome: 'Cotação Express', categoria: 'Infraestrutura', short: 'Orçamento rápido.', detail: 'Gere orçamentos rápidos de infraestrutura para instalação.', arquivo: 'cotacoes.html', icone: svgCotar, color: '#a78bfa', slug: 'cotacao', category: 'hidden' },
+      { nome: 'Baixar Extensão', categoria: 'Sistema', short: 'Instalar extensão.', detail: 'Baixe a extensão do Hub para instalar no Chrome ou Edge.', arquivo: 'baixar-extensao.html', icone: svgDownload, color: '#94a3b8', slug: 'download', category: 'hidden' }
     ];
 
-    function openToolItem(f) {
-      if (!f) return;
-      if (f.isLabGroup) return openLabsPanel();
-      window.location.href = f.arquivo;
+    function normalizeText(value) {
+      return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    }
+
+    function openToolItem(item) {
+      if (!item) return;
+      window.location.href = item.arquivo;
+    }
+
+    function createCard(item, extraClass = '') {
+      const card = document.createElement('a');
+      card.className = `tool-card ${item.featured ? 'featured' : ''} ${extraClass}`.trim();
+      card.href = item.arquivo;
+      card.style.setProperty('--card-color', item.color);
+      card.title = item.detail;
+      card.innerHTML = `
+        <div class="tool-top">
+          <div class="icon-box">${item.icone || svgScraper}</div>
+          <span class="tool-kind">${item.categoria || item.loja || 'Ferramenta'}</span>
+        </div>
+        <div>
+          <div class="tool-name">${item.nome}</div>
+          <p class="tool-short">${item.short}</p>
+          <span class="tool-action">Abrir</span>
+        </div>
+        <div class="detail-pop">${item.detail}</div>
+      `;
+      return card;
     }
 
     function renderCards() {
-      const gridC = document.getElementById('gridCamara');
-      const gridA = document.getElementById('gridAr');
-      ferramentas.forEach(f => {
-        if (f.category === 'hidden') return;
-        const card = document.createElement('div');
-        card.className = 'bento-card';
-        card.dataset.id = f.slug;
-        card.dataset.search = `${f.nome} ${f.categoria} ${f.desc}`.toLowerCase();
-        card.tabIndex = 0;
-        card.setAttribute('role', 'button');
-        card.setAttribute('aria-label', `Abrir ${f.nome}`);
-        card.style.setProperty('--card-color', f.color);
-        card.addEventListener('click', () => openToolItem(f));
-        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openToolItem(f); } });
-        card.innerHTML = `<div class="card-top"><div class="icon-box">${f.icone}</div>${f.badge ? `<div class="badge">${f.badge}</div>` : ''}</div><div><div class="card-category">${f.categoria}</div><div class="card-title">${f.nome}</div><div class="card-desc">${f.desc}</div><div class="card-action">Abrir ferramenta</div></div>`;
-        if (f.category === 'camara') gridC.appendChild(card);
-        if (f.category === 'ar') gridA.appendChild(card);
-      });
+      const gridAr = document.getElementById('gridAr');
+      const gridCamara = document.getElementById('gridCamara');
+      const gridLabs = document.getElementById('gridLabs');
+      ferramentas.filter(item => item.category === 'ar').forEach(item => gridAr.appendChild(createCard(item)));
+      ferramentas.filter(item => item.category === 'camara').forEach(item => gridCamara.appendChild(createCard(item)));
+      SCRAPER_LABS.forEach(item => gridLabs.appendChild(createCard({ ...item, categoria: item.loja, icone: svgScraper }, 'lab-card')));
     }
 
-    function setupToolSearch() {
+    function getSearchItems() {
+      const visibleTools = ferramentas.filter(item => item.category !== 'hidden').map(item => ({ ...item, type: 'Ferramenta' }));
+      const labTools = SCRAPER_LABS.map(item => ({ ...item, categoria: 'Scraper de loja', icone: svgScraper, type: item.loja }));
+      return [...visibleTools, ...labTools].map(item => ({
+        ...item,
+        searchText: normalizeText(`${item.nome} ${item.categoria} ${item.short} ${item.detail} ${item.loja || ''} ${item.aliases || ''}`)
+      }));
+    }
+
+    function setupSearch() {
       const input = document.getElementById('toolSearchInput');
-      input?.addEventListener('input', () => {
-        const term = input.value.trim().toLowerCase();
-        document.querySelectorAll('.bento-card').forEach(card => card.classList.toggle('is-hidden', term && !card.dataset.search.includes(term)));
-      });
-    }
+      const dropdown = document.getElementById('searchDropdown');
+      const items = getSearchItems();
+      let activeIndex = -1;
+      let currentResults = [];
 
-    function createLabsPanel() {
-      const overlay = document.createElement('div');
-      overlay.id = 'labsOverlay';
-      overlay.className = 'overlay';
-      overlay.innerHTML = `<div class="panel-modal"><div class="modal-head"><div><div class="kicker">Área de testes</div><div class="modal-title">Laboratório de Scrapers</div><div class="modal-desc">Teste cada loja individualmente antes de centralizar a análise.</div></div><button class="close-btn" type="button" data-close-labs>&times;</button></div><div class="labs-grid">${SCRAPER_LABS.map(lab => `<a class="lab-card" href="${lab.arquivo}" style="--lab-color:${lab.color}"><div class="lab-card-top"><div class="icon-box">${svgScraper}</div></div><div><div class="lab-card-title">${lab.nome}</div><div class="lab-card-desc">${lab.desc}</div></div><div class="lab-card-meta">Abrir scraper</div></a>`).join('')}</div></div>`;
-      overlay.addEventListener('click', e => { if (e.target === overlay || e.target.closest('[data-close-labs]')) closePanel('labsOverlay'); });
-      document.body.appendChild(overlay);
-      return overlay;
+      function closeDropdown() {
+        dropdown.classList.remove('is-open');
+        input.setAttribute('aria-expanded', 'false');
+        activeIndex = -1;
+      }
+
+      function renderResults() {
+        const term = normalizeText(input.value.trim());
+        dropdown.innerHTML = '';
+        activeIndex = -1;
+        if (!term) return closeDropdown();
+
+        currentResults = items.filter(item => item.searchText.includes(term)).slice(0, 5);
+        dropdown.classList.add('is-open');
+        input.setAttribute('aria-expanded', 'true');
+
+        if (!currentResults.length) {
+          dropdown.innerHTML = '<div class="search-empty">Não encontrei. Tente buscar por loja, ferramenta ou categoria.</div>';
+          return;
+        }
+
+        currentResults.forEach((item, index) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'search-result';
+          button.setAttribute('role', 'option');
+          button.innerHTML = `<span class="result-name"><span>${item.nome}</span><span class="result-meta">${item.type || item.categoria}</span></span><span class="result-desc">${item.short}</span>`;
+          button.addEventListener('mouseenter', () => setActive(index));
+          button.addEventListener('click', () => openToolItem(item));
+          dropdown.appendChild(button);
+        });
+      }
+
+      function setActive(index) {
+        const buttons = dropdown.querySelectorAll('.search-result');
+        buttons.forEach(button => button.classList.remove('is-active'));
+        activeIndex = index;
+        buttons[index]?.classList.add('is-active');
+      }
+
+      input.addEventListener('input', renderResults);
+      input.addEventListener('focus', renderResults);
+      input.addEventListener('keydown', event => {
+        if (!dropdown.classList.contains('is-open')) return;
+        if (event.key === 'Escape') { closeDropdown(); return; }
+        if (!currentResults.length) return;
+        if (event.key === 'ArrowDown') { event.preventDefault(); setActive((activeIndex + 1) % currentResults.length); }
+        if (event.key === 'ArrowUp') { event.preventDefault(); setActive((activeIndex - 1 + currentResults.length) % currentResults.length); }
+        if (event.key === 'Enter') { event.preventDefault(); openToolItem(currentResults[Math.max(activeIndex, 0)]); }
+      });
+      document.addEventListener('click', event => { if (!event.target.closest('.command-panel')) closeDropdown(); });
     }
 
     function createHiddenToolsPanel() {
@@ -336,20 +473,10 @@
       const overlay = document.createElement('div');
       overlay.id = 'hiddenToolsOverlay';
       overlay.className = 'overlay';
-      overlay.innerHTML = `<div class="panel-modal"><div class="modal-head"><div><div class="kicker">Recursos internos</div><div class="modal-title">Ferramentas internas</div><div class="modal-desc">Utilitários ocultos da tela principal.</div></div><button class="close-btn" type="button" data-close-hidden-tools>&times;</button></div><div class="labs-grid">${hiddenTools.map(tool => `<a class="lab-card" href="${tool.arquivo}" data-tool-slug="${tool.slug}" style="--lab-color:${tool.color}"><div class="lab-card-top"><div class="icon-box">${tool.icone}</div>${tool.badge ? `<span class="lab-card-badge">${tool.badge}</span>` : ''}</div><div><div class="lab-card-title">${tool.nome}</div><div class="lab-card-desc">${tool.desc}</div></div><div class="lab-card-meta">Abrir ferramenta</div></a>`).join('')}</div></div>`;
-      overlay.addEventListener('click', e => {
-        const toolCard = e.target.closest('[data-tool-slug]');
-        if (toolCard) { e.preventDefault(); openToolItem(ferramentas.find(tool => tool.slug === toolCard.dataset.toolSlug)); return; }
-        if (e.target === overlay || e.target.closest('[data-close-hidden-tools]')) closePanel('hiddenToolsOverlay');
-      });
+      overlay.innerHTML = `<div class="panel-modal"><div class="modal-head"><div><div class="modal-title">Ferramentas internas</div><div class="modal-desc">Recursos ocultos da tela principal.</div></div><button class="close-btn" type="button" data-close-hidden-tools>&times;</button></div><div class="hidden-grid">${hiddenTools.map(tool => `<a class="tool-card lab-card" href="${tool.arquivo}" style="--card-color:${tool.color}"><div class="tool-top"><div class="icon-box">${tool.icone}</div><span class="tool-kind">${tool.categoria}</span></div><div><div class="tool-name">${tool.nome}</div><p class="tool-short">${tool.short}</p><span class="tool-action">Abrir</span></div><div class="detail-pop">${tool.detail}</div></a>`).join('')}</div></div>`;
+      overlay.addEventListener('click', event => { if (event.target === overlay || event.target.closest('[data-close-hidden-tools]')) closePanel('hiddenToolsOverlay'); });
       document.body.appendChild(overlay);
       return overlay;
-    }
-
-    function openLabsPanel() {
-      const panel = document.getElementById('labsOverlay') || createLabsPanel();
-      panel.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
     }
 
     function openHiddenToolsPanel() {
@@ -387,21 +514,42 @@
         document.body.style.overflow = 'hidden';
       });
       closeBtn?.addEventListener('click', () => closePanel('quickSearchModal'));
-      modal?.addEventListener('click', e => { if (e.target === modal) closePanel('quickSearchModal'); });
+      modal?.addEventListener('click', event => { if (event.target === modal) closePanel('quickSearchModal'); });
     }
 
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        closePanel('labsOverlay');
+    function renderLastUpdate() {
+      const dateEl = document.getElementById('update-datetime');
+      const titleEl = document.getElementById('update-title');
+      const latest = updatesData.updates[0];
+      let title = latest.title;
+      let datetime = `${latest.date} às ${latest.time}`;
+
+      if (typeof LATEST_LOG !== 'undefined' && LATEST_LOG?.message && LATEST_LOG?.dateIso) {
+        const parsed = new Date(LATEST_LOG.dateIso);
+        if (!Number.isNaN(parsed.getTime())) {
+          const date = parsed.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+          const time = parsed.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+          datetime = `${date} às ${time}`;
+          title = LATEST_LOG.message;
+        }
+      }
+
+      dateEl.textContent = datetime;
+      titleEl.textContent = title;
+    }
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
         closePanel('hiddenToolsOverlay');
         closePanel('quickSearchModal');
       }
     });
 
     renderCards();
-    setupToolSearch();
+    setupSearch();
     setupSecretAccess();
     setupQuickSearch();
+    renderLastUpdate();
   </script>
 </body>
 </html>
