@@ -1,4 +1,4 @@
-window.LATEST_LOG = { message: 'Simplifica Seletor UC x Evaporador', dateIso: '2026-06-24T16:25:42-03:00' };
+window.LATEST_LOG = { message: 'Ajusta hierarquia visual do Workbench', dateIso: '2026-06-24T17:10:00-03:00' };
 
 
 (function adicionarSeletorUcEvaporador() {
