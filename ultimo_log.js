@@ -1,4 +1,4 @@
-window.LATEST_LOG = { message: 'Otimiza Seletor UC x Evaporador no mobile', dateIso: '2026-06-24T18:49:40-03:00' };
+window.LATEST_LOG = { message: 'Ajusta rodape e internas do Workbench', dateIso: '2026-06-24T19:09:05-03:00' };
 
 
 (function adicionarSeletorUcEvaporador() {
