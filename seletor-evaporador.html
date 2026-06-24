@@ -12,14 +12,15 @@
 <body>
 <div class="container">
 <header class="top"><div class="brand"><div class="sig"><span class="mark"></span><span>THIAGO LUZ</span></div><span class="sep"></span><h1>Seletor</h1></div><a class="btn" href="index.html">← Voltar ao Hub</a></header>
-<section class="hero"><div class="eyebrow">Danfoss x Trineva</div><div class="title">UC x Evaporador compatível</div><div class="desc">Escolha a UC, a temperatura de evaporação e o ambiente. A ferramenta indica o menor evaporador Trineva compatível e mostra os kcal/h de catálogo da UC e do evaporador.</div></section>
+<section class="hero"><div class="eyebrow">Danfoss x Trineva</div><div class="title">UC x Evaporador compatível</div><div class="desc">Escolha a UC, a temperatura de evaporação e o ambiente. A ferramenta tenta primeiro a linha TRN e, se não atender, usa a linha maior FTBN, mostrando os kcal/h de catálogo da UC e do evaporador.</div></section>
 <main class="grid">
 <section class="card"><h2>Selecionar condições</h2><p>Escolha a UC, a evaporação e o ambiente.</p><div class="row"><div class="field"><label for="uc">UC</label><select id="uc"></select></div><div class="field"><label for="evap">Evaporação</label><select id="evap"></select></div><div class="field"><label for="amb">Ambiente</label><select id="amb"></select></div></div><button class="btn primary" id="manual">Atualizar indicação</button></section>
 <section class="card result-card"><h2>Resposta pronta</h2><p>A resposta atualiza automaticamente ao trocar os campos.</p><div class="out" id="saida"></div><div class="details" id="detalhes"></div></section>
-<section class="card rules-card"><h2>Regra usada</h2><p>Base restrita às duas referências enviadas.</p><div class="details">1. Buscar CC da UC Danfoss em kcal/h pela evaporação e ambiente.
-2. Procurar a tabela Trineva na mesma evaporação.
-3. Selecionar o menor TRN com capacidade igual ou maior.
-4. Se nenhum TRN único atender, mostrar aviso.</div></section>
+<section class="card rules-card"><h2>Regra usada</h2><p>Base restrita às referências enviadas.</p><div class="details">1. Buscar CC da UC Danfoss em kcal/h pela evaporação e ambiente.
+2. Tentar selecionar o menor TRN compatível.
+3. Se a linha TRN não atender, procurar a linha maior FTBN.
+4. Selecionar o menor evaporador com capacidade igual ou maior.
+5. Se nenhum evaporador único atender, mostrar aviso.</div></section>
 </main>
 </div>
 <script src="seletor-evaporador-dados.js"></script>
