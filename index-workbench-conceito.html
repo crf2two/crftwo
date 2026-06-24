@@ -18,7 +18,6 @@
       --quiet: #6f6a62;
       --accent: #b08d57;
       --ok: #6f9f7b;
-      --warn: #b96f5f;
       --row: #121416;
       --row-hover: #191c1f;
     }
@@ -39,7 +38,7 @@
       pointer-events: none;
       background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px);
       background-size: 28px 28px;
-      opacity: .42;
+      opacity: .34;
     }
     a { color: inherit; text-decoration: none; }
     button, input { font: inherit; }
@@ -128,26 +127,54 @@
     .fixed-link strong, .side-link strong, .hidden-link strong { font-size: 13px; line-height: 1.15; }
     .fixed-link span, .side-link span, .hidden-link span { color: var(--muted); font-size: 11px; line-height: 1.32; }
     .code { color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
-    .tools-table { display: grid; }
-    .tool-row {
-      min-height: 72px;
+
+    .priority-board { display: grid; gap: 12px; padding: 12px; }
+    .primary-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 12px; }
+    .primary-stack { display: grid; gap: 12px; }
+    .work-card {
+      position: relative;
+      min-width: 0;
       display: grid;
-      grid-template-columns: 52px minmax(0, 1.2fr) minmax(150px, .7fr) 74px;
-      gap: 12px;
+      align-content: space-between;
+      gap: 18px;
+      border: 1px solid var(--line);
+      background: #141619;
+      color: var(--text);
+      padding: 17px;
+      overflow: hidden;
+    }
+    .work-card:hover { background: #191c1f; border-color: var(--line-2); }
+    .work-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 3px; background: var(--accent); opacity: .72; }
+    .work-card.major { min-height: 254px; background: #17191c; padding: 22px; }
+    .work-card.major h3 { font-size: clamp(28px, 3vw, 42px); line-height: .98; letter-spacing: -1.5px; max-width: 620px; }
+    .work-card.tall { min-height: 121px; }
+    .work-card.support { min-height: 118px; background: var(--row); }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .card-top span { color: var(--accent); font-size: 10px; font-weight: 850; letter-spacing: .8px; text-transform: uppercase; }
+    .card-top small { color: var(--quiet); font-size: 10px; font-weight: 800; }
+    .card-body { display: grid; gap: 8px; }
+    .card-body h3 { font-size: 18px; line-height: 1.06; letter-spacing: -.45px; }
+    .card-body p { color: var(--muted); font-size: 12px; line-height: 1.38; max-width: 620px; }
+    .work-card.major .card-body p { font-size: 14px; max-width: 560px; }
+    .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; color: var(--muted); font-size: 12px; }
+    .card-foot strong { color: var(--accent); font-size: 12px; }
+    .support-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .compact-table { border: 1px solid var(--line); }
+    .compact-row {
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr) auto;
       align-items: center;
+      gap: 10px;
       border-bottom: 1px solid var(--line);
       background: var(--row);
-      padding: 10px 11px;
+      padding: 9px 10px;
     }
-    .tool-row:hover { background: var(--row-hover); }
-    .tool-row.featured { min-height: 96px; background: #17191c; }
-    .tool-index { color: var(--quiet); font-size: 12px; font-weight: 800; }
-    .tool-name { min-width: 0; display: grid; gap: 4px; }
-    .tool-name strong { font-size: 16px; line-height: 1.16; letter-spacing: -.2px; }
-    .tool-row.featured .tool-name strong { font-size: 21px; }
-    .tool-name span { color: var(--muted); font-size: 12px; line-height: 1.35; }
-    .tool-cat { color: var(--muted); font-size: 12px; }
-    .open { color: var(--accent); font-size: 12px; font-weight: 800; text-align: right; }
+    .compact-row:last-child { border-bottom: 0; }
+    .compact-row:hover { background: var(--row-hover); }
+    .compact-row strong { font-size: 13px; }
+    .compact-row span { color: var(--quiet); font-size: 11px; }
+    .compact-row em { color: var(--accent); font-style: normal; font-size: 12px; font-weight: 800; }
     .scrapers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); }
     .scraper-link { min-height: 58px; background: var(--row); padding: 9px; display: grid; align-content: space-between; }
     .scraper-link:hover { background: var(--row-hover); }
@@ -170,10 +197,12 @@
     .quick-frame iframe { width: 100%; height: 100%; border: 0; background: var(--bg); }
     .quick-frame .close { position: absolute; right: 10px; top: 10px; z-index: 2; }
     .foot { margin-top: 12px; color: var(--quiet); font-size: 11px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-    @media (max-width: 1060px) {
+    @media (max-width: 1120px) {
       .main { grid-template-columns: 210px minmax(0, 1fr); }
       .right { grid-column: 1 / -1; }
-      .side-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .side-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .primary-grid { grid-template-columns: 1fr; }
+      .primary-stack { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 760px) {
       .wrap { width: min(100% - 20px, 1280px); padding-top: 10px; }
@@ -181,19 +210,20 @@
       .brand { justify-content: space-between; }
       .top-meta { justify-content: space-between; }
       .main { grid-template-columns: 1fr; }
-      .tool-row, .tool-row.featured { grid-template-columns: 38px minmax(0, 1fr) 52px; min-height: auto; }
-      .tool-cat { grid-column: 2 / -1; }
-      .open { align-self: start; }
-      .side-list { grid-template-columns: 1fr; }
+      .primary-stack, .support-grid, .side-list { grid-template-columns: 1fr; }
+      .work-card.major, .work-card.tall, .work-card.support { min-height: 150px; }
+      .work-card.major h3 { font-size: clamp(28px, 10vw, 40px); }
+      .compact-row { grid-template-columns: 38px minmax(0, 1fr); }
+      .compact-row em { grid-column: 2; }
       .scrapers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 440px) {
       .brand { display: grid; gap: 3px; }
       .brand span { white-space: normal; }
       .scrapers { grid-template-columns: 1fr; }
-      .tool-row, .tool-row.featured { grid-template-columns: 1fr; gap: 6px; }
-      .tool-index, .open { text-align: left; }
-      .tool-cat { grid-column: auto; }
+      .work-card { padding: 14px; }
+      .work-card.major { padding: 16px; }
+      .card-foot { align-items: flex-start; flex-direction: column; gap: 6px; }
     }
   </style>
 </head>
@@ -208,7 +238,7 @@
         <input id="searchInput" type="search" placeholder="Buscar ferramenta, loja ou função..." autocomplete="off">
         <div id="results" class="results" role="listbox"></div>
       </div>
-      <div class="top-meta mono"><span><i class="dot"></i> Online</span><span>24/06/2026 16:40</span></div>
+      <div class="top-meta mono"><span><i class="dot"></i> Online</span><span>24/06/2026 17:10</span></div>
     </header>
 
     <main class="main">
@@ -225,16 +255,25 @@
       </aside>
 
       <section id="ferramentas" class="panel center">
-        <div class="panel-head"><h2>Ferramentas principais</h2><span class="mono">abrir</span></div>
-        <div id="toolsTable" class="tools-table"></div>
+        <div class="panel-head"><h2>Mesa principal</h2><span class="mono">maiores = mais usadas</span></div>
+        <div class="priority-board">
+          <div class="primary-grid">
+            <div id="primaryMain"></div>
+            <div id="primaryStack" class="primary-stack"></div>
+          </div>
+          <div class="panel-head" style="border:1px solid var(--line);"><h2>Apoio</h2><span class="mono">médio</span></div>
+          <div id="supportGrid" class="support-grid"></div>
+          <div class="panel-head" style="border:1px solid var(--line);"><h2>Outras ferramentas</h2><span class="mono">compacto</span></div>
+          <div id="compactTools" class="compact-table"></div>
+        </div>
         <div id="scrapers" class="panel-head"><h2>Scrapers individuais</h2><span class="mono">lojas</span></div>
         <div id="scraperGrid" class="scrapers"></div>
       </section>
 
       <aside class="panel right">
         <div class="panel-head"><h2>Sistema</h2><span class="mono">estado</span></div>
-        <div class="status-box"><strong>Conceito Workbench</strong><span>Versão seca para reduzir aparência de IA: sem hero, sem aurora, sem glass, sem layout promocional.</span></div>
-        <div class="status-box"><strong>Última atualização</strong><span>Protótipo independente criado para avaliação visual antes de substituir qualquer coisa.</span></div>
+        <div class="status-box"><strong>Hierarquia aplicada</strong><span>As ferramentas mais usadas ficam fisicamente maiores e enquadradas na mesa principal.</span></div>
+        <div class="status-box"><strong>Visual Workbench</strong><span>Sem hero, sem aurora, sem glass e sem layout promocional.</span></div>
         <div class="panel-head"><h2>Internas</h2><span class="mono">oculto</span></div>
         <div id="sideHidden" class="side-list"></div>
       </aside>
@@ -256,12 +295,13 @@
 
   <script>
     const tools = [
-      { code:'01', name:'Scraper Ar Condicionado', desc:'Busca geral e comparação rápida de ar-condicionado.', cat:'Ar-condicionado', url:'scraper-ar.html', featured:true, terms:'scraper oficial ar condicionado preços lojas mercado' },
-      { code:'02', name:'Comparador de preços', desc:'Análise de ofertas entre lojas e referências de mercado.', cat:'Ar-condicionado', url:'comparador-ar.html', terms:'comparador comparação preços ofertas ar condicionado' },
-      { code:'03', name:'Precificação', desc:'Cálculo Site x 365 por SKU.', cat:'Site x 365', url:'precificacao-ar.html', terms:'precificação sku 365 site dynamics' },
-      { code:'04', name:'Simulador 3D', desc:'Gabinete e apoio técnico para câmara fria.', cat:'Câmara fria', url:'simulador-gabinete.html', featured:true, terms:'simulador 3d gabinete câmara fria painel' },
-      { code:'05', name:'Plano de corte', desc:'Aproveitamento de painéis PIR/EPS.', cat:'Câmara fria', url:'plano-corte.html', terms:'plano corte painel pir eps câmara fria' },
-      { code:'06', name:'Checklist em PDF', desc:'Levantamento técnico padronizado.', cat:'Câmara fria', url:'CheckList.html', terms:'checklist check list pdf orçamento câmara fria' }
+      { code:'01', name:'Scraper Ar Condicionado', desc:'Busca geral e comparação rápida de ar-condicionado.', cat:'Ar-condicionado', url:'scraper-ar.html', level:'primary-main', terms:'scraper oficial ar condicionado preços lojas mercado' },
+      { code:'02', name:'Simulador 3D', desc:'Gabinete e apoio técnico para câmara fria.', cat:'Câmara fria', url:'simulador-gabinete.html', level:'primary', terms:'simulador 3d gabinete câmara fria painel' },
+      { code:'03', name:'Plano de corte', desc:'Aproveitamento de painéis PIR/EPS.', cat:'Câmara fria', url:'plano-corte.html', level:'primary', terms:'plano corte painel pir eps câmara fria' },
+      { code:'04', name:'Comparador de preços', desc:'Análise de ofertas entre lojas e referências de mercado.', cat:'Ar-condicionado', url:'comparador-ar.html', level:'support', terms:'comparador comparação preços ofertas ar condicionado' },
+      { code:'05', name:'Checklist em PDF', desc:'Levantamento técnico padronizado.', cat:'Câmara fria', url:'CheckList.html', level:'support', terms:'checklist check list pdf orçamento câmara fria' },
+      { code:'06', name:'Precificação', desc:'Cálculo Site x 365 por SKU.', cat:'Site x 365', url:'precificacao-ar.html', level:'support', terms:'precificação sku 365 site dynamics' },
+      { code:'07', name:'Seletor UC x Evaporador', desc:'Cruza UC Danfoss com evaporador Trineva compatível.', cat:'Câmara fria', url:'seletor-evaporador.html', level:'support', terms:'seletor uc evaporador danfoss trineva câmara fria' }
     ];
     const hidden = [
       { code:'I1', name:'Extrator de Códigos', desc:'Extrai códigos e quantidades em estoque.', cat:'Utilitário', url:'itens-quantidade.html', terms:'extrator códigos estoque quantidade' },
@@ -273,14 +313,21 @@
       ['Dufrio','scraper-dufrio.html'], ['Clima Rio','scraper-climario.html'], ['Frigelar','scraper-frigelar.html'], ['Leveros','scraper-leveros.html'], ['Central Ar','scraper-centralar.html'], ['FrioPeças','scraper-friopecas.html'], ['Polo Ar','scraper-poloar.html'], ['WebContinental','scraper-webcontinental.html']
     ];
     const norm = v => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-    const row = item => `<a class="tool-row ${item.featured ? 'featured' : ''}" href="${item.url}"><span class="tool-index mono">${item.code}</span><span class="tool-name"><strong>${item.name}</strong><span>${item.desc}</span></span><span class="tool-cat">${item.cat}</span><span class="open">Abrir</span></a>`;
-    const link = item => `<a class="fixed-link" href="${item.url}"><span class="code mono">${item.code}</span><strong>${item.name}</strong><span>${item.desc}</span></a>`;
+    const workCard = (item, cls) => `<a class="work-card ${cls}" href="${item.url}"><div class="card-top"><span class="mono">${item.code} · ${item.cat}</span><small class="mono">uso alto</small></div><div class="card-body"><h3>${item.name}</h3><p>${item.desc}</p></div><div class="card-foot"><span>${item.level === 'primary-main' ? 'Principal da mesa' : 'Atalho prioritário'}</span><strong>Abrir</strong></div></a>`;
+    const supportCard = item => `<a class="work-card support" href="${item.url}"><div class="card-top"><span class="mono">${item.code} · ${item.cat}</span><small class="mono">apoio</small></div><div class="card-body"><h3>${item.name}</h3><p>${item.desc}</p></div><div class="card-foot"><span>Uso médio</span><strong>Abrir</strong></div></a>`;
+    const compactRow = item => `<a class="compact-row" href="${item.url}"><span class="mono code">${item.code}</span><strong>${item.name}</strong><em>Abrir</em></a>`;
+    const fixedLink = item => `<a class="fixed-link" href="${item.url}"><span class="code mono">${item.code}</span><strong>${item.name}</strong><span>${item.desc}</span></a>`;
     const hiddenLink = item => `<a class="hidden-link" href="${item.url}"><span class="code mono">${item.code}</span><strong>${item.name}</strong><span>${item.desc}</span></a>`;
-    document.getElementById('toolsTable').innerHTML = tools.map(row).join('');
-    document.getElementById('fixedList').innerHTML = [tools[0], tools[3], tools[4], tools[5]].map(link).join('');
+
+    document.getElementById('primaryMain').innerHTML = tools.filter(t => t.level === 'primary-main').map(item => workCard(item, 'major')).join('');
+    document.getElementById('primaryStack').innerHTML = tools.filter(t => t.level === 'primary').map(item => workCard(item, 'tall')).join('');
+    document.getElementById('supportGrid').innerHTML = tools.filter(t => t.level === 'support').slice(0, 4).map(supportCard).join('');
+    document.getElementById('compactTools').innerHTML = hidden.map(compactRow).join('');
+    document.getElementById('fixedList').innerHTML = tools.filter(t => ['primary-main','primary'].includes(t.level)).map(fixedLink).join('');
     document.getElementById('hiddenGrid').innerHTML = hidden.map(hiddenLink).join('');
     document.getElementById('sideHidden').innerHTML = hidden.map(item => `<a class="side-link" href="${item.url}"><span class="code mono">${item.code}</span><strong>${item.name}</strong></a>`).join('');
     document.getElementById('scraperGrid').innerHTML = scrapers.map(([name,url],i)=>`<a class="scraper-link" href="${url}"><strong>Scraper ${name}</strong><span class="mono">S${String(i+1).padStart(2,'0')}</span></a>`).join('');
+
     const all = [...tools, ...hidden, ...scrapers.map(([name,url],i)=>({code:'S'+String(i+1).padStart(2,'0'), name:'Scraper '+name, desc:'Scraper individual da loja.', cat:'Scraper', url, terms:name}))].map(item => ({...item, search:norm(`${item.code} ${item.name} ${item.desc} ${item.cat} ${item.terms}`)}));
     const input = document.getElementById('searchInput');
     const results = document.getElementById('results');
