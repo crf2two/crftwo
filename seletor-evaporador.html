@@ -1,29 +1,60 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seletor UC x Evaporador</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#06080b;--card:#10161e;--line:rgba(148,163,184,.16);--text:#f7fafc;--soft:#cbd5e1;--muted:#8793a3;--blue:#38bdf8;--green:#22c55e}html{scroll-behavior:smooth}body{min-height:100vh;font-family:Outfit,system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at 8% 0%,rgba(56,189,248,.13),transparent 360px),radial-gradient(circle at 88% 10%,rgba(34,197,94,.08),transparent 320px),linear-gradient(180deg,#06080b,#0a0d12);overflow-x:hidden}.container{width:min(1120px,calc(100% - 40px));margin:auto;padding:26px 0 42px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}.brand{display:flex;align-items:center;gap:14px}.mark{width:8px;height:8px;border-radius:999px;background:var(--blue);box-shadow:0 0 18px rgba(56,189,248,.45)}.sig{display:flex;align-items:center;gap:10px;color:rgba(203,213,225,.78);font-size:11px;font-weight:900;letter-spacing:2.6px}.sep{width:1px;height:18px;background:var(--line)}h1{font-size:clamp(30px,5vw,48px);line-height:.92;font-weight:900;letter-spacing:-2px}.btn,a.btn{min-height:42px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.045);color:var(--soft);padding:10px 15px;text-decoration:none;font-weight:850;font-size:12px}.btn.primary{border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.14);color:#dcfce7}.hero,.card{border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.052),rgba(255,255,255,.022)),var(--card);box-shadow:0 24px 80px rgba(0,0,0,.32)}.hero{padding:24px;margin-bottom:18px}.eyebrow{color:var(--green);font-size:11px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase}.title{margin-top:8px;font-size:clamp(28px,5vw,54px);line-height:.94;font-weight:900;letter-spacing:-2px}.desc{max-width:760px;margin-top:14px;color:rgba(203,213,225,.72);font-weight:700;line-height:1.45}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{padding:18px}.card h2{font-size:18px;margin-bottom:6px}.card p{color:var(--muted);font-size:12px;font-weight:700;line-height:1.4;margin-bottom:12px}.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.field{display:grid;gap:6px}.field label{color:rgba(203,213,225,.72);font-size:11px;font-weight:900;letter-spacing:.9px;text-transform:uppercase}.field select{width:100%;height:50px;border:1px solid rgba(148,163,184,.18);border-radius:16px;background:rgba(4,7,12,.68);color:var(--text);outline:none;font:750 16px Outfit,system-ui,sans-serif;padding:0 12px}.field select:focus{border-color:rgba(56,189,248,.55);box-shadow:0 0 0 4px rgba(56,189,248,.10)}.out{white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.55;color:var(--soft);min-height:154px}.details{margin-top:12px;padding:12px;border:1px solid rgba(56,189,248,.14);border-radius:16px;background:rgba(56,189,248,.055);color:rgba(203,213,225,.78);font-size:12px;font-weight:700;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}.result-card{min-width:0}@media(max-width:860px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr 1fr}.result-card{order:2}.rules-card{order:3}}@media(max-width:620px){body{background:linear-gradient(180deg,#06080b,#0a0d12)}.container{width:min(100% - 24px,1120px);padding:18px 0 28px}.top,.brand{align-items:flex-start;flex-direction:column;gap:10px}.sep{display:none}h1{font-size:36px}.btn{width:100%;min-height:48px}.hero{padding:18px 16px;border-radius:20px;margin-bottom:14px}.title{font-size:32px;letter-spacing:-1.3px}.desc{font-size:13px}.grid{gap:12px}.card{padding:16px;border-radius:20px}.row{grid-template-columns:1fr;gap:12px}.field select{height:54px}.out{min-height:auto;font-size:12.5px}.details{font-size:12px}.card p{font-size:12.5px}.primary{margin-top:2px}}@media(max-width:380px){.container{width:min(100% - 18px,1120px)}.title{font-size:29px}.card{padding:14px}.hero{padding:16px 14px}.out{font-size:12px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d0f10">
+  <title>Seletor UC x Evaporador</title>
+  <link rel="stylesheet" href="hub-workbench.css">
+  <style>
+    .selector-main{display:grid;grid-template-columns:minmax(280px,420px) minmax(0,1fr);gap:12px;margin-top:12px;align-items:start}.topbar.selector-top{grid-template-columns:1fr auto}.back-link{min-height:36px;border:1px solid var(--line2);background:var(--row);color:var(--text);display:grid;place-items:center;padding:8px 12px;font-size:12px;font-weight:800}.back-link:hover{background:var(--hover)}.panel-body{padding:12px}.control-grid{display:grid;gap:10px}.field{display:grid;gap:6px}.field label{color:var(--quiet);font-size:10px;font-weight:850;letter-spacing:.8px;text-transform:uppercase}.field select{width:100%;height:42px;border:1px solid var(--line2);background:#0f1113;color:var(--text);outline:none;padding:0 10px;font-size:14px;font-weight:720}.field select:focus{border-color:var(--accent)}.command-row{display:grid;gap:8px;margin-top:12px}.calc-button{min-height:42px;border:1px solid var(--accent);background:#17120b;color:var(--text);font-size:12px;font-weight:850;letter-spacing:.4px;text-transform:uppercase}.calc-button:hover{background:#1e170e}.result-body{display:grid;gap:12px;padding:12px}.result-text{min-height:282px;border:1px solid var(--line);background:#101214;color:var(--text);padding:12px;white-space:pre-wrap;overflow-wrap:anywhere;font:650 13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.detail-box{border:1px solid var(--line);background:var(--row);padding:11px;color:var(--muted);font-size:12px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}.rule-grid{display:grid;gap:1px;background:var(--line)}.rule-item{display:grid;gap:5px;background:var(--row);padding:11px}.rule-item strong{font-size:12px;color:var(--text)}.rule-item span{font-size:12px;color:var(--muted);line-height:1.35}.wide{grid-column:1/-1}#modoResultado{color:var(--accent);font-weight:850;text-transform:uppercase}@media(max-width:860px){.selector-main{grid-template-columns:1fr}.topbar.selector-top{grid-template-columns:1fr}.back-link{width:100%}.result-text{min-height:auto}}@media(max-width:480px){.wrap{width:min(100% - 20px,1280px)}.panel-body,.result-body{padding:10px}.field select{height:46px;font-size:15px}.calc-button{min-height:46px}.result-text{font-size:12.5px}.detail-box{font-size:12px}}
+  </style>
 </head>
 <body>
-<div class="container">
-<header class="top"><div class="brand"><div class="sig"><span class="mark"></span><span>THIAGO LUZ</span></div><span class="sep"></span><h1>Seletor</h1></div><a class="btn" href="index.html">← Voltar ao Hub</a></header>
-<section class="hero"><div class="eyebrow">Danfoss x Trineva</div><div class="title">UC x Evaporador compatível</div><div class="desc">Escolha a UC, a temperatura de evaporação e o ambiente. A ferramenta tenta primeiro a linha TRN e, se não atender, usa a linha maior FTBN, mostrando os kcal/h de catálogo da UC e do evaporador.</div></section>
-<main class="grid">
-<section class="card"><h2>Selecionar condições</h2><p>Escolha a UC, a evaporação e o ambiente.</p><div class="row"><div class="field"><label for="uc">UC</label><select id="uc"></select></div><div class="field"><label for="evap">Evaporação</label><select id="evap"></select></div><div class="field"><label for="amb">Ambiente</label><select id="amb"></select></div></div><button class="btn primary" id="manual">Atualizar indicação</button></section>
-<section class="card result-card"><h2>Resposta pronta</h2><p>A resposta atualiza automaticamente ao trocar os campos.</p><div class="out" id="saida"></div><div class="details" id="detalhes"></div></section>
-<section class="card rules-card"><h2>Regra usada</h2><p>Base restrita às referências enviadas.</p><div class="details">1. Buscar CC da UC Danfoss em kcal/h pela evaporação e ambiente.
-2. Tentar selecionar o menor TRN compatível.
-3. Se a linha TRN não atender, procurar a linha maior FTBN.
-4. Selecionar o menor evaporador com capacidade igual ou maior.
-5. Se nenhum evaporador único atender, mostrar aviso.</div></section>
-</main>
-</div>
-<script src="seletor-evaporador-dados.js"></script>
-<script src="seletor-evaporador-app.js"></script>
+  <div class="wrap">
+    <header class="topbar selector-top">
+      <div class="brand">
+        <strong>Seletor UC x Evaporador</strong>
+        <span class="signature mono">Danfoss · Trineva</span>
+      </div>
+      <a class="back-link" href="index.html">Voltar ao Hub</a>
+    </header>
+
+    <main class="selector-main">
+      <section class="panel">
+        <div class="panel-head"><h2>Parâmetros</h2><span class="mono">catálogo</span></div>
+        <div class="panel-body">
+          <div class="control-grid">
+            <div class="field"><label for="uc">UC</label><select id="uc"></select></div>
+            <div class="field"><label for="evap">Evaporação</label><select id="evap"></select></div>
+            <div class="field"><label for="amb">Ambiente</label><select id="amb"></select></div>
+            <div class="field"><label for="perfil">Perfil do evaporador</label><select id="perfil"></select></div>
+          </div>
+          <div class="command-row"><button class="calc-button" id="manual">Dimensionar evaporador</button></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>Resultado técnico</h2><span id="modoResultado" class="mono">auto</span></div>
+        <div class="result-body">
+          <pre class="result-text" id="saida"></pre>
+          <div class="detail-box" id="detalhes"></div>
+        </div>
+      </section>
+
+      <section class="panel wide">
+        <div class="panel-head"><h2>Critério de seleção</h2><span class="mono">TRN / FTBN</span></div>
+        <div class="rule-grid">
+          <div class="rule-item"><strong>Automático</strong><span>Prioriza médio perfil TRN. Se não atender, seleciona baixo perfil FTBN.</span></div>
+          <div class="rule-item"><strong>Médio perfil</strong><span>Filtra apenas evaporadores TRN.</span></div>
+          <div class="rule-item"><strong>Baixo perfil</strong><span>Filtra apenas evaporadores FTBN.</span></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot mono"><span class="status-line"><i class="dot"></i> Online</span><span>Seletor UC x Evaporador</span></footer>
+  </div>
+  <script src="seletor-evaporador-dados.js"></script>
+  <script src="seletor-evaporador-app.js"></script>
 </body>
 </html>
