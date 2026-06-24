@@ -1,4 +1,4 @@
-window.LATEST_LOG = { message: 'Adiciona Seletor UC x Evaporador', dateIso: '2026-06-23T19:36:47-03:00' };
+window.LATEST_LOG = { message: 'Cria conceito Workbench do Hub', dateIso: '2026-06-24T16:46:55-03:00' };
 
 
 (function adicionarSeletorUcEvaporador() {
