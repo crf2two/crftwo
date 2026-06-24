@@ -48,7 +48,7 @@
     .topbar {
       min-height: 58px;
       display: grid;
-      grid-template-columns: auto minmax(220px, 1fr) auto;
+      grid-template-columns: auto minmax(220px, 1fr);
       align-items: center;
       gap: 14px;
       border: 1px solid var(--line);
@@ -56,8 +56,19 @@
       padding: 10px;
     }
     .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
-    .brand button { border: 0; background: transparent; color: var(--text); font-size: 24px; font-weight: 760; letter-spacing: -.9px; }
-    .brand span { color: var(--quiet); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+    .brand strong { color: var(--text); font-size: 24px; font-weight: 760; letter-spacing: -.9px; }
+    .signature {
+      border: 0;
+      background: transparent;
+      color: var(--quiet);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      padding: 0;
+    }
+    .signature:hover { color: var(--muted); }
     .search { position: relative; }
     .search input {
       width: 100%;
@@ -99,8 +110,6 @@
     .result strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .result small { color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .9px; text-transform: uppercase; }
     .result span { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
-    .top-meta { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 11px; white-space: nowrap; }
-    .dot { width: 7px; height: 7px; background: var(--ok); display: inline-block; box-shadow: 0 0 0 3px rgba(111,159,123,.12); }
     .main {
       display: grid;
       grid-template-columns: 220px minmax(0, 1fr) 260px;
@@ -127,7 +136,6 @@
     .fixed-link strong, .side-link strong, .hidden-link strong { font-size: 13px; line-height: 1.15; }
     .fixed-link span, .side-link span, .hidden-link span { color: var(--muted); font-size: 11px; line-height: 1.32; }
     .code { color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
-
     .priority-board { display: grid; gap: 12px; padding: 12px; }
     .primary-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 12px; }
     .primary-stack { display: grid; gap: 12px; }
@@ -159,22 +167,6 @@
     .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; color: var(--muted); font-size: 12px; }
     .card-foot strong { color: var(--accent); font-size: 12px; }
     .support-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .compact-table { border: 1px solid var(--line); }
-    .compact-row {
-      min-height: 48px;
-      display: grid;
-      grid-template-columns: 46px minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid var(--line);
-      background: var(--row);
-      padding: 9px 10px;
-    }
-    .compact-row:last-child { border-bottom: 0; }
-    .compact-row:hover { background: var(--row-hover); }
-    .compact-row strong { font-size: 13px; }
-    .compact-row span { color: var(--quiet); font-size: 11px; }
-    .compact-row em { color: var(--accent); font-style: normal; font-size: 12px; font-weight: 800; }
     .scrapers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); }
     .scraper-link { min-height: 58px; background: var(--row); padding: 9px; display: grid; align-content: space-between; }
     .scraper-link:hover { background: var(--row-hover); }
@@ -196,11 +188,45 @@
     .quick-frame { width: min(1000px, 100%); height: min(760px, 88vh); border: 1px solid var(--line-2); background: var(--panel); position: relative; }
     .quick-frame iframe { width: 100%; height: 100%; border: 0; background: var(--bg); }
     .quick-frame .close { position: absolute; right: 10px; top: 10px; z-index: 2; }
-    .foot { margin-top: 12px; color: var(--quiet); font-size: 11px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .foot {
+      margin-top: 12px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 9px 11px;
+      color: var(--quiet);
+      font-size: 11px;
+    }
+    .status-line { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); }
+    .update-hover { position: relative; display: inline-flex; flex-direction: column; align-items: flex-end; }
+    #updateTitle {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 7px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(3px);
+      min-width: max-content;
+      max-width: 280px;
+      padding: 7px 9px;
+      border: 1px solid var(--line-2);
+      background: #101214;
+      color: var(--text);
+      font-size: 11px;
+      line-height: 1.3;
+      transition: .14s ease;
+      box-shadow: 0 14px 34px rgba(0,0,0,.34);
+    }
+    .update-hover:hover #updateTitle, .update-hover:focus-within #updateTitle { opacity: 1; visibility: visible; transform: translateY(0); }
+    #updateDatetime { color: var(--muted); cursor: help; }
     @media (max-width: 1120px) {
       .main { grid-template-columns: 210px minmax(0, 1fr); }
       .right { grid-column: 1 / -1; }
-      .side-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .primary-grid { grid-template-columns: 1fr; }
       .primary-stack { grid-template-columns: 1fr 1fr; }
     }
@@ -208,18 +234,17 @@
       .wrap { width: min(100% - 20px, 1280px); padding-top: 10px; }
       .topbar { grid-template-columns: 1fr; align-items: stretch; }
       .brand { justify-content: space-between; }
-      .top-meta { justify-content: space-between; }
       .main { grid-template-columns: 1fr; }
-      .primary-stack, .support-grid, .side-list { grid-template-columns: 1fr; }
+      .primary-stack, .support-grid { grid-template-columns: 1fr; }
       .work-card.major, .work-card.tall, .work-card.support { min-height: 150px; }
       .work-card.major h3 { font-size: clamp(28px, 10vw, 40px); }
-      .compact-row { grid-template-columns: 38px minmax(0, 1fr); }
-      .compact-row em { grid-column: 2; }
       .scrapers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .update-hover { align-items: flex-start; }
+      #updateTitle { left: 0; right: auto; min-width: 220px; }
     }
     @media (max-width: 440px) {
       .brand { display: grid; gap: 3px; }
-      .brand span { white-space: normal; }
+      .signature { white-space: normal; }
       .scrapers { grid-template-columns: 1fr; }
       .work-card { padding: 14px; }
       .work-card.major { padding: 16px; }
@@ -231,14 +256,13 @@
   <div class="wrap">
     <header class="topbar">
       <div class="brand">
-        <button id="hubMark" type="button">Hub</button>
-        <span class="mono">workbench / acesso rápido</span>
+        <strong>Hub</strong>
+        <button id="thiagoMark" class="signature mono" type="button" title="Thiago Luz">Thiago Luz</button>
       </div>
       <div class="search">
         <input id="searchInput" type="search" placeholder="Buscar ferramenta, loja ou função..." autocomplete="off">
         <div id="results" class="results" role="listbox"></div>
       </div>
-      <div class="top-meta mono"><span><i class="dot"></i> Online</span><span>24/06/2026 17:10</span></div>
     </header>
 
     <main class="main">
@@ -249,7 +273,6 @@
         <div class="quick-actions">
           <a href="#ferramentas">Ferramentas</a>
           <a href="#scrapers">Scrapers</a>
-          <button id="hiddenOpenA" type="button">Internas</button>
           <button id="quickOpenA" type="button">Busca Dufrio</button>
         </div>
       </aside>
@@ -263,8 +286,6 @@
           </div>
           <div class="panel-head" style="border:1px solid var(--line);"><h2>Apoio</h2><span class="mono">médio</span></div>
           <div id="supportGrid" class="support-grid"></div>
-          <div class="panel-head" style="border:1px solid var(--line);"><h2>Outras ferramentas</h2><span class="mono">compacto</span></div>
-          <div id="compactTools" class="compact-table"></div>
         </div>
         <div id="scrapers" class="panel-head"><h2>Scrapers individuais</h2><span class="mono">lojas</span></div>
         <div id="scraperGrid" class="scrapers"></div>
@@ -274,12 +295,16 @@
         <div class="panel-head"><h2>Sistema</h2><span class="mono">estado</span></div>
         <div class="status-box"><strong>Hierarquia aplicada</strong><span>As ferramentas mais usadas ficam fisicamente maiores e enquadradas na mesa principal.</span></div>
         <div class="status-box"><strong>Visual Workbench</strong><span>Sem hero, sem aurora, sem glass e sem layout promocional.</span></div>
-        <div class="panel-head"><h2>Internas</h2><span class="mono">oculto</span></div>
-        <div id="sideHidden" class="side-list"></div>
       </aside>
     </main>
 
-    <footer class="foot mono"><span>Hub Workbench — protótipo independente</span><span>index principal preservado</span></footer>
+    <footer class="foot mono">
+      <span class="status-line"><i class="dot"></i> Online</span>
+      <span class="update-hover">
+        <span id="updateDatetime" tabindex="0" aria-describedby="updateTitle">24/06/2026 às 19:09</span>
+        <span id="updateTitle" role="tooltip">Ajusta rodapé e internas do Workbench</span>
+      </span>
+    </footer>
   </div>
 
   <div id="hiddenModal" class="modal" role="dialog" aria-modal="true" aria-label="Ferramentas internas">
@@ -315,20 +340,17 @@
     const norm = v => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
     const workCard = (item, cls) => `<a class="work-card ${cls}" href="${item.url}"><div class="card-top"><span class="mono">${item.code} · ${item.cat}</span><small class="mono">uso alto</small></div><div class="card-body"><h3>${item.name}</h3><p>${item.desc}</p></div><div class="card-foot"><span>${item.level === 'primary-main' ? 'Principal da mesa' : 'Atalho prioritário'}</span><strong>Abrir</strong></div></a>`;
     const supportCard = item => `<a class="work-card support" href="${item.url}"><div class="card-top"><span class="mono">${item.code} · ${item.cat}</span><small class="mono">apoio</small></div><div class="card-body"><h3>${item.name}</h3><p>${item.desc}</p></div><div class="card-foot"><span>Uso médio</span><strong>Abrir</strong></div></a>`;
-    const compactRow = item => `<a class="compact-row" href="${item.url}"><span class="mono code">${item.code}</span><strong>${item.name}</strong><em>Abrir</em></a>`;
     const fixedLink = item => `<a class="fixed-link" href="${item.url}"><span class="code mono">${item.code}</span><strong>${item.name}</strong><span>${item.desc}</span></a>`;
     const hiddenLink = item => `<a class="hidden-link" href="${item.url}"><span class="code mono">${item.code}</span><strong>${item.name}</strong><span>${item.desc}</span></a>`;
 
     document.getElementById('primaryMain').innerHTML = tools.filter(t => t.level === 'primary-main').map(item => workCard(item, 'major')).join('');
     document.getElementById('primaryStack').innerHTML = tools.filter(t => t.level === 'primary').map(item => workCard(item, 'tall')).join('');
     document.getElementById('supportGrid').innerHTML = tools.filter(t => t.level === 'support').slice(0, 4).map(supportCard).join('');
-    document.getElementById('compactTools').innerHTML = hidden.map(compactRow).join('');
     document.getElementById('fixedList').innerHTML = tools.filter(t => ['primary-main','primary'].includes(t.level)).map(fixedLink).join('');
     document.getElementById('hiddenGrid').innerHTML = hidden.map(hiddenLink).join('');
-    document.getElementById('sideHidden').innerHTML = hidden.map(item => `<a class="side-link" href="${item.url}"><span class="code mono">${item.code}</span><strong>${item.name}</strong></a>`).join('');
     document.getElementById('scraperGrid').innerHTML = scrapers.map(([name,url],i)=>`<a class="scraper-link" href="${url}"><strong>Scraper ${name}</strong><span class="mono">S${String(i+1).padStart(2,'0')}</span></a>`).join('');
 
-    const all = [...tools, ...hidden, ...scrapers.map(([name,url],i)=>({code:'S'+String(i+1).padStart(2,'0'), name:'Scraper '+name, desc:'Scraper individual da loja.', cat:'Scraper', url, terms:name}))].map(item => ({...item, search:norm(`${item.code} ${item.name} ${item.desc} ${item.cat} ${item.terms}`)}));
+    const all = [...tools, ...scrapers.map(([name,url],i)=>({code:'S'+String(i+1).padStart(2,'0'), name:'Scraper '+name, desc:'Scraper individual da loja.', cat:'Scraper', url, terms:name}))].map(item => ({...item, search:norm(`${item.code} ${item.name} ${item.desc} ${item.cat} ${item.terms}`)}));
     const input = document.getElementById('searchInput');
     const results = document.getElementById('results');
     let matches = [];
@@ -369,13 +391,12 @@
     function openHidden(){ hiddenModal.classList.add('open'); document.body.style.overflow='hidden'; }
     function openQuick(){ document.getElementById('quickFrame').src='scraper-dufrio.html'; quickModal.classList.add('open'); document.body.style.overflow='hidden'; }
     function closeModal(){ hiddenModal.classList.remove('open'); quickModal.classList.remove('open'); document.body.style.overflow=''; }
-    document.getElementById('hiddenOpenA').addEventListener('click', openHidden);
     document.getElementById('quickOpenA').addEventListener('click', openQuick);
     document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closeModal));
     document.querySelectorAll('.modal').forEach(modal => modal.addEventListener('click', e => { if(e.target === modal) closeModal(); }));
     document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
     let clicks = [];
-    document.getElementById('hubMark').addEventListener('click', () => {
+    document.getElementById('thiagoMark').addEventListener('click', () => {
       const now = Date.now();
       clicks = clicks.filter(t => now - t < 1800);
       clicks.push(now);
