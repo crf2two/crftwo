@@ -1,1 +1,1 @@
-Adiciona FTBN ao Seletor UC x Evaporador
+Mostra tipo do evaporador no seletor
