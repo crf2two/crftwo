@@ -1,108 +1,126 @@
-window.LATEST_LOG = { message: 'Ajusta rodape e internas do Workbench', dateIso: '2026-06-24T19:09:05-03:00' };
+window.LATEST_LOG = { message: 'Aplica Workbench como index oficial', dateIso: '2026-06-24T19:21:00-03:00' };
 
-
-(function adicionarSeletorUcEvaporador() {
-  function svg() {
-    return '<svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h10"></path><path d="M17 15l2 2 4-4"></path></svg>';
-  }
-  function card() {
-    return '<a class="tool-card" href="seletor-evaporador.html" style="--card-color:#10b981" title="Cruza UC Danfoss com evaporador Trineva compatível.">' +
-      '<div class="tool-top"><div class="icon-box">' + svg() + '</div><span class="tool-kind">Câmara fria</span></div>' +
-      '<div class="tool-body"><div class="tool-name">Seletor UC x Evaporador</div><p class="tool-short">Danfoss x Trineva.</p><span class="tool-action">Abrir</span></div>' +
-    '</a>';
-  }
-  function montar() {
-    if (document.querySelector('a[href="seletor-evaporador.html"]')) return;
-    var grid = document.getElementById('gridCamara');
-    if (!grid) return;
-    grid.insertAdjacentHTML('beforeend', card());
-    var camaraTitle = document.getElementById('camaraTitle');
-    var section = camaraTitle && camaraTitle.closest ? camaraTitle.closest('.section') : null;
-    var count = section && section.querySelector ? section.querySelector('.section-count') : null;
-    if (count) count.textContent = '4 ferramentas';
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', montar);
-  else montar();
-})();
-
-(function organizarScrapersIndividuais() {
-  var labs = [
-    { nome: 'Scraper Dufrio', short: 'Busca direta na Dufrio.', arquivo: 'scraper-dufrio.html', color: '#38bdf8', loja: 'Dufrio' },
-    { nome: 'Scraper Clima Rio', short: 'Busca direta na Clima Rio.', arquivo: 'scraper-climario.html', color: '#f59e0b', loja: 'Clima Rio' },
-    { nome: 'Scraper Frigelar', short: 'Busca direta na Frigelar.', arquivo: 'scraper-frigelar.html', color: '#22c55e', loja: 'Frigelar' },
-    { nome: 'Scraper Leveros', short: 'Busca direta na Leveros.', arquivo: 'scraper-leveros.html', color: '#fb923c', loja: 'Leveros' },
-    { nome: 'Scraper Central Ar', short: 'Busca direta na Central Ar.', arquivo: 'scraper-centralar.html', color: '#ec4899', loja: 'Central Ar' },
-    { nome: 'Scraper FrioPeças', short: 'Busca direta na FrioPeças.', arquivo: 'scraper-friopecas.html', color: '#60a5fa', loja: 'FrioPeças' },
-    { nome: 'Scraper Polo Ar', short: 'Busca direta na Polo Ar.', arquivo: 'scraper-poloar.html', color: '#ef4444', loja: 'Polo Ar' },
-    { nome: 'Scraper WebContinental', short: 'Busca direta na WebContinental.', arquivo: 'scraper-webcontinental.html', color: '#14b8a6', loja: 'WebContinental' }
+(function iniciarWorkbench() {
+  var tools = [
+    { code:'01', name:'Scraper Ar Condicionado', desc:'Busca geral e comparação rápida de ar-condicionado.', cat:'Ar-condicionado', url:'scraper-ar.html', level:'primary-main', terms:'scraper oficial ar condicionado preços lojas mercado' },
+    { code:'02', name:'Simulador 3D', desc:'Gabinete e apoio técnico para câmara fria.', cat:'Câmara fria', url:'simulador-gabinete.html', level:'primary', terms:'simulador 3d gabinete câmara fria painel' },
+    { code:'03', name:'Plano de corte', desc:'Aproveitamento de painéis PIR/EPS.', cat:'Câmara fria', url:'plano-corte.html', level:'primary', terms:'plano corte painel pir eps câmara fria' },
+    { code:'04', name:'Comparador de preços', desc:'Análise de ofertas entre lojas e referências de mercado.', cat:'Ar-condicionado', url:'comparador-ar.html', level:'support', terms:'comparador comparação preços ofertas ar condicionado' },
+    { code:'05', name:'Checklist em PDF', desc:'Levantamento técnico padronizado.', cat:'Câmara fria', url:'CheckList.html', level:'support', terms:'checklist check list pdf orçamento câmara fria' },
+    { code:'06', name:'Precificação', desc:'Cálculo Site x 365 por SKU.', cat:'Site x 365', url:'precificacao-ar.html', level:'support', terms:'precificação sku 365 site dynamics' },
+    { code:'07', name:'Seletor UC x Evaporador', desc:'Cruza UC Danfoss com evaporador Trineva compatível.', cat:'Câmara fria', url:'seletor-evaporador.html', level:'support', terms:'seletor uc evaporador danfoss trineva câmara fria' }
   ];
 
-  function svg() {
-    return '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><polyline points="8 11 10 13 14 9"></polyline></svg>';
+  var hidden = [
+    { code:'I1', name:'Extrator de Códigos', desc:'Extrai códigos e quantidades em estoque.', url:'itens-quantidade.html' },
+    { code:'I2', name:'Preços ao Vivo', desc:'Ofertas capturadas pela extensão.', url:'precos-ao-vivo.html' },
+    { code:'I3', name:'Cotação Express', desc:'Orçamentos rápidos de infraestrutura.', url:'cotacoes.html' },
+    { code:'I4', name:'Baixar Extensão', desc:'Pacote para Chrome ou Edge.', url:'baixar-extensao.html' }
+  ];
+
+  var scrapers = [
+    ['Dufrio','scraper-dufrio.html'], ['Clima Rio','scraper-climario.html'], ['Frigelar','scraper-frigelar.html'], ['Leveros','scraper-leveros.html'], ['Central Ar','scraper-centralar.html'], ['FrioPeças','scraper-friopecas.html'], ['Polo Ar','scraper-poloar.html'], ['WebContinental','scraper-webcontinental.html']
+  ];
+
+  function norm(v) { return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
+  function workCard(item, cls) { return '<a class="work-card ' + cls + '" href="' + item.url + '"><div class="card-top"><span class="mono">' + item.code + ' · ' + item.cat + '</span><small class="mono">uso alto</small></div><div class="card-body"><h3>' + item.name + '</h3><p>' + item.desc + '</p></div><div class="card-foot"><span>' + (item.level === 'primary-main' ? 'Principal da mesa' : 'Atalho prioritário') + '</span><strong>Abrir</strong></div></a>'; }
+  function supportCard(item) { return '<a class="work-card support" href="' + item.url + '"><div class="card-top"><span class="mono">' + item.code + ' · ' + item.cat + '</span><small class="mono">apoio</small></div><div class="card-body"><h3>' + item.name + '</h3><p>' + item.desc + '</p></div><div class="card-foot"><span>Uso médio</span><strong>Abrir</strong></div></a>'; }
+  function fixedLink(item) { return '<a class="fixed-link" href="' + item.url + '"><span class="code mono">' + item.code + '</span><strong>' + item.name + '</strong><span>' + item.desc + '</span></a>'; }
+  function hiddenLink(item) { return '<a class="hidden-link" href="' + item.url + '"><span class="code mono">' + item.code + '</span><strong>' + item.name + '</strong><span>' + item.desc + '</span></a>'; }
+
+  function renderTools() {
+    var primaryMain = document.getElementById('primaryMain');
+    if (!primaryMain) return;
+    document.getElementById('primaryMain').innerHTML = tools.filter(function (t) { return t.level === 'primary-main'; }).map(function (i) { return workCard(i, 'major'); }).join('');
+    document.getElementById('primaryStack').innerHTML = tools.filter(function (t) { return t.level === 'primary'; }).map(function (i) { return workCard(i, 'tall'); }).join('');
+    document.getElementById('supportGrid').innerHTML = tools.filter(function (t) { return t.level === 'support'; }).map(supportCard).join('');
+    document.getElementById('fixedList').innerHTML = tools.filter(function (t) { return ['primary-main','primary'].indexOf(t.level) >= 0; }).map(fixedLink).join('');
+    document.getElementById('hiddenGrid').innerHTML = hidden.map(hiddenLink).join('');
+    document.getElementById('scraperGrid').innerHTML = scrapers.map(function (item, index) { return '<a class="scraper-link" href="' + item[1] + '"><strong>Scraper ' + item[0] + '</strong><span class="mono">S' + String(index + 1).padStart(2, '0') + '</span></a>'; }).join('');
   }
 
-  function card(item) {
-    return '<a class="tool-card lab-card" href="' + item.arquivo + '" style="--card-color:' + item.color + '">' +
-      '<div class="tool-top"><div class="icon-box">' + svg() + '</div><span class="tool-kind">' + item.loja + '</span></div>' +
-      '<div class="tool-body"><div class="tool-name">' + item.nome + '</div><p class="tool-short">' + item.short + '</p><span class="tool-action">Abrir</span></div>' +
-    '</a>';
+  function renderLastUpdate() {
+    var dateEl = document.getElementById('updateDatetime');
+    var titleEl = document.getElementById('updateTitle');
+    if (!dateEl || !titleEl) return;
+    var latest = (window.updatesData && window.updatesData.updates && window.updatesData.updates[0]) || { date:'24/06/2026', time:'19:21', title:'Aplica Workbench como index oficial' };
+    var title = latest.title;
+    var datetime = latest.date + ' às ' + latest.time;
+    if (window.LATEST_LOG && window.LATEST_LOG.message && window.LATEST_LOG.dateIso) {
+      var parsed = new Date(window.LATEST_LOG.dateIso);
+      if (!Number.isNaN(parsed.getTime())) {
+        datetime = parsed.toLocaleDateString('pt-BR', { timeZone:'America/Sao_Paulo' }) + ' às ' + parsed.toLocaleTimeString('pt-BR', { timeZone:'America/Sao_Paulo', hour:'2-digit', minute:'2-digit' });
+        title = window.LATEST_LOG.message;
+      }
+    }
+    dateEl.textContent = datetime;
+    titleEl.textContent = title;
   }
 
-  function abrirPainel() {
-    var panel = document.getElementById('scraperLabsOverlay');
-    if (!panel) return;
-    panel.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function fecharPainel() {
-    var panel = document.getElementById('scraperLabsOverlay');
-    if (!panel) return;
-    panel.classList.remove('is-open');
-    document.body.style.overflow = '';
-  }
-
-  function montar() {
-    if (document.getElementById('scrapersIndividuaisSection')) return;
-
-    var labsTitle = document.getElementById('labsTitle');
-    var oldSection = labsTitle && labsTitle.closest ? labsTitle.closest('.section') : null;
-    if (oldSection) oldSection.style.display = 'none';
-
-    var camaraTitle = document.getElementById('camaraTitle');
-    var camaraSection = camaraTitle && camaraTitle.closest ? camaraTitle.closest('.section') : null;
-    var section = document.createElement('section');
-    section.className = 'section';
-    section.id = 'scrapersIndividuaisSection';
-    section.innerHTML = '<div class="section-head"><h2 class="section-title">Scrapers individuais</h2><span class="section-count">8 lojas</span></div>' +
-      '<div class="tool-grid scrapers-entry-grid"><button type="button" class="tool-card scrapers-entry-card" style="--card-color:#38bdf8">' +
-      '<div class="tool-top"><div class="icon-box">' + svg() + '</div><span class="tool-kind">Laboratório</span></div>' +
-      '<div class="tool-body"><div class="tool-name">Abrir scrapers individuais</div><p class="tool-short">Dufrio, Clima Rio, Frigelar, Leveros, Central Ar, FrioPeças, Polo Ar e WebContinental.</p><span class="tool-action">Ver todos</span></div>' +
-      '</button></div>';
-
-    if (oldSection && oldSection.parentNode) oldSection.parentNode.insertBefore(section, oldSection);
-    else if (camaraSection && camaraSection.parentNode) camaraSection.parentNode.insertAdjacentElement('afterend', section);
-
-    var overlay = document.createElement('div');
-    overlay.id = 'scraperLabsOverlay';
-    overlay.className = 'overlay';
-    overlay.innerHTML = '<div class="panel-modal"><div class="modal-head"><div><div class="modal-title">Scrapers individuais</div><div class="modal-desc">Escolha uma loja para abrir o scraper individual.</div></div><button class="close-btn" type="button" data-close-scrapers>&times;</button></div><div class="hidden-grid scrapers-modal-grid">' + labs.map(card).join('') + '</div></div>';
-    document.body.appendChild(overlay);
-
-    var btn = section.querySelector('.scrapers-entry-card');
-    if (btn) btn.addEventListener('click', abrirPainel);
-    overlay.addEventListener('click', function (event) {
-      if (event.target === overlay || event.target.closest('[data-close-scrapers]')) fecharPainel();
+  function setupSearch() {
+    var input = document.getElementById('searchInput');
+    var results = document.getElementById('results');
+    if (!input || !results) return;
+    var all = tools.concat(scrapers.map(function (item, index) { return { code:'S' + String(index + 1).padStart(2, '0'), name:'Scraper ' + item[0], desc:'Scraper individual da loja.', cat:'Scraper', url:item[1], terms:item[0] }; })).map(function (item) { item.search = norm(item.code + ' ' + item.name + ' ' + item.desc + ' ' + item.cat + ' ' + item.terms); return item; });
+    var matches = [];
+    var active = -1;
+    function close() { results.classList.remove('open'); active = -1; }
+    function mark() { Array.prototype.forEach.call(results.querySelectorAll('.result'), function (el, i) { el.classList.toggle('active', i === active); }); }
+    function go(item) { if (item && item.url) window.location.href = item.url; }
+    function draw() {
+      var q = norm(input.value.trim());
+      results.innerHTML = '';
+      if (!q) return close();
+      matches = all.filter(function (item) { return item.search.indexOf(q) >= 0; }).slice(0, 8);
+      results.classList.add('open');
+      if (!matches.length) { results.innerHTML = '<div class="result"><strong>Nada encontrado</strong><span>Tente loja, ferramenta ou categoria.</span></div>'; return; }
+      matches.forEach(function (item, index) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'result';
+        btn.innerHTML = '<strong>' + item.name + '</strong><small>' + item.code + '</small><span>' + item.desc + '</span>';
+        btn.addEventListener('mouseenter', function () { active = index; mark(); });
+        btn.addEventListener('click', function () { go(item); });
+        results.appendChild(btn);
+      });
+    }
+    input.addEventListener('input', draw);
+    input.addEventListener('focus', draw);
+    input.addEventListener('keydown', function (e) {
+      if (!results.classList.contains('open')) return;
+      if (e.key === 'Escape') return close();
+      if (!matches.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); active = (active + 1) % matches.length; mark(); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); active = (active - 1 + matches.length) % matches.length; mark(); }
+      if (e.key === 'Enter') { e.preventDefault(); go(matches[Math.max(active, 0)]); }
     });
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') fecharPainel();
+    document.addEventListener('click', function (e) { if (!e.target.closest('.search')) close(); });
+  }
+
+  function setupPanels() {
+    var hiddenModal = document.getElementById('hiddenModal');
+    var quickModal = document.getElementById('quickModal');
+    if (!hiddenModal || !quickModal) return;
+    function openHidden() { hiddenModal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function openQuick() { document.getElementById('quickFrame').src = 'scraper-dufrio.html'; quickModal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeModal() { hiddenModal.classList.remove('open'); quickModal.classList.remove('open'); document.body.style.overflow = ''; }
+    document.getElementById('quickOpenA').addEventListener('click', openQuick);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (btn) { btn.addEventListener('click', closeModal); });
+    Array.prototype.forEach.call(document.querySelectorAll('.modal'), function (modal) { modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); }); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+    var clicks = [];
+    document.getElementById('thiagoMark').addEventListener('click', function () {
+      var now = Date.now();
+      clicks = clicks.filter(function (t) { return now - t < 1800; });
+      clicks.push(now);
+      if (clicks.length >= 3) { clicks = []; openHidden(); }
     });
   }
 
-  var style = document.createElement('style');
-  style.textContent = '.scrapers-entry-grid{grid-template-columns:minmax(0,536px);grid-auto-rows:260px}.scrapers-entry-card{width:100%;text-align:left}.scrapers-modal-grid .tool-card{min-height:190px}@media(max-width:680px){.scrapers-entry-grid{grid-template-columns:1fr;grid-auto-rows:auto}.scrapers-entry-card{min-height:220px}.scrapers-modal-grid .tool-card{min-height:190px}}';
-  document.head.appendChild(style);
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', montar);
-  else montar();
+  document.addEventListener('DOMContentLoaded', function () {
+    renderTools();
+    renderLastUpdate();
+    setupSearch();
+    setupPanels();
+  });
 })();
